@@ -1,0 +1,14 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_LOCKFILE_NOT_FOUND",
+    "err": {
+      "name": "pnpm",
+      "message": "No lockfile found",
+      "code": "ERR_PNPM_LOCKFILE_NOT_FOUND",
+      "stack": "pnpm: No lockfile found\n    at Object.handler [as import] (C:\\Users\\merlin\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:172919:15)\n    at async C:\\Users\\merlin\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:180173:21\n    at async run (C:\\Users\\merlin\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:180147:34)\n    at async runPnpm (C:\\Users\\merlin\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:180358:5)\n    at async C:\\Users\\merlin\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:180350:7"
+    }
+  }
+}

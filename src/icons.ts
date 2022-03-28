@@ -1,0 +1,54 @@
+export type OwoId =
+  | "alt"
+  | "approved-fill"
+  | "approved-ring"
+  | "cheeseburger"
+  | "command"
+  | "control"
+  | "ctb-ring"
+  | "ctb"
+  | "graveyard-fill"
+  | "graveyard-stroke"
+  | "loved-fill"
+  | "loved-stroke"
+  | "mania-ring"
+  | "mania"
+  | "pending-fill"
+  | "pending-stroke"
+  | "ranked-fill"
+  | "ranked-stroke"
+  | "shift"
+  | "star-fill"
+  | "star-stroke"
+  | "std-ring"
+  | "std"
+  | "taiko-ring"
+  | "taiko";
+
+export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
+  "alt": "61697",
+  "approved-fill": "61698",
+  "approved-ring": "61699",
+  "cheeseburger": "61700",
+  "command": "61701",
+  "control": "61702",
+  "ctb-ring": "61703",
+  "ctb": "61704",
+  "graveyard-fill": "61705",
+  "graveyard-stroke": "61706",
+  "loved-fill": "61707",
+  "loved-stroke": "61708",
+  "mania-ring": "61709",
+  "mania": "61710",
+  "pending-fill": "61711",
+  "pending-stroke": "61712",
+  "ranked-fill": "61713",
+  "ranked-stroke": "61714",
+  "shift": "61715",
+  "star-fill": "61716",
+  "star-stroke": "61717",
+  "std-ring": "61718",
+  "std": "61719",
+  "taiko-ring": "61720",
+  "taiko": "61721",
+};
