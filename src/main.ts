@@ -1,4 +1,4 @@
-import { hello } from "./client";
+import { parse } from "./client";
 import App from './App.svelte';
 
 const app = new App({
@@ -6,6 +6,6 @@ const app = new App({
 	props: {}
 });
 
-hello().then(console.log);
+parse().then(console.log);
 
 export default app;
