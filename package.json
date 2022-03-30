@@ -7,14 +7,18 @@
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "icons": "fantasticon"
+    "icons": "fantasticon",
+    "test": "jest --config ./jest.config.js ./src/testing/*.test.ts"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-typescript": "^8.3.1",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/jest": "^27.4.1",
     "fantasticon": "^1.2.3",
+    "jest": "^27.5.1",
     "rollup": "^2.70.1",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.5",
@@ -32,6 +36,7 @@
     "axios": "^0.26.1",
     "jszip": "^3.7.1",
     "pixi.js": "^6.3.0",
-    "sirv-cli": "^2.0.2"
+    "sirv-cli": "^2.0.2",
+    "ts-jest": "^27.1.4"
   }
 }
