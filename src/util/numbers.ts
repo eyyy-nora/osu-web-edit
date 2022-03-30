@@ -11,3 +11,12 @@ export function floorToMultiple(value: number, divisor: number, offset = 0) {
   if (divisor - rest < .0001) rest = -divisor + rest;
   return round(value - rest);
 }
+
+export const BIT0 = 1;
+export const BIT1 = 2;
+export const BIT2 = 4;
+export const BIT3 = 8;
+export const BIT4 = 16;
+export const BIT5 = 32;
+export const BIT6 = 64;
+export const BIT7 = 128;
