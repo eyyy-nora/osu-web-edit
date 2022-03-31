@@ -43,8 +43,30 @@ function timelinePosFor({ time, end = time }: BeatmapObjectBase): { time: number
   return { time, end };
 }
 
+function objectEnd(object: BeatmapObject): number {
+  return object.length !== undefined ? object.time + object.length : object.time;
+}
+
+function objectInRange(object: BeatmapObject, start: number, end: number): boolean {
+  return objectEnd(object) >= start && object.time <= end;
+}
+
+function filterInRange(objects: BeatmapObject[], start: number, end: number, sections = 10): BeatmapObject[] {
+  const length = objects.length;
+  if (length <= sections) return objects.filter(object => objectInRange(object, start, end));
+  const step = (length / sections) | 0;
+  let current = 0, firstObjectIndex = 0, i = 0, j = 0, m = 0;
+
+  while (length > (m = current * step) && objectEnd(objects[m]) < start) current++;
+  if (m >= length) m = length - 1;
+  while (m - i >= 0 && objectEnd(objects[m - i]) >= start) firstObjectIndex = m - i++;
+  while (firstObjectIndex + j < length && objects[firstObjectIndex + j].time <= end) j++;
+
+  return objects.slice(firstObjectIndex, firstObjectIndex + j);
+}
+
 let visibleObjects: BeatmapObject[];
-$: visibleObjects = objects.filter(object => (object.end ?? object.time) >= rangeStart && object.time <= rangeEnd);
+$: visibleObjects = filterInRange(objects, rangeStart, rangeEnd);
 
 export function zoomBy(levels: number) {
   zoom = clamp(zoom + levels, 1, timescaleLevels.length - 1);
@@ -60,8 +82,8 @@ export function scaleBy(steps: number) {
 
 function onScroll(e: WheelEvent) {
   const delta = (e.deltaY || e.deltaX)
-  if (e.ctrlKey || e.metaKey) zoomBy(delta < 0 ? 1 : -1);
-  else if (e.shiftKey) scaleBy(delta > 0 ? 1 : -1);
+  if (e.ctrlKey || e.metaKey) scaleBy(delta > 0 ? 1 : -1);
+  else if (e.shiftKey) zoomBy(delta < 0 ? 1 : -1);
   else scrollBy(delta > 0 ? 1 : -1);
 }
 </script>
@@ -157,7 +179,7 @@ article {
   background-position-y: bottom;
   background-size: var(--beatWidth) 100%;
   background-repeat: repeat no-repeat;
-  transition: background-position .15s ease-out, opacity .15s ease-out;
+  transition: background-position .12s ease-out, opacity .15s ease-out;
   --color1Tick: rgba(255, 255, 255, 1);
   --color2Tick: rgba(239, 78, 78, 1);
   --color3Tick: rgba(239, 78, 78, 1);
