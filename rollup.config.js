@@ -56,10 +56,10 @@ export default {
 		// some cases you'll need additional configuration -
 		// consult the documentation for details:
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		nodePolyfills({ include: ["url" ] }),
+		// nodePolyfills({ include: ["url" ] }),
 		resolve({
 			browser: true,
-			preferBuiltins: true,
+			preferBuiltins: false,
 			dedupe: ['svelte']
 		}),
 		commonjs(),

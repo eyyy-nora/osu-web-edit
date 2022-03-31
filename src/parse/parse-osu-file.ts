@@ -1,5 +1,6 @@
 // noinspection JSBitwiseOperatorUsage
 
+import jszip from "jszip";
 import {
   BIT0,
   BIT1,
@@ -11,20 +12,39 @@ import {
   BIT7
 } from "../util/numbers";
 import type {
-  ParsedBeatmap, ParsedEvent,
+  ParsedBeatmap,
+  ParsedEvent,
   ParsedHitCircle,
   ParsedHitObject,
   ParsedHitSamples,
   ParsedHold,
+  ParsedMapSet,
   ParsedPoint,
   ParsedSlider,
   ParsedSpinner,
   ParsedTimingPoint
 } from "./types";
 
+
+
+export async function parseMapSet(file: Blob | Uint8Array): Promise<ParsedMapSet> {
+  const zip = await jszip.loadAsync(file);
+
+  const mapset: ParsedMapSet = { difficulties: [], files: {} };
+
+  for (const [fileName, entry] of Object.entries(zip.files)) {
+    if (/\.osu$/.test(fileName)) {
+      const content = await entry.async("string");
+      mapset.difficulties.push(parseOsuFile(content));
+    } else mapset.files[fileName] = await entry.async("blob");
+  }
+
+  return mapset;
+}
+
+
+
 const arraySections = ["HitObjects", "TimingPoints", "Events"];
-
-
 export function parseOsuFile(data: string): ParsedBeatmap {
   const value = {};
   const lines = data.split(/[\r\n]+/);

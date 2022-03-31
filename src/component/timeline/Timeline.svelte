@@ -17,6 +17,7 @@ export let objects: BeatmapObject[] = [];
 export let time = 0;
 export let zoom = 4;
 export let scale = 4;
+export let meter = 4;
 export let timescaleLevels = [.5, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32];
 export let timescaleOffset = 0;
 
@@ -31,19 +32,19 @@ $: rangeEnd = rangeStart + range;
 
 let beatWidth: number, beatOffset: number;
 $: beatWidth = clientWidth / rangeScale;
-$: beatOffset = time / beatLength;
+$: beatOffset = (time - timescaleOffset) / beatLength;
 
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / timescale;
 
-function timelinePosFor({ start, end = start }: BeatmapObjectBase): { start: number; end: number; } {
-  start = (start - rangeStart) / range;
+function timelinePosFor({ time, end = time }: BeatmapObjectBase): { time: number; end: number; } {
+  time = (time - rangeStart) / range;
   end = (end - rangeStart) / range;
-  return { start, end };
+  return { time, end };
 }
 
 let visibleObjects: BeatmapObject[];
-$: visibleObjects = objects.filter(object => (object.end ?? object.start) >= rangeStart && object.start <= rangeEnd);
+$: visibleObjects = objects.filter(object => (object.end ?? object.time) >= rangeStart && object.time <= rangeEnd);
 
 export function zoomBy(levels: number) {
   zoom = clamp(zoom + levels, 1, timescaleLevels.length - 1);

@@ -1,12 +1,13 @@
 
 export interface BeatmapObjectBase {
   type: string;
-  start: number;
+  time: number;
   end?: number;
 }
 
 export interface WithPosition {
-  position: { x: number; y: number };
+  x: number;
+  y: number;
 }
 
 export interface WithRotation {

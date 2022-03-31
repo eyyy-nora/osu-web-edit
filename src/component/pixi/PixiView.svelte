@@ -1,9 +1,12 @@
 <script lang="ts">
 import type { IApplicationOptions } from "pixi.js";
 import { Application } from "pixi.js";
+import { createEventDispatcher } from "svelte";
 
 export let settings: IApplicationOptions = {};
 export let app: Application;
+
+const dispatch = createEventDispatcher<{ tick: number }>()
 
 $: app = new Application(settings);
 

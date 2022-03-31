@@ -6,6 +6,4 @@ const app = new App({
 	props: {}
 });
 
-parse().then(console.log);
-
 export default app;

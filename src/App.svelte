@@ -1,4 +1,7 @@
 <script lang="ts">
+import { onMount, tick } from "svelte";
+import { parse } from "./client";
+import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
 import Girder from "./component/girder/Girder.svelte";
 import ContentBox from "./component/layout/ContentBox.svelte";
@@ -13,42 +16,54 @@ import DoubleGirder from "./component/girder/DoubleGirder.svelte";
 
 const girderLeftWidth = storedValue(local, GIRDER_LEFT_WIDTH, .25);
 const girderRightWidth = storedValue(local, GIRDER_RIGHT_WIDTH, .25);
-const timelineObjects: BeatmapObject[] = [
-  {
-    type: "circle",
-    start: 0,
-    position: { x: 0, y: 0 },
-  }, {
-    type: "circle",
-    start: 10,
-    position: { x: 0, y: 0 },
-  }, {
-    type: "circle",
-    start: 20,
-    position: { x: 0, y: 0 },
-  }, {
-    type: "circle",
-    start: 30,
-    position: { x: 0, y: 0 },
-  }, {
-    type: "slider",
-    start: 50,
-    position: { x: 0, y: 0 },
-    velocity: 1,
-    beats: 5
-  }
-];
-timelineObjects.forEach((object, index) => Object.assign(object, { index }));
+
+let mapset: ParsedMapSet;
+let selectedDifficulty: ParsedBeatmap;
+let time: number = 0;
+
+onMount(async () => {
+  mapset = await parse();
+  selectedDifficulty = mapset.difficulties[0];
+  time = selectedDifficulty.TimingPoints[0].time;
+});
+
+function matchingPoint(timingPoints: ParsedTimingPoint[], time: number) {
+  const firstBiggerIndex = timingPoints.findIndex(point => point.time > time);
+  if (firstBiggerIndex === -1) return timingPoints[timingPoints.length - 1];
+  if (firstBiggerIndex === 0) return timingPoints[0];
+  return timingPoints[firstBiggerIndex - 1];
+}
+
+
+let timelineObjects: BeatmapObject[];
+$: timelineObjects = selectedDifficulty?.HitObjects.map((object, index) => {
+  return {...object, index } as any;
+}) ?? [];
+
+let timingPoints: ParsedTimingPoint[], currentTimingPoint: ParsedTimingPoint;
+$: timingPoints = selectedDifficulty?.TimingPoints.filter(point => !point.inherited);
+$: currentTimingPoint = matchingPoint(timingPoints ?? [], time);
+
+let beatLength: number, offset: number, meter: number;
+$: beatLength = currentTimingPoint?.beatLength ?? 200;
+$: offset = currentTimingPoint?.time ?? 0;
+$: meter = currentTimingPoint?.meter ?? 4;
+
+$: console.log(time);
 </script>
 
 <main>
   <ScreenBox>
     <VBox>
       <OsuEditorFileMenu />
-      <Timeline beatLength={10} objects={timelineObjects} zoom={4} />
+      <Timeline bind:time bind:beatLength bind:timescaleOffset={offset} bind:meter objects={timelineObjects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <span slot="start">Start</span>
-        <span slot="end">End</span>
+        <ContentBox slot="end">
+          {#each mapset?.difficulties ?? [] as difficulty (difficulty.Metadata.BeatmapID ?? difficulty.Metadata.Version)}
+            <button type="button" on:click={() => selectedDifficulty = difficulty}>[{difficulty.Metadata.Version}]</button>
+          {/each}
+        </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
             <OsuEditorMapView />

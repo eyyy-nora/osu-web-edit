@@ -158,3 +158,8 @@ export interface ParsedTimingPoint {
   kiai: boolean;
   omitFirstBarLine: boolean;
 }
+
+export interface ParsedMapSet {
+  difficulties: ParsedBeatmap[];
+  files: Record<string, Blob>;
+}

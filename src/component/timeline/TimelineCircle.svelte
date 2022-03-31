@@ -1,5 +1,5 @@
 <script lang="ts">
-export let start: number = 0;
+export let time: number = 0;
 export let end: number = 0;
 export let index: number = 1;
 </script>
@@ -29,6 +29,6 @@ span {
 }
 </style>
 
-<div style="--pos: {start}">
+<div style="--pos: {time}">
   <span>{index}</span>
 </div>
