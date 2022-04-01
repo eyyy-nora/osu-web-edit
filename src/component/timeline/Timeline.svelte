@@ -37,10 +37,10 @@ $: beatOffset = (time - timescaleOffset) / beatLength;
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / timescale;
 
-function timelinePosFor({ time, end = time }: BeatmapObjectBase): { time: number; end: number; } {
+function timelinePosFor({ time, end = time, combo = 1, color = [0, 0, 0] }: BeatmapObjectBase) {
   time = (time - rangeStart) / range;
   end = (end - rangeStart) / range;
-  return { time, end };
+  return { time, end, combo, color };
 }
 
 function objectEnd(object: BeatmapObject): number {
@@ -175,7 +175,7 @@ article {
   right: 0;
   width: 100%;
   height: 100%;
-  background-position-x: calc(50% + var(--beatWidth) * var(--beatOffset));
+  background-position-x: calc(50% + var(--beatWidth) * var(--beatOffset) - 1px);
   background-position-y: bottom;
   background-size: var(--beatWidth) 100%;
   background-repeat: repeat no-repeat;

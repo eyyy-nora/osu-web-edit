@@ -1,7 +1,7 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
-import { parse } from "./client";
-import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint } from "./parse/types";
+import { downloadMapSet } from "./parse/parse-osu-file";
+import { onMount } from "svelte";
+import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
 import Girder from "./component/girder/Girder.svelte";
 import ContentBox from "./component/layout/ContentBox.svelte";
@@ -22,7 +22,7 @@ let selectedDifficulty: ParsedBeatmap;
 let time: number = 0;
 
 onMount(async () => {
-  mapset = await parse();
+  mapset = await downloadMapSet("/DotEXE - Battlecry.osz");
   selectedDifficulty = mapset.difficulties[0];
   time = selectedDifficulty.TimingPoints[0].time;
 });
@@ -34,11 +34,39 @@ function matchingPoint(timingPoints: ParsedTimingPoint[], time: number) {
   return timingPoints[firstBiggerIndex - 1];
 }
 
+const defaultColors: ParsedOsuColors = {
+  BackgroundColor: [0, 0, 0],
+  Combo1: [64, 0, 0],
+  Combo2: [0, 64, 0],
+  Combo3: [0, 0, 128],
+}
+
+function hitObjectsWithCombos(objects: ParsedHitObject[] = [], colors: ParsedOsuColors = defaultColors): BeatmapObject[] {
+
+  const comboColors = Object.entries(colors).map(([name, color]) => {
+    if (!/Combo[0-9]+/g.test(name)) return;
+    return color;
+  }).filter(it => it);
+
+  let comboIndex = -1;
+  const nextColor = () => {
+    if (++comboIndex >= comboColors.length) comboIndex = 0;
+    return comboColors[comboIndex];
+  }
+
+  let combo = 1, color = comboColors[0];
+  return objects.map((object, index) => {
+    if (object.type === "spinner" || object.newCombo) {
+      combo = 1;
+      color = nextColor();
+    }
+    return { ...object, index, combo: combo++, color } as BeatmapObject;
+  })
+}
+
 
 let timelineObjects: BeatmapObject[];
-$: timelineObjects = selectedDifficulty?.HitObjects.map((object, index) => {
-  return {...object, index } as any;
-}) ?? [];
+$: timelineObjects = hitObjectsWithCombos(selectedDifficulty?.HitObjects, selectedDifficulty?.Colours);
 
 let timingPoints: ParsedTimingPoint[], currentTimingPoint: ParsedTimingPoint;
 $: timingPoints = selectedDifficulty?.TimingPoints.filter(point => !point.inherited);
@@ -48,8 +76,6 @@ let beatLength: number, offset: number, meter: number;
 $: beatLength = currentTimingPoint?.beatLength ?? 200;
 $: offset = currentTimingPoint?.time ?? 0;
 $: meter = currentTimingPoint?.meter ?? 4;
-
-$: console.log(time);
 </script>
 
 <main>
@@ -84,6 +110,7 @@ main {
 }
 
 :global(body) {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 

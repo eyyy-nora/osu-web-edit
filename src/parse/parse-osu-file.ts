@@ -1,5 +1,6 @@
 // noinspection JSBitwiseOperatorUsage
 
+import axios from "axios";
 import jszip from "jszip";
 import {
   BIT0,
@@ -25,6 +26,11 @@ import type {
   ParsedTimingPoint
 } from "./types";
 
+
+export async function downloadMapSet(url: string): Promise<ParsedMapSet> {
+  const { data } = await axios.get(url, { responseType: "blob" });
+  return parseMapSet(data);
+}
 
 
 export async function parseMapSet(file: Blob | Uint8Array): Promise<ParsedMapSet> {
@@ -62,6 +68,11 @@ export function parseOsuFile(data: string): ParsedBeatmap {
         case "TimingPoints": value[section]!.push(parseTimingPoint(line)); break;
         case "Events": value[section]!.push(parseEvent(line)); break;
       }
+    } else if (section && section === "Colors") {
+      value[section] ??= {};
+      const [key, val] = line.split(":", 2).map((str) => str.trim());
+      const [r, g, b] = val.split(",").map(Number);
+      value[section][key] = [r, g, b];
     } else if (line.includes(":") && !arraySections.includes(section)) {
       const [key, val] = line.split(":", 2).map((str) => str.trim());
       let parsedValue = val;

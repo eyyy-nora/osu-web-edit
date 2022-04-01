@@ -88,6 +88,7 @@ section.vertical.reverse {
 main, aside {
   position: relative;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 main, aside {

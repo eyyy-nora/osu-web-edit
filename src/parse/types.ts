@@ -45,9 +45,14 @@ export interface ParsedBeatmap {
 
   Events: ParsedEvent[];
   TimingPoints: ParsedTimingPoint[];
-  Colours: [number, number, number][];
+  Colours: ParsedOsuColors;
   HitObjects: ParsedHitObject[];
 
+}
+
+export interface ParsedOsuColors {
+  [index: `Combo${number}`]: [number, number, number];
+  BackgroundColor: [number, number, number];
 }
 
 export interface ParsedHitSamples {

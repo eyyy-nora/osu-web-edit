@@ -2,6 +2,7 @@
 export interface BeatmapObjectBase {
   type: string;
   time: number;
+  combo: number;
   end?: number;
 }
 

@@ -1,7 +1,8 @@
 <script lang="ts">
 export let time: number = 0;
 export let end: number = 0;
-export let index: number = 1;
+export let combo: number = 1;
+export let color: [number, number, number] = [42, 57, 84];
 </script>
 
 <style>
@@ -12,7 +13,7 @@ div {
   height: 2.6rem;
   margin: .3rem -1.3rem;
   border: 2px solid #8d8d8d;
-  background: #2a3954;
+  background: var(--color);
   border-radius: 1000000rem;
   transform: translateX(calc(var(--pos) * var(--timelineSize)));
   transition: transform .15s ease-out;
@@ -29,6 +30,6 @@ span {
 }
 </style>
 
-<div style="--pos: {time}">
-  <span>{index}</span>
+<div style="--pos: {time}; --color: rgb({color.join(',')})">
+  <span>{combo}</span>
 </div>

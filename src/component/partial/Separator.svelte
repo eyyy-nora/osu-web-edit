@@ -91,6 +91,8 @@ onDestroy(unregisterDragListeners);
 
 <style>
 div {
+  z-index: 1;
+  box-sizing: border-box;
   border: 1px solid var(--colorFgDark);
   user-select: none;
   background-color: var(--colorBgLighter);
