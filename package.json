@@ -8,7 +8,8 @@
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "icons": "fantasticon",
-    "test": "jest --config ./jest.config.js ./src/testing/*.test.ts"
+    "test": "jest --config ./jest.config.js ./src/testing/*.test.ts",
+    "test-run": "pnpm test && pnpm dev"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",

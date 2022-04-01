@@ -2,7 +2,7 @@ import { parseOsuFile } from "../parse/parse-osu-file";
 import fs from "fs";
 
 test('.osu File Parsing', () => {
-  const dotOsuData = fs.readFileSync(__dirname + "/testfile.osu");
+  const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
   const parsedDotOsu = parseOsuFile(dotOsuData.toString())
   
   expect(parsedDotOsu.General).toMatchSnapshot();
