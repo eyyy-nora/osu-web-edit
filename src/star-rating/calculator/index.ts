@@ -8,15 +8,14 @@ const starRatingCalculator = new StarRatingCalculator();
 let Beatmap = null;
 
 export function calculateStarRating(dotOsuFile: string, mods?: string[], allCombinations?: boolean, returnAllDifficultyValues: boolean = false): object {
-    const map = dotOsuFile;
-    if (map === null)
-        throw new Error("No map found for specified map id");
+    if (dotOsuFile === null)
+        throw new Error("Difficulty Calculation Failed: Provided file is empty");
 
     mods = parseMods(mods);
     let output = { };
     if (!allCombinations) {
         const label = mods.length > 0 ? mods.join('') : "nomod";
-        const response = calculateNextModCombination(map, mods, true);
+        const response = calculateNextModCombination(dotOsuFile, mods, true);
         output[label] = returnAllDifficultyValues ? response : response.total;
         return output;
     }
@@ -24,16 +23,16 @@ export function calculateStarRating(dotOsuFile: string, mods?: string[], allComb
         const allModCombinations = getAllModCombinations();
         allModCombinations.forEach(combi => {
             const label = combi.mods.length > 0 ? combi.mods.join('') : "nomod";
-            const response = calculateNextModCombination(map, combi.mods, combi.reParse);
+            const response = calculateNextModCombination(dotOsuFile, combi.mods, combi.reParse);
             output[label] = returnAllDifficultyValues ? response : response.total;
         });
         return output;
     }
 }
 
-function calculateNextModCombination(map: string, mods: string[], reParse: boolean): SRCalculatorResponse {
+function calculateNextModCombination(dotOsuFile: string, mods: string[], reParse: boolean): SRCalculatorResponse {
     if (reParse)
-        Beatmap = beatmapParser.parseBeatmap(map, mods);
+        Beatmap = beatmapParser.parseBeatmap(dotOsuFile, mods);
 
     const timeRate = getTimeRate(mods);
     const difficultyHitObjects = difficultyHitObjectCreator.convertToDifficultyHitObjects(Beatmap.HitObjects, timeRate);
