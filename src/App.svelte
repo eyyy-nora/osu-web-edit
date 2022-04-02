@@ -1,4 +1,5 @@
 <script lang="ts">
+import OsuEditorRankedArea from "./owo/OsuEditorRankedArea.svelte";
 import { downloadMapSet } from "./parse/parse-osu-file";
 import { onMount } from "svelte";
 import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
@@ -9,7 +10,7 @@ import ScreenBox from "./component/layout/ScreenBox.svelte";
 import VBox from "./component/layout/VBox.svelte";
 import Timeline from "./component/timeline/Timeline.svelte";
 import OsuEditorFileMenu from "./owo/OsuEditorFileMenu.svelte";
-import OsuEditorMapView from "./owo/OsuEditorMapView.svelte";
+import OsuEditorStdMapView from "./owo/OsuEditorStdMapView.svelte";
 import { GIRDER_LEFT_WIDTH, GIRDER_RIGHT_WIDTH, local } from "./user-preferences";
 import { storedValue } from "./util/stored-value";
 import DoubleGirder from "./component/girder/DoubleGirder.svelte";
@@ -92,7 +93,9 @@ $: meter = currentTimingPoint?.meter ?? 4;
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
-            <OsuEditorMapView />
+            <OsuEditorStdMapView>
+              <OsuEditorRankedArea />
+            </OsuEditorStdMapView>
           </ContentBox>
           <span slot="side">Properties</span>
         </Girder>

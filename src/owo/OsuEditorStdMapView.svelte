@@ -1,9 +1,9 @@
 <script lang="ts">
 import type { IApplicationOptions } from "pixi.js";
 import { Application, Container } from "pixi.js";
+import { osuVisibleArea, osuRankableArea } from "../constants";
 import { ParsedHitObject } from "../parse/types";
-import { providePixi, StageTransform } from "../context/pixi-context";
-import OsuEditorRankedArea from "./OsuEditorRankedArea.svelte";
+import { providePixi } from "../context/pixi-context";
 
 
 export let time: number = 0;
@@ -11,26 +11,17 @@ export let objects: ParsedHitObject[] = [];
 
 export let settings: IApplicationOptions = {
   antialias: true,
-  width: 640,
-  height: 480,};
-export let transform: StageTransform = {
-  scaleX: 2,
-  scaleY: 2,
+  backgroundAlpha: 0,
+  ...osuVisibleArea,
 };
 export let app: Application;
 export let stage: Container = new Container();
 
 $: app = new Application(settings);
-$: app.stage.setTransform(
-  transform.x, transform.y,
-  transform.scaleX, transform.scaleY,
-  transform.rotation,
-  transform.skewX, transform.skewY,
-  transform.pivotX, transform.pivotY,
-);
 
 function initApp(settings: IApplicationOptions) {
   app = new Application(settings);
+  app.stage.addChild(stage);
 }
 
 let container: HTMLDivElement | undefined = undefined;
@@ -44,16 +35,26 @@ $: if (container) {
 
 let clientHeight = 0, clientWidth = 0, zoom = 1;
 $: if (clientHeight !== 0 && clientWidth !== 0) {
+  const zoom = Math.min(clientHeight / osuVisibleArea.height, clientWidth / osuVisibleArea.width);
+  // center
+  const offsetX = clientWidth / 2 - (osuRankableArea.width) / 2 * zoom;
+  // top with minimum distance
+  const offsetY = (osuVisibleArea.height - osuRankableArea.height) / 2 * zoom;
+
+  app.stage.setTransform(
+    offsetX,
+    offsetY,
+    zoom,
+    zoom,
+  )
   app.resizeTo = container;
   app.resize();
-
 }
 
 providePixi(() => app, () => app.stage);
 </script>
 
 <div bind:this={container} bind:clientHeight bind:clientWidth>
-  <OsuEditorRankedArea />
   <slot/>
 </div>
 

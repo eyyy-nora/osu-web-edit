@@ -9,6 +9,8 @@ const g = new Graphics();
 
 const { width, height } = osuRankableArea;
 
+g.fill
+
 g.lineStyle({ alpha, color: 0xffffff, width: 3, alignment: 1 });
 g.drawRect(0, 0, width, height);
 
