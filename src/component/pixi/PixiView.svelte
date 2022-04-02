@@ -1,14 +1,27 @@
 <script lang="ts">
 import type { IApplicationOptions } from "pixi.js";
-import { Application } from "pixi.js";
-import { createEventDispatcher } from "svelte";
+import { Application, Container } from "pixi.js";
+import { providePixi, StageTransform } from "../../context/pixi-context";
+
+
 
 export let settings: IApplicationOptions = {};
+export let transform: StageTransform = {};
 export let app: Application;
-
-const dispatch = createEventDispatcher<{ tick: number }>()
+export let stage: Container = new Container();
 
 $: app = new Application(settings);
+$: app.stage.setTransform(
+  transform.x, transform.y,
+  transform.scaleX, transform.scaleY,
+  transform.rotation,
+  transform.skewX, transform.skewY,
+  transform.pivotX, transform.pivotY,
+);
+
+function initApp(settings: IApplicationOptions) {
+  app = new Application(settings);
+}
 
 let container: HTMLDivElement | undefined = undefined;
 $: if (container) {
@@ -19,16 +32,18 @@ $: if (container) {
   }
 }
 
-
 let clientHeight = 0, clientWidth = 0;
 $: if (clientHeight !== 0 && clientWidth !== 0) {
   app.resizeTo = container;
   app.resize();
 }
 
+providePixi(() => app, () => app.stage);
 </script>
 
-<div bind:this={container} bind:clientHeight bind:clientWidth />
+<div bind:this={container} bind:clientHeight bind:clientWidth>
+  <slot/>
+</div>
 
 <style>
 div {
