@@ -1,7 +1,7 @@
-import { parseOsuFile } from "../parse/parse-osu-file";
+import { parseOsuFile } from "../src/parse/parse-osu-file";
 import fs from "fs";
-import { computeStarRating } from "../star-rating/methods";
-import { flushCache, getCachedSR } from "../star-rating/cache";
+import { computeStarRating } from "../src/star-rating/methods";
+import { flushCache, getCachedSR } from "../src/star-rating/cache";
 
 const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
 const dotOsuDataAlt = fs.readFileSync(__dirname + "/assets/testfile-alt.osu");

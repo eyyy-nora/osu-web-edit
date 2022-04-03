@@ -5,8 +5,10 @@
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "preserve",
     "isolatedModules": false,
-    "preserveValueImports": false
+    "preserveValueImports": false,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["jest"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
 }

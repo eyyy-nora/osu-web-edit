@@ -8,7 +8,7 @@
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "icons": "fantasticon",
-    "test": "jest --config ./jest.config.js ./src/testing/*.test.ts",
+    "test": "jest",
     "test-run": "pnpm test && pnpm dev",
     "storybook:start": "start-storybook",
     "storybook:build": "build-storybook"
