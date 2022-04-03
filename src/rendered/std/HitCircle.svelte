@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Graphics, Text } from "pixi.js";
+import { colorToNumber, darken } from "../../util/color";
 import { onDestroy } from "svelte";
 import { registerPixi } from "../../context/pixi-context";
 
@@ -12,16 +13,25 @@ export let cs: number = 4.2;
 export let alpha: number = 1;
 
 let unregister: undefined | (() => void);
-function draw(x: number, y: number, r: number, color: number, alpha: number, combo: number) {
+function draw(x: number, y: number, r: number, color: number, alpha: number, combo: number, hit: boolean) {
   if (unregister) unregister();
 
   const g = new Graphics();
   g.beginFill(color, alpha);
-  g.lineStyle({ alpha, color: 0xffffff, width: r / 14, alignment: 0 });
+  g.lineStyle({
+    alpha,
+    color: hit ? 0xaaaaaa : 0xffffff,
+    width: r / 14,
+    alignment: 0,
+  });
   g.drawCircle(x, y, r);
   g.endFill();
 
-  const t = new Text(`${combo}`, { fontSize: r * 2, fill: "#ffffff", fontWeight: "500" });
+  const t = new Text(`${combo}`, {
+    fontSize: r * 2,
+    fill: hit ? "#aaaaaa" : "#ffffff",
+    fontWeight: "500",
+  });
   t.anchor.set(.5);
   t.position.set(x, y);
   t.alpha = alpha;
@@ -33,9 +43,10 @@ function draw(x: number, y: number, r: number, color: number, alpha: number, com
 $: draw(
   x, y,
   54.4 - 4.48 * cs,
-  color[0] << 16 | color[1] << 8 | color[2],
+  colorToNumber(hit ? darken(color, .2) : color),
   alpha,
   combo,
+  hit,
 );
 
 onDestroy(() => unregister?.());
