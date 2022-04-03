@@ -1,5 +1,5 @@
 import type { DisplayObject, Application, Container } from "pixi.js";
-import { getContext, onDestroy, setContext } from "svelte";
+import { getContext, setContext } from "svelte";
 
 
 
@@ -12,7 +12,7 @@ export interface PixiContext {
 
   stage(): Container;
 
-  register(...objects: DisplayObject[]): void;
+  register(...objects: DisplayObject[]): () => void;
 }
 
 
@@ -23,13 +23,13 @@ export function providePixi(app: () => Application, stage: () => Container) {
     stage,
     register(...objects) {
       stage().addChild(...objects);
-      onDestroy(() => stage().removeChild(...objects));
+      return () => stage().removeChild(...objects);
     }
   });
 }
 
-export function registerPixi(...objects: DisplayObject[]): void {
-  getContext<PixiContext>(PIXI_CONTEXT).register(...objects);
+export function registerPixi(...objects: DisplayObject[]): () => void {
+  return getContext<PixiContext>(PIXI_CONTEXT).register(...objects);
 }
 
 
