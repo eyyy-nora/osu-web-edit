@@ -1,7 +1,7 @@
 import { parseOsuFile } from "../src/parse/parse-osu-file";
 import fs from "fs";
 
-test('.osu File Parsing', () => {
+test('File parsing: .osu parsing', () => {
   const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
   const parsedDotOsu = parseOsuFile(dotOsuData.toString())
 

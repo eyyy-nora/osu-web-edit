@@ -18,7 +18,7 @@ test('StarRating Calculation', () => {
   flushCache();
 });
 
-test('StarRating Cache: Cache being written', () => {
+test('StarRating Cache: Cache should be written properly', () => {
   let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
 
   let cachedBeatmaps = getCachedSR();
@@ -32,7 +32,7 @@ test('StarRating Cache: Cache being written', () => {
   flushCache();
 });
 
-test('StarRating Cache: Cache not being written when the same beatmap is computed twice', () => {
+test('StarRating Cache: Cache should not be written when the same beatmap is computed twice', () => {
   computeStarRating(dotOsuData.toString(), parsedDotOsu);
   let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
 
@@ -44,7 +44,7 @@ test('StarRating Cache: Cache not being written when the same beatmap is compute
   flushCache();
 });
 
-test('StarRating Cache: Beatmap not being found in a cache already filled', () => {
+test('StarRating Cache: If beatmap is not found in a cache already filled with other maps', () => {
   computeStarRating(dotOsuDataAlt.toString(), parsedDotOsuAlt);
   let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
 

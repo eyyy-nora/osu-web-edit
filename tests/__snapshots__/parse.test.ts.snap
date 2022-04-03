@@ -1,6 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`.osu File Parsing 1`] = `
+
+exports[`File parsing: .osu parsing 1`] = `
 Object {
   "AudioFilename": "audio.mp3",
   "AudioLeadIn": 0,
@@ -14,7 +15,8 @@ Object {
 }
 `;
 
-exports[`.osu File Parsing 2`] = `
+
+exports[`File parsing: .osu parsing 2`] = `
 Object {
   "BeatDivisor": 4,
   "Bookmarks": "4789,5727,8071,8422,8539,19790,27290,31508,32446,34790,47915,49204,62915,64790,79790,94672,109790,110258,111196,112133,113071,114008,114946,115883,116821,117758,118696,119633,120571,121508,121743,122211,122446,123383,123618,124086,124321,124790,132290,136040,139790",
@@ -24,7 +26,8 @@ Object {
 }
 `;
 
-exports[`.osu File Parsing 3`] = `
+
+exports[`File parsing: .osu parsing 3`] = `
 Object {
   "Artist": "DotEXE",
   "ArtistUnicode": "DotEXE",
@@ -39,7 +42,8 @@ Object {
 }
 `;
 
-exports[`.osu File Parsing 4`] = `
+
+exports[`File parsing: .osu parsing 4`] = `
 Array [
   Object {
     "filename": "\\"Dubstep.jpg\\"",
@@ -81,7 +85,8 @@ Array [
 ]
 `;
 
-exports[`.osu File Parsing 5`] = `
+
+exports[`File parsing: .osu parsing 5`] = `
 Array [
   Object {
     "beatLength": 234.375,
@@ -823,7 +828,11 @@ Array [
 ]
 `;
 
+<<<<<<< HEAD
 exports[`.osu File Parsing 6`] = `
+=======
+exports[`File parsing: .osu parsing 6`] = `
+>>>>>>> feat: Osu file serialization from ParsedBeatmap #2
 Array [
   Object {
     "edgeSets": Array [],
