@@ -35,6 +35,11 @@ function draw(
   g.drawCircle(x, y, r);
   g.endFill();
 
+  if (approach) {
+    g.lineStyle({ alpha, color: 0x888888, width: r / 20, alignment: 1 });
+    g.drawCircle(x, y, r + r * 2 * (1 - approach));
+  }
+
   t = new Text(`${combo}`, {
     fontSize: r * 2,
     fill: hit ? "#aaaaaa" : "#ffffff",

@@ -62,3 +62,4 @@ export abstract class Skill {
             this.Previous.pop();
     };
 };
+
