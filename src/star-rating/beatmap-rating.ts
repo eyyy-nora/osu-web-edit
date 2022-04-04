@@ -3,8 +3,6 @@ import { createAimAccumulator } from "./aim";
 import { BeatmapMod, SkillAccumulatorMap, SkillResultMap, Skills } from "./types";
 
 
-
-
 export function calculateBeatmapRating<Accumulators extends SkillAccumulatorMap>(
   beatmap: ParsedBeatmap,
   accumulators: Accumulators,

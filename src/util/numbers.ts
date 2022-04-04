@@ -65,7 +65,7 @@ export function intersect_slope(p1: number[], n1: number[], p2: number[], n2: nu
 }
 
 export function rot90(xy: number[]): number[] {
-  return [ -xy[1], xy[0] ];
+  return [-xy[1], xy[0]];
 }
 
 export const BIT0 = 1;

@@ -12,7 +12,8 @@
     "test-run": "pnpm test && pnpm dev",
     "dotenv-run": "dotenv pnpm dev",
     "storybook:start": "start-storybook",
-    "storybook:build": "build-storybook"
+    "storybook:build": "build-storybook",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@babel/core": "7",
