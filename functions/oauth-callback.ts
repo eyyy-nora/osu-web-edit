@@ -1,5 +1,5 @@
 import { Handler } from "@netlify/functions";
-import { exchangeForOAuth } from "../oauth/main";
+import { exchangeForOAuth, OAuthCookieTemplate } from "../oauth/main";
 
 export const handler: Handler = async (event, context) => {
   let code = (event.queryStringParameters === null) ? "" : event.queryStringParameters.code;
@@ -11,17 +11,17 @@ export const handler: Handler = async (event, context) => {
 
   let response = await exchangeForOAuth(code);
 
-  if (response.data != undefined) {
+  if (response.AccessToken != undefined && response.ExpireIn != undefined) {
     return {
       statusCode: 302,
       headers: {
-        "Location": `/${response.data.access_token}`
+        "Location": `/connect-to-osu?access_token=${response.AccessToken}&expires_in=${response.ExpireIn}`
       }
     }
   } else {
     return {
       statusCode: 500,
-      body: JSON.stringify(`{ error: "Internal Server Error" }`)
+      body: JSON.stringify(`{ message: ${response.message} }`)
     }
   }
 }
