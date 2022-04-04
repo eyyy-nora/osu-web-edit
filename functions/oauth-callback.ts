@@ -4,8 +4,10 @@ const clientId = process.env.OSU_CLIENT_ID;
 const token = process.env.OSU_SECRET;
 
 export const handler: Handler = async (event, context) => {
+  let code = event.queryStringParameters;
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: `OSU_CLIENT_ID:${clientId}, OSU_SECRET:${token}` }),
+    body: JSON.stringify({ message: `queryString parameters = ${code}` }),
   }
 }
