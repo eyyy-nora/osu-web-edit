@@ -12,6 +12,13 @@ export function floorToMultiple(value: number, divisor: number, offset = 0) {
   return round(value - rest);
 }
 
+export function approachRateToMs(ar: number): [preempt: number, fadein: number] {
+  return [
+    1200 + (ar > 5 ? -150 * (ar - 5) : 120 * (5 - ar)),
+    800 + (ar > 5 ? -100 * (ar - 5) : 80 * (5 - ar)),
+  ];
+}
+
 export const BIT0 = 1;
 export const BIT1 = 2;
 export const BIT2 = 4;
