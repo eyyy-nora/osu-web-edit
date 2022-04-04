@@ -8,3 +8,4 @@
 /netlify
 /src/testing/__snapshots__/
 /coverage/
+.env
