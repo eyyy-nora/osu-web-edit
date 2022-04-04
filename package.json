@@ -11,8 +11,7 @@
     "test": "jest",
     "test-run": "pnpm test && pnpm dev",
     "storybook:start": "start-storybook",
-    "storybook:build": "build-storybook",
-    "postinstall": "patch-package"
+    "storybook:build": "build-storybook"
   },
   "devDependencies": {
     "@babel/core": "7",
