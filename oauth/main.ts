@@ -15,7 +15,7 @@ export async function exchangeForOAuth(code: string) {
           } as OAuthCookieTemplate)
       } else reject({"message": "things are undefined"} as OAuthCookieTemplate);
     }).catch(err => {
-      reject({"message": err} as OAuthCookieTemplate);
+      reject({"message": `${err}`} as OAuthCookieTemplate);
     })
   })
 }
