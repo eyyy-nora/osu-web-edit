@@ -11,7 +11,7 @@ const parsedDotOsuAlt = parseOsuFile(dotOsuDataAlt.toString())
 
 
 test('StarRating Calculation', () => {
-  let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
+  let beatmapStarRating = computeStarRating(parsedDotOsu);
 
   expect(beatmapStarRating).toMatchSnapshot();
 
@@ -19,7 +19,7 @@ test('StarRating Calculation', () => {
 });
 
 test('StarRating Cache: Cache should be written properly', () => {
-  let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
+  let beatmapStarRating = computeStarRating(parsedDotOsu);
 
   let cachedBeatmaps = getCachedSR();
 
@@ -33,8 +33,8 @@ test('StarRating Cache: Cache should be written properly', () => {
 });
 
 test('StarRating Cache: Cache should not be written when the same beatmap is computed twice', () => {
-  computeStarRating(dotOsuData.toString(), parsedDotOsu);
-  let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
+  computeStarRating(parsedDotOsu);
+  let beatmapStarRating = computeStarRating(parsedDotOsu);
 
   let cachedBeatmaps = getCachedSR();
 
@@ -45,8 +45,8 @@ test('StarRating Cache: Cache should not be written when the same beatmap is com
 });
 
 test('StarRating Cache: If beatmap is not found in a cache already filled with other maps', () => {
-  computeStarRating(dotOsuDataAlt.toString(), parsedDotOsuAlt);
-  let beatmapStarRating = computeStarRating(dotOsuData.toString(), parsedDotOsu);
+  computeStarRating(parsedDotOsuAlt);
+  let beatmapStarRating = computeStarRating(parsedDotOsu);
 
   let cachedBeatmaps = getCachedSR();
 

@@ -1,9 +1,12 @@
+import { convertToOsuFile } from "../export/serializer/main";
 import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { calculateStarRating } from "./calculator/index";
 
 let beatmapsCache: BeatmapSRCache[] = [];
 
-export function saveSRCache(rawBeatmap: string, parsedBeatmap: ParsedBeatmap): number {
+export function saveSRCache(parsedBeatmap: ParsedBeatmap): number {
+  const rawBeatmap = convertToOsuFile(parsedBeatmap);
+
   const starRating = parseFloat(calculateStarRating(rawBeatmap)["nomod"].toFixed(2));
 
   saveBeatmapToCache(parsedBeatmap, starRating);
