@@ -11,7 +11,7 @@ export const handler: Handler = async (event, context) => {
 
   let response = await exchangeForOAuth(code);
 
-  if (response.AccessToken != undefined && response.ExpireIn != undefined) {
+  if (response.AccessToken === undefined && response.ExpireIn === undefined) {
     return {
       statusCode: 302,
       headers: {
