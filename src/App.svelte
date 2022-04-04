@@ -93,7 +93,7 @@ $: meter = currentTimingPoint?.meter ?? 4;
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
-            <OsuEditorStdMapView>
+            <OsuEditorStdMapView beatmap={selectedDifficulty} {time} hitObjects={timelineObjects}>
               <OsuEditorRankedArea />
             </OsuEditorStdMapView>
           </ContentBox>
