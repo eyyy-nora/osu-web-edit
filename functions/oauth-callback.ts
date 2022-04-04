@@ -1,12 +1,27 @@
 import { Handler } from "@netlify/functions";
-
-const clientId = process.env.OSU_CLIENT_ID;
-const token = process.env.OSU_SECRET;
+import { exchangeForOAuth } from "../oauth/main";
 
 export const handler: Handler = async (event, context) => {
   let code = (event.queryStringParameters === null) ? "" : event.queryStringParameters.code;
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: `Your osu! OAuthCode is = ${code}` }),
+
+  if (code === undefined) return {
+    statusCode: 500,
+    body: JSON.stringify(`{ error: "Internal Server Error" }`)
+  }
+
+  let response = await exchangeForOAuth(code);
+
+  if (response.data != undefined) {
+    return {
+      statusCode: 302,
+      headers: {
+        "Location": `/${response.data.acess_token}`
+      }
+    }
+  } else {
+    return {
+      statusCode: 500,
+      body: JSON.stringify(`{ error: "Internal Server Error" }`)
+    }
   }
 }
