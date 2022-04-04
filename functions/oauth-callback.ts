@@ -15,7 +15,7 @@ export const handler: Handler = async (event, context) => {
     return {
       statusCode: 302,
       headers: {
-        "Location": `/${response.data.acess_token}`
+        "Location": `/${response.data.access_token}`
       }
     }
   } else {
