@@ -2,7 +2,6 @@ import { Handler } from "@netlify/functions";
 import { cookie, windowClose } from "./util";
 import { requestAccessToken } from "./oauth";
 
-
 export const handler: Handler = async (event, context) => {
   const { code } = event.queryStringParameters ?? {};
 
