@@ -10,12 +10,13 @@ export async function exchangeForOAuth(code: string) {
     requestOAuth(code).then(request => {
       if (request.data.access_token != undefined && request.data.expires_in != undefined) {
         resolve({
-            "acess_token": request.data.access_token,
-            "expires_in": request.data.expires_in,
+            AccessToken: request.data.access_token,
+            ExpireIn: request.data.expires_in,
           } as OAuthCookieTemplate)
-      } else reject({"message": "things are undefined"} as OAuthCookieTemplate);
+      } else reject({message: "things are undefined"} as OAuthCookieTemplate);
     }).catch(err => {
-      reject({"message": `${err}`} as OAuthCookieTemplate);
+      console.log(err)
+      reject({message: `${err}`} as OAuthCookieTemplate);
     })
   })
 }
