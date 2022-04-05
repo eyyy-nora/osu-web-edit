@@ -11,7 +11,7 @@ export const handler: Handler = async (event, context) => {
 
   let response = await exchangeForOAuth(code);
 
-  if (response.AccessToken === undefined && response.ExpireIn === undefined) {
+  if (!isInvalid(response)) {
     return {
       statusCode: 302,
       headers: {
@@ -24,4 +24,11 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify(`{ message: ${response.message} }`)
     }
   }
+}
+
+function isInvalid(response: OAuthCookieTemplate): boolean {
+  return (
+    response.AccessToken === undefined && response.ExpireIn === undefined &&
+    response.AccessToken === "undefined" && response.ExpireIn === "undefined"
+  )
 }
