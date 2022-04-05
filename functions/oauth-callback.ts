@@ -5,8 +5,8 @@ export const handler: Handler = async (event, context) => {
   let code = (event.queryStringParameters === null) ? "" : event.queryStringParameters.code;
 
   if (code === undefined) return {
-    statusCode: 500,
-    body: JSON.stringify(`{ error: "Internal Server Error" }`)
+    statusCode: 400,
+    body: JSON.stringify(`{ error: "Bad Request" }`)
   }
 
   let response = await exchangeForOAuth("undefined");
@@ -14,8 +14,16 @@ export const handler: Handler = async (event, context) => {
   if (response.message === undefined) {
     return {
       statusCode: 302,
+
+      multiValueHeaders: {
+        "Set-Cookie": [
+          `access_token=${response.AccessToken}; Secure; HttpOnly`,
+          `osu_authorization=${code}; Secure; HttpOnly`,
+        ]
+      },
+
       headers: {
-        "Location": `/connect-to-osu?access_token=${response.AccessToken}&expires_in=${response.ExpireIn}`
+        "Location": "/",
       }
     }
   } else {
