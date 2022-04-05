@@ -9,7 +9,7 @@ export const handler: Handler = async (event, context) => {
     body: JSON.stringify(`{ error: "Internal Server Error" }`)
   }
 
-  let response = await exchangeForOAuth("undefined");
+  let response = await exchangeForOAuth(code);
 
   if (response.message === undefined) {
     return {
