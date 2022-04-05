@@ -1,7 +1,5 @@
 import axios from "axios";
 
-require('dotenv').config();
-
 const clientId = process.env.OSU_CLIENT_ID;
 const token = process.env.OSU_SECRET;
 

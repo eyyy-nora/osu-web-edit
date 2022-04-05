@@ -1,5 +1,5 @@
 import { Handler } from "@netlify/functions";
-import { exchangeForOAuth, OAuthCookieTemplate } from "../oauth/main";
+import { exchangeForOAuth, OAuthCookieTemplate } from "./oauth/main";
 
 export const handler: Handler = async (event, context) => {
   let code = (event.queryStringParameters === null) ? "" : event.queryStringParameters.code;
@@ -11,19 +11,15 @@ export const handler: Handler = async (event, context) => {
 
   let response = await exchangeForOAuth(code);
 
-  if (response.message === undefined) {
+  if (response.message === undefined && response.ExpireIn != undefined) {
+    let date = new Date();
+    date.setTime(date.getTime() + response.ExpireIn);
+
     return {
       statusCode: 302,
-
-      multiValueHeaders: {
-        "Set-Cookie": [
-          `access_token=${response.AccessToken}; Secure; HttpOnly`,
-          `osu_authorization=${code}; Secure; HttpOnly`,
-        ]
-      },
-
       headers: {
-        "Location": "/",
+        "Set-Cookie": `access_token=${response.AccessToken}; Expires=${date.toUTCString()}; Secure; HttpOnly`,
+        "Location": "/connect",
       }
     }
   } else {
