@@ -1,32 +1,22 @@
 import { ParsedBeatmap } from "../parse/types";
-import { BeatmapSRCache, saveSRCache, getCachedSR } from "./cache";
+import { BeatmapStarRating, cacheStarRating, getCachedStarRating } from "./cache";
 
 export function computeStarRating(parsedBeatmap: ParsedBeatmap): number {
-  let beatmapsCache = getCachedSR();
+  let starRatingCache = getCachedStarRating();
+  let cacheLength = starRatingCache.length;
 
-  if (beatmapsCache.length > 0) {
-    for (let i = 0; i < beatmapsCache.length; i++) {
-      let cachedBeatmap = beatmapsCache[i];
+  if (cacheLength <= 0) return cacheStarRating(parsedBeatmap);
 
-      if (beatmapsAreEqual(cachedBeatmap, parsedBeatmap))
-        return cachedBeatmap.StarRating;
+  for (let posi = 0; posi < cacheLength; posi++) {
+    let beatmapInCache = starRatingCache[posi];
 
-      else if (isLastLoopIteration(i, beatmapsCache.length))
-        return saveSRCache(parsedBeatmap);
+    if (beatmapsAreEqual(beatmapInCache, parsedBeatmap)) return beatmapInCache.StarRating;
 
-    }
-  } else {
-    return saveSRCache(parsedBeatmap);
+    else if (isLastLoopIteration(posi, cacheLength)) return cacheStarRating(parsedBeatmap);
   }
-
 }
 
-
-function isLastLoopIteration(iterator: number, length: number): boolean {
-  return iterator === (length - 1)
-}
-
-function beatmapsAreEqual(beatmapInCache: BeatmapSRCache, checkedBeatmap: ParsedBeatmap ): boolean {
+function beatmapsAreEqual(beatmapInCache: BeatmapStarRating, checkedBeatmap: ParsedBeatmap): boolean {
   return (
     beatmapInCache.BeatmapSetID === checkedBeatmap.Metadata.BeatmapSetID &&
     beatmapInCache.Version === checkedBeatmap.Metadata.Version &&
@@ -34,3 +24,7 @@ function beatmapsAreEqual(beatmapInCache: BeatmapSRCache, checkedBeatmap: Parsed
   );
 }
 
+function isLastLoopIteration(position: number, length: number): boolean {
+  const END_OF_ARRAY = (length - 1);
+  return position === END_OF_ARRAY;
+}

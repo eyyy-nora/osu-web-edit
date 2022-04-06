@@ -1,7 +1,7 @@
 import { parseOsuFile } from "../src/parse/parse-osu-file";
 import fs from "fs";
 import { computeStarRating } from "../src/star-rating/methods";
-import { flushCache, getCachedSR } from "../src/star-rating/cache";
+import { flushCache, getCachedStarRating } from "../src/star-rating/cache";
 
 const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
 const dotOsuDataAlt = fs.readFileSync(__dirname + "/assets/ladedade.osu");
@@ -21,7 +21,7 @@ test('StarRating Calculation', () => {
 test('StarRating Cache: Cache should be written properly', () => {
   let beatmapStarRating = computeStarRating(parsedDotOsu);
 
-  let cachedBeatmaps = getCachedSR();
+  let cachedBeatmaps = getCachedStarRating();
 
   expect(cachedBeatmaps.length).toBe(1);
 
@@ -36,7 +36,7 @@ test('StarRating Cache: Cache should not be written when the same beatmap is com
   computeStarRating(parsedDotOsu);
   let beatmapStarRating = computeStarRating(parsedDotOsu);
 
-  let cachedBeatmaps = getCachedSR();
+  let cachedBeatmaps = getCachedStarRating();
 
   expect(cachedBeatmaps.length).toBe(1);
   expect(cachedBeatmaps[0].StarRating).toBe(beatmapStarRating);
@@ -48,7 +48,7 @@ test('StarRating Cache: If beatmap is not found in a cache already filled with o
   computeStarRating(parsedDotOsuAlt);
   let beatmapStarRating = computeStarRating(parsedDotOsu);
 
-  let cachedBeatmaps = getCachedSR();
+  let cachedBeatmaps = getCachedStarRating();
 
   expect(cachedBeatmaps.length).toBe(2);
   expect(cachedBeatmaps[1].StarRating).toBe(beatmapStarRating);

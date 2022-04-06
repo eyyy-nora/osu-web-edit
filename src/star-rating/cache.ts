@@ -2,42 +2,44 @@ import { convertToOsuFile } from "../export/serializer/main";
 import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { calculateStarRating } from "./calculator/index";
 
-let beatmapsCache: BeatmapSRCache[] = [];
+const NUMBERS_AFTER_DOT = 2;
 
-export function saveSRCache(parsedBeatmap: ParsedBeatmap): number {
+let StarRatingCache: BeatmapStarRating[] = [];
+
+export function cacheStarRating(parsedBeatmap: ParsedBeatmap): number {
   const rawBeatmap = convertToOsuFile(parsedBeatmap);
 
-  const starRating = parseFloat(calculateStarRating(rawBeatmap)["nomod"].toFixed(2));
+  const starRating = parseFloat(calculateStarRating(rawBeatmap)["nomod"].toFixed(NUMBERS_AFTER_DOT));
 
-  saveBeatmapToCache(parsedBeatmap, starRating);
+  saveToCache(parsedBeatmap, starRating);
 
   return starRating;
 }
 
-function saveBeatmapToCache(parsedBeatmap: ParsedBeatmap, starRating: number): void {
-  let beatmapCacheObject = {
+function saveToCache(parsedBeatmap: ParsedBeatmap, starRating: number): void {
+  let beatmapCacheEntry: BeatmapStarRating = {
+
     BeatmapSetID: parsedBeatmap.Metadata.BeatmapSetID,
     Version: parsedBeatmap.Metadata.Version,
     HitObjects: parsedBeatmap.HitObjects,
     StarRating: starRating
 
-  } as BeatmapSRCache;
+  };
 
-  beatmapsCache.push(beatmapCacheObject);
+  StarRatingCache.push(beatmapCacheEntry);
 }
 
-export function getCachedSR(): BeatmapSRCache[] {
-  return beatmapsCache;
-}
-
-export function flushCache(): void {
-  beatmapsCache = []
-}
-
-
-export interface BeatmapSRCache {
+export interface BeatmapStarRating {
   BeatmapSetID: number;
   Version: string;
   HitObjects: ParsedHitObject[]
   StarRating: number;
+}
+
+export function getCachedStarRating(): BeatmapStarRating[] {
+  return StarRatingCache;
+}
+
+export function flushCache(): void {
+  StarRatingCache = []
 }
