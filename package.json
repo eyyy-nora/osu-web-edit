@@ -10,6 +10,7 @@
     "icons": "fantasticon",
     "test": "jest",
     "test-run": "pnpm test && pnpm dev",
+    "dotenv-run": "dotenv pnpm dev",
     "storybook:start": "start-storybook",
     "storybook:build": "build-storybook"
   },
@@ -33,7 +34,9 @@
     "@storybook/theming": "^6.4.20",
     "@tsconfig/svelte": "^3.0.0",
     "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.23",
     "babel-loader": "^8.2.4",
+    "dotenv-cli": "^5.1.0",
     "fantasticon": "^1.2.3",
     "jest": "^27.5.1",
     "react": "17",
