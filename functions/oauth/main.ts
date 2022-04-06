@@ -4,17 +4,19 @@ const clientId = process.env.OSU_CLIENT_ID;
 const token = process.env.OSU_SECRET;
 
 export async function exchangeForOAuth(code: string) {
-  return new Promise<OAuthCookieTemplate>((resolve, reject) => {
+  return new Promise<OAuthCookie>((resolve, reject) => {
     requestOAuth(code).then(request => {
-      if (request.data.access_token != undefined && request.data.expires_in != undefined) {
+
+      if (isFullfilled(request)) {
         resolve({
-            AccessToken: request.data.access_token,
-            ExpireIn: request.data.expires_in,
-          } as OAuthCookieTemplate)
-      } else reject({message: "things are undefined"} as OAuthCookieTemplate);
+          AccessToken: request.data.access_token,
+        } as OAuthCookie)
+      } else {
+        reject({ message: "Could not retrieve data" } as OAuthCookie);
+      }
+
     }).catch(err => {
-      console.log(err)
-      reject({message: `${err}`} as OAuthCookieTemplate);
+      reject({message: `${err}`} as OAuthCookie);
     })
   })
 }
@@ -31,8 +33,11 @@ async function requestOAuth(code: string) {
   return axios.post("https://osu.ppy.sh/oauth/token", params)
 }
 
-export type OAuthCookieTemplate = {
+function isFullfilled(request: any): boolean {
+  return request.data.access_token != undefined && request.data.expires_in != undefined
+}
+
+export type OAuthCookie = {
   AccessToken?: string;
-  ExpireIn?: number;
   message?: string;
 }
