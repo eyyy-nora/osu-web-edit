@@ -1,6 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-
 exports[`File parsing: .osu parsing 1`] = `
 Object {
   "AudioFilename": "audio.mp3",
@@ -15,7 +14,6 @@ Object {
 }
 `;
 
-
 exports[`File parsing: .osu parsing 2`] = `
 Object {
   "BeatDivisor": 4,
@@ -25,7 +23,6 @@ Object {
   "TimelineZoom": 1.7,
 }
 `;
-
 
 exports[`File parsing: .osu parsing 3`] = `
 Object {
@@ -41,7 +38,6 @@ Object {
   "Version": "Ready for Battle",
 }
 `;
-
 
 exports[`File parsing: .osu parsing 4`] = `
 Array [
@@ -84,7 +80,6 @@ Array [
   },
 ]
 `;
-
 
 exports[`File parsing: .osu parsing 5`] = `
 Array [
@@ -828,11 +823,7 @@ Array [
 ]
 `;
 
-<<<<<<< HEAD
-exports[`.osu File Parsing 6`] = `
-=======
 exports[`File parsing: .osu parsing 6`] = `
->>>>>>> feat: Osu file serialization from ParsedBeatmap #2
 Array [
   Object {
     "edgeSets": Array [],

@@ -4,7 +4,7 @@ import { computeStarRating } from "../src/star-rating/methods";
 import { flushCache, getCachedSR } from "../src/star-rating/cache";
 
 const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
-const dotOsuDataAlt = fs.readFileSync(__dirname + "/assets/testfile-alt.osu");
+const dotOsuDataAlt = fs.readFileSync(__dirname + "/assets/ladedade.osu");
 
 const parsedDotOsu = parseOsuFile(dotOsuData.toString())
 const parsedDotOsuAlt = parseOsuFile(dotOsuDataAlt.toString())
