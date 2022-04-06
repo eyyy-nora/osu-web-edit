@@ -39,16 +39,16 @@ export const handler: Handler = async (event, context) => {
 }
 
 function htmlClose(): string {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <title>Login Successful</title>
-        <script>window.close();</script>
-      </head>
-      <body>
-      </body>
-    </html>
-  `
+  return (
+    "<!DOCTYPE html>" +
+    "<html lang=\"en\">" +
+     "<head>" +
+        "<meta charset=\"utf-8\">" +
+        "<title>Login Successful</title>" +
+        "<script>window.close();</script>" +
+      "</head>" +
+      "<body>" +
+      "</body>" +
+    "</html>"
+  )
 }
