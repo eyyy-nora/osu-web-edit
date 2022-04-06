@@ -3,9 +3,7 @@ import { authorizeUrl, requestAccessToken } from "./oauth";
 import { cookie, getCookies, redirect, windowClose } from "./util";
 
 export const handler: Handler = async (event, context) => {
-  const cookies = getCookies(event.headers.cookie);
-  console.log(cookies);
-  const { authorization_code: code } = cookies;
+  const { authorization_code: code } = getCookies(event.headers.cookie);
   if (code) try {
     const  { token, expires } = await requestAccessToken(code);
     return {
@@ -19,6 +17,8 @@ export const handler: Handler = async (event, context) => {
       headers: { "Content-Type": "text/html" },
       body: windowClose("Login Successful"),
     };
-  } catch {}
+  } catch (e) {
+    console.error(e);
+  }
   return redirect(authorizeUrl(["public", "identify"]));
 }
