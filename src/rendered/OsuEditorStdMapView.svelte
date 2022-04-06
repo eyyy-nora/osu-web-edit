@@ -5,6 +5,7 @@ import { osuVisibleArea, osuRankableArea } from "../constants";
 import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { providePixi } from "../context/pixi-context";
 import HitCircle from "./std/HitCircle.svelte";
+import Spinner from "./std/Spinner.svelte";
 
 
 export let time: number = 0;
@@ -27,8 +28,8 @@ $: fadein = 800 + (approachRate > 5 ? -100 * (approachRate - 5) : 80 * (5 - appr
 $: fadeOffset = preempt - fadein;
 $: scope = preempt * zoom;
 
-function objectEnd(object: ParsedHitObject & { length?: number }): number {
-  return object.length !== undefined ? object.time + object.length : object.time;
+function objectEnd(object: ParsedHitObject & { length?: number; end?: number }): number {
+  return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
 }
 
 function objectInRange(object: ParsedHitObject, start: number, end: number): boolean {
@@ -50,21 +51,35 @@ function filterInRange(objects: ParsedHitObject[], start: number, end: number, s
 }
 
 function visibleObjectStats(object: ParsedHitObject) {
-  const oTime = object.time - time;
-  const hit = oTime <= 0;
-  const alpha =
-    Math.abs(oTime) > preempt
-      // Not in visible scope on beatmap but visible in editor
-      ? .3 * Math.min(1, 1 - Math.abs(oTime) / scope)
-      // Visible - base plus fading determined
-      : .3 + .7 * (oTime < 0
-        // After being hit - fade out to base level
-        ? 1 - (-oTime / preempt)
-        // Before being hit - fade in or stay visible
-        : oTime < fadeOffset ? 1 : 1 - (oTime - fadeOffset) / fadein
-      );
-  const approach = oTime > 0 ? oTime > preempt ? 0 : 1 - (oTime / preempt) : 0;
-  return { ...object, hit, alpha, approach };
+  const baseAlphaEditor = .3;
+
+  const t = object.time - time;
+  const length = (object as any).length ?? ((object as any).end ?? object.time) - object.time;
+  const end = t + length;
+  const hit = t <= 0;
+  const complete = end <= 0;
+
+  let alpha = 0;
+  if (t > preempt)
+    // before hit, visible in editor, not in game
+    alpha = baseAlphaEditor * (1 + (scope / 2 - t) / scope * 2);
+  else if (t > fadeOffset)
+    // before hit, during fadein
+    alpha = baseAlphaEditor + (1 - baseAlphaEditor) * (1 - (t - fadeOffset) / fadein);
+  else if (t <= fadeOffset && end >= 0)
+    // fully visible
+    alpha = 1;
+  else if (end < 0)
+    // after end, during fadeout
+    alpha = 1 + (end / preempt)
+  else if (end < -preempt)
+    // after hit, visible in editor, not in game
+    alpha = baseAlphaEditor * (1 + (scope / 2 + end) / scope * 2);
+
+  const percent = (end === t) ? hit ? 1 : 0 : (t < 0 && end >= 0) ? 1 - Math.max(0, Math.min(1, end / length)) : 0;
+  const approach = t > 0 ? t > preempt ? 0 : 1 - (t / preempt) : 0;
+
+  return { ...object, hit, alpha, approach, percent, complete };
 }
 
 let visibleObjects: (ParsedHitObject & any)[];
@@ -104,6 +119,8 @@ providePixi(() => app, () => app.stage);
   {#each visibleObjects as object}
     {#if object.type === "circle"}
       <HitCircle {...object} />
+    {:else if object.type === "spinner"}
+      <Spinner {...object} />
     {/if}
   {/each}
 
