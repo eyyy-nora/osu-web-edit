@@ -1,4 +1,8 @@
 <script lang="ts">
+import { login } from "./client";
+import Button from "./component/form/Button.svelte";
+import HBox from "./component/layout/HBox.svelte";
+import Spacer from "./component/layout/Spacer.svelte";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
 import { downloadMapSet } from "./parse/parse-osu-file";
 import { onMount } from "svelte";
@@ -64,7 +68,6 @@ function hitObjectsWithCombos(objects: ParsedHitObject[] = [], colors: ParsedOsu
     return { ...object, index, combo: combo++, color } as BeatmapObject;
   })
 }
-
 
 let timelineObjects: BeatmapObject[];
 $: timelineObjects = hitObjectsWithCombos(selectedDifficulty?.HitObjects, selectedDifficulty?.Colours);
