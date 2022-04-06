@@ -3,7 +3,9 @@ import { authorizeUrl, requestAccessToken } from "./oauth";
 import { cookie, getCookies, redirect, windowClose } from "./util";
 
 export const handler: Handler = async (event, context) => {
-  const { authorization_code: code } = getCookies(event.headers.cookie);
+  const cookies = getCookies(event.headers.cookie);
+  console.log(cookies);
+  const { authorization_code: code } = cookies;
   if (code) try {
     const  { token, expires } = await requestAccessToken(code);
     return {
