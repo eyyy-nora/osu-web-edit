@@ -18,7 +18,7 @@ export const handler: Handler = async (event, context) => {
     return {
       statusCode: 302,
       headers: {
-        "Set-Cookie": `access_token=${response.AccessToken}; Expires=${date.toUTCString()}`,
+        "Set-Cookie": `access_token=${response.AccessToken}; Expires=${date.toUTCString()}; Path=/; Secure; HttpOnly;`,
         "Location": "/connect",
       }
     }
