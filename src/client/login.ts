@@ -30,6 +30,6 @@ export async function logout(): Promise<void> {
 }
 
 export async function me(...scopes: string[]): Promise<MeResponse> {
-  const { data } = await axios.get("/me", { params: { scopes } });
+  const { data } = await client.get("/me", { params: { scopes } });
   return data;
 }
