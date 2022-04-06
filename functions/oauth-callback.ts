@@ -28,7 +28,7 @@ export const handler: Handler = async (event, context) => {
         "Content-Type": "text/html",
       },
 
-      body: JSON.stringify(htmlClose())
+      body: htmlClose()
     }
   } else {
     return {
