@@ -6,7 +6,7 @@ export const handler: Handler = async (event, context) => {
 
   if (code === undefined) return {
     statusCode: 400,
-    body: JSON.stringify(`{ error: "Bad Request: code should not be undefined" }`)
+    body: JSON.stringify(`{ errorMessage: "Bad Request: code should not be undefined" }`)
   }
 
   let response = await exchangeForOAuth(code);
@@ -15,21 +15,20 @@ export const handler: Handler = async (event, context) => {
     let date = new Date();
     date.setDate(date.getDate() + 1)
 
-    let authorization_code = code;
-    code = "finished";
-
     return {
       statusCode: 302,
       multiValueHeaders: {
         "Set-Cookie": [
           `access_token=${response.AccessToken}; Expires=${date.toUTCString()}; Path=/; Secure; HttpOnly;`,
-          `authorization_code=${authorization_code}; Path=/; Secure; HttpOnly;`
+          `authorization_code=${code}; Path=/; Secure; HttpOnly;`
         ],
       },
 
       headers: {
-        "Location": "/",
-      }
+        "Content-Type": "text/html",
+      },
+
+      body: JSON.stringify(htmlClose())
     }
   } else {
     return {
@@ -37,4 +36,19 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify(`{ errorMessage: ${response.message} }`)
     }
   }
+}
+
+function htmlClose(): string {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Login Successful</title>
+        <script>window.close();</script>
+      </head>
+      <body>
+      </body>
+    </html>
+  `
 }
