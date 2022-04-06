@@ -14,3 +14,10 @@ export function redirect(url: string): Response {
     headers: { Location: url },
   };
 }
+
+export function badRequest(error: string) {
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ error }),
+  };
+}

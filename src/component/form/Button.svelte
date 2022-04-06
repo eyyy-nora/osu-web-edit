@@ -1,8 +1,8 @@
 <script lang="ts">
 
 export let text: string = "Submit";
-export let big: boolean;
-export let pad: boolean;
+export let big: boolean = false;
+export let pad: boolean = false;
 
 </script>
 

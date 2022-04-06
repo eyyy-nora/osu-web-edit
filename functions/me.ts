@@ -1,37 +1,25 @@
 import { Handler } from "@netlify/functions";
-import { retrieveBasicInformation } from "./osu/user/user-actions";
-import { getCookies } from "./util";
+import { MeResponse } from "./types";
+import { authorized, mapResponse } from "./oauth";
+import { badRequest } from "./util";
 
 export const handler: Handler = async (event, context) => {
-  const { action } = event.queryStringParameters ?? {};
+  const { scope = ["basic"] } = event.multiValueQueryStringParameters ?? {};
 
-  if (!action) return badRequestError("You must specify a action query parameter!");
+  if (!scope.length) return badRequest("No scopes requested. available scopes are ['basic']!");
 
-  switch (action) {
-    case "basic-info":
-      let { access_token: token } = getCookies(event.headers.cookie);
+  const response: MeResponse = {};
+  const client = authorized(event);
 
-      if (token != undefined) {
-        let userInfo = await retrieveBasicInformation(token);
-
-        return {
-          statusCode: 200,
-          body: JSON.stringify(userInfo)
-        }
-
-      } else return {
-          statusCode: 500,
-          body: JSON.stringify({ error: "access_token is undefined!" }),
-      };
-      break;
-
-    default: return badRequestError("Invalid action!");
+  if (scope.includes("basic")) {
+    response.basic = await client.get("/me").then(mapResponse({
+      avatar_url: "avatar", country_code: "country", cover_url: "cover",
+      playmode: "mode", is_restricted: "restricted", global_rank: "rank"
+    })) as any;
   }
-}
 
-function badRequestError(errorMessage: string) {
   return {
-    statusCode: 400,
-    body: JSON.stringify({ error: errorMessage })
+    statusCode: 200,
+    body: JSON.stringify(response),
   };
 }

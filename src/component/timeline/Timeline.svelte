@@ -15,8 +15,8 @@ import { clamp, floorToMultiple } from "../../util/numbers";
 export let beatLength = 100000;
 export let objects: BeatmapObject[] = [];
 export let time = 0;
-export let zoom = 4;
 export let scale = 4;
+export let zoom = 4;
 export let meter = 4;
 export let timescaleLevels = [.5, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32];
 export let timescaleOffset = 0;
@@ -24,8 +24,8 @@ export let timescaleOffset = 0;
 let clientWidth: number = 0;
 
 let range: number, rangeStart: number, rangeEnd: number, timescale: number, rangeScale: number;
-$: rangeScale = Math.pow(2, scale);
-$: timescale = timescaleLevels[zoom];
+$: rangeScale = Math.pow(2, zoom);
+$: timescale = timescaleLevels[scale];
 $: range = (beatLength * rangeScale);
 $: rangeStart = Math.max(-range * .5, time - range / 2);
 $: rangeEnd = rangeStart + range;
@@ -69,7 +69,7 @@ let visibleObjects: BeatmapObject[];
 $: visibleObjects = filterInRange(objects, rangeStart, rangeEnd);
 
 export function zoomBy(levels: number) {
-  zoom = clamp(zoom + levels, 1, timescaleLevels.length - 1);
+  scale = clamp(scale + levels, 1, timescaleLevels.length - 1);
 }
 
 export function scrollBy(steps: number) {
@@ -77,7 +77,7 @@ export function scrollBy(steps: number) {
 }
 
 export function scaleBy(steps: number) {
-  scale = clamp(scale + steps * .5, 0, 8);
+  zoom = clamp(zoom + steps * .5, 0, 8);
 }
 
 function onScroll(e: WheelEvent) {
@@ -102,8 +102,8 @@ function onScroll(e: WheelEvent) {
       {/each}
     </div>
     <div class="info">
-      <span>zoom: 1/{timescale}</span>
-      <span>scale: {8 - scale}</span>
+      <span>scale: 1/{timescale}</span>
+      <span>zoom: {8 - zoom}</span>
     </div>
   </div>
   <div class="shadow" />
@@ -164,6 +164,7 @@ article {
   box-shadow:
     inset 16px 0 12px -12px var(--colorBgDarker),
     inset -16px 0 14px -12px var(--colorBgDarker),
+    var(--shadowInner),
     var(--shadowInner);
 }
 
