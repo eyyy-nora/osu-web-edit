@@ -1,45 +1,28 @@
 import { Handler } from "@netlify/functions";
-import { exchangeForOAuth } from "./oauth/main";
+import { cookie, windowClose } from "./util";
+import { requestAccessToken } from "./oauth";
+
 
 export const handler: Handler = async (event, context) => {
-  let code = (event.queryStringParameters === null) ? "" : event.queryStringParameters.code;
+  const { code } = event.queryStringParameters ?? {};
 
-  if (code === undefined) return {
+  if (!code) return {
     statusCode: 400,
-    body: JSON.stringify({ errorMessage: "Bad Request: code should not be undefined" })
-  }
+    body: JSON.stringify({ error: "Login aborted!" }),
+  };
 
-  let response = await exchangeForOAuth(code);
+  const { token, expires } = await requestAccessToken(code);
 
-  if (response.message === undefined) {
-    let date = new Date();
-    date.setDate(date.getDate() + 1)
-
-    return {
-      statusCode: 200,
-      multiValueHeaders: {
-        "Set-Cookie": [
-          `access_token=${response.AccessToken}; Expires=${date.toUTCString()}; Path=/; Secure; HttpOnly;`,
-          `authorization_code=${code}; Path=/; Secure; HttpOnly;`
-        ],
-      },
-
-      headers: {
-        "Content-Type": "text/html",
-      },
-
-      body: htmlClose()
-    }
-  } else {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ errorMessage: response.message })
-    }
+  return {
+    statusCode: 200,
+    multiValueHeaders: {
+      "Set-Cookie": [
+        cookie("access_token", token, { expires }),
+        cookie("authorization_code", code),
+      ]
+    },
+    headers: { "Content-Type": "text/html" },
+    body: windowClose("Login Successful"),
   }
 }
 
-function htmlClose(): string {
-  return (
-    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Login Successful</title><script>window.close();</script></head><body></body></html>'
-  )
-}

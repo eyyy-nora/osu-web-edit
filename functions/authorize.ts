@@ -1,10 +1,24 @@
 import { Handler } from "@netlify/functions";
+import { authorizeUrl, requestAccessToken } from "./oauth";
+import { cookie, getCookies, redirect, windowClose } from "./util";
 
 export const handler: Handler = async (event, context) => {
-  return {
-    statusCode: 301,
-    headers: {
-      "Location": "https://osu.ppy.sh/oauth/authorize?client_id=13739&redirect_uri=https://owe.monster/.netlify/functions/oauth-callback&response_type=code&scope=public identify"
-    }
+  const { authorization_code: code } = getCookies(event.headers.cookie);
+  if (code) try {
+    const  { token, expires } = await requestAccessToken(code);
+    return {
+      statusCode: 200,
+      multiValueHeaders: {
+        "Set-Cookie": [
+          cookie("access_token", token, { expires }),
+          cookie("authorization_code", code),
+        ]
+      },
+      headers: { "Content-Type": "text/html" },
+      body: windowClose("Login Successful"),
+    };
+  } catch (e) {
+    console.error(e);
   }
+  return redirect(authorizeUrl(["public", "identify"]));
 }
