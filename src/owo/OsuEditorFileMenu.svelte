@@ -1,6 +1,13 @@
 <script lang="ts">
+import { login } from "../client";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
+import Button from "../component/form/Button.svelte";
+
+async function onLoginClick() {
+  await login();
+}
+
 </script>
 
 <FileMenu>
@@ -26,4 +33,5 @@ import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
     <FileMenuItem name="Toggle Grids" keybind="ctrl+g" />
     <FileMenuItem name="Configure Grids" keybind="ctrl+shift+g" />
   </FileMenuItem>
+  <Button slot="end" text="Login with osu!" pad on:click={onLoginClick} />
 </FileMenu>

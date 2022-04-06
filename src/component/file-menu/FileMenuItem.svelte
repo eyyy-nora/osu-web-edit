@@ -51,7 +51,7 @@ $: keybindRaw = keybind.replace(/(ctrl|shift|alt|cmd)\+/g, "");
 
 <style>
 li {
-  padding: .2rem .6rem;
+  padding: .3rem .6rem;
   position: relative;
   word-break: keep-all;
   white-space: nowrap;
