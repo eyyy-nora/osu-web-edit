@@ -29,5 +29,5 @@ export async function requestAccessToken(code: string): Promise<{ token: string;
   if (!data.access_token || !data.expires_in)
     throw Object.assign(new Error(`Invalid Access Token Response`), data);
 
-  return { token: data.access_token, expires: data.expires_in * 1000 };
+  return { token: data.access_token, expires: Date.now() + data.expires_in * 1000 };
 }
