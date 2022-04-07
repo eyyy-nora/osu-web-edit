@@ -1,6 +1,7 @@
 import { Point } from "pixi.js";
 import { ParsedSlider, ParsedPoint } from "../parse/types";
-import { lerp } from "./numbers";
+import { lerp, intersect_slope, rot90 } from "./numbers";
+import { Vector2 } from "./Vector2";
 
 
 const linearSubdivision = 5;
@@ -24,7 +25,7 @@ const tickCutoffMs = 10;
 const endTickOffsetMs = 36;
 
 
-export function sliderPath(slider: ParsedSlider, cs: number, percent: number): [Point, Point, Point] {
+export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): [Point, Point, Point] {
   if(slider.sliderType === "linear") {
     return linearPath(slider.pathSegments, cs, percent);
   } else if(slider.sliderType === "circle") {
@@ -47,32 +48,88 @@ function linearPath(segments: ParsedPoint[], cs: number, percent: number): [Poin
   const segment = segments[0];
   const nextSegment = segments[1];
 
-  const outerL = {
+  const posC = {
     x: lerp(segment.x, nextSegment.x, percent),
     y: lerp(segment.y, nextSegment.y, percent)
   } as Point;
 
-  const center = {
+  const posL = {
     x: lerp(segment.x, nextSegment.x, percent),
     y: lerp(segment.y, nextSegment.y, percent)
   } as Point;
 
-  const outerR = {
+  const posR = {
     x: lerp(segment.x, nextSegment.x, percent),
     y: lerp(segment.y, nextSegment.y, percent)
   } as Point;
 
-  return [outerL, center, outerR];
+  return [posL, posC, posR];
 }
 
-function circlePath(segments: [ParsedPoint, ParsedPoint], cs: number, percent: number): [Point, Point, Point] {
+/* Demonstration of the algorithm: https://www.desmos.com/calculator/se3jth7qy9 */
+function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
+  // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L316
+  if(segments.length != 3) {
+    return bezierPath(segments, cs, percent);
+  }
+
+  const pStart = new Vector2(segments[0].x, segments[0].y);
+  const pMid   = new Vector2(segments[1].x, segments[1].y)
+  const pEnd   = new Vector2(segments[2].x, segments[2].y)
+
+  // Fallback to linear in degenerate cases
+  // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L318-L322
+  // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L366
+  const is_linear = Math.abs(((pMid.y - pStart.y) * (pEnd.x - pStart.x)) - ((pMid.x - pStart.x) * (pEnd.y - pStart.y))) < precisionThresholdPx;
+  if(is_linear) {
+    return linearPath(segments, cs, percent);
+  }
+
+  // Mid points
+  const midA = pStart.add(pMid).divide(2);
+  const midB = pEnd.add(pMid).divide(2);
+
+  // Normal vectors to lines from mid points to pMid
+  const normA = rot90(pMid.subtract(pStart));
+  const normB = rot90(pMid.subtract(pEnd));
+
+  // Calc intersection point of normal vectors. That is the circle's center.
+  const intSlope = intersect_slope(midA, normA, midB, normB, arcParallelThreshold);
+  if(intSlope === null) {
+    return linearPath(segments, cs, percent);
+  }
+
+  // Circle center and radius
+  const center = midB.add(normB.scale(intSlope));
+  const radius = center.distance(pMid);
+
+  // Calc circle outline 
+  const angleStart = Math.atan2(pStart.y - center.y, pStart.x - center.x);
+  const angleMid   = Math.atan2(pMid.y - center.y, pMid.x - center.x);
+  const angleEnd   = Math.atan2(pEnd.y - center.y, pEnd.x - center.x);  
+
+  const angle0 = Math.min(angleStart, angleMid, angleEnd);
+  const angle1 = Math.max(angleStart, angleMid, angleEnd);
+
+  // Calc point on circle outline
+  const anglePercent = angle0 + (angle1 - angle0)*percent;
+
+  const posC = {
+    x: center.x + radius * Math.cos(anglePercent),
+    y: center.y + radius * Math.sin(anglePercent),
+  } as Point;
+
+  const posL = {
+    x: 0,
+    y: 0
+  } as Point;
+
+  const posR = {
+    x: 0,
+    y: 0
+  } as Point;
   
-  
-  return [
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
-  ];
+  return [posL, posC, posR];
 }
 
 function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
