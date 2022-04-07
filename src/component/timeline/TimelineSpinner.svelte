@@ -1,42 +1,47 @@
 <script lang="ts">
 export let time: number = 0;
 export let end: number = 0;
-export let combo: number = 1;
-export let color: [number, number, number] = [42, 57, 84];
 </script>
 
 <style>
 div {
-  --color: 255, 255, 255;
+  --pos: 0;
+  --end: var(--pos);
   position: absolute;
   box-sizing: border-box;
   width: 2.6rem;
   height: 2.6rem;
   margin: .3rem -1.3rem;
-  border: 2px solid #8d8d8d;
-  background: var(--color);
+  border: 2px solid #aaaaaa;
+  background-color: rgba(255, 255, 255, .2);
   border-radius: 1000000rem;
   transform: translateX(calc(var(--pos) * var(--timelineSize)));
   transition: transform .15s ease-out;
   left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 div.body {
-  background: rgba(63, 63, 63, .4);
   width: calc(2.6rem + (var(--end) - var(--pos)) * var(--timelineSize));
+  box-shadow: var(--shadowInner);
+}
+
+div.circle {
+
 }
 
 span {
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: #8d8d8d;
+  display: block;
+  box-sizing: border-box;
+  margin: calc(1.1rem - 2px);
+  width: .4rem;
+  height: .4rem;
+  overflow: hidden;
+  border-radius: .2rem;
+  background-color: #aaaaaa;
 }
 </style>
 
 <div class="body" style="--pos: {time}; --end: {end}" />
-<div style="--pos: {time}; --color: rgb({color.join(',')})">
-  <span>{combo}</span>
+<div class="circle" style="--pos: {time}">
+  <span />
 </div>

@@ -1,15 +1,8 @@
-<script lang="ts" context="module">
-import TimelineCircle from "./TimelineCircle.svelte";
-import type { BeatmapObject, BeatmapObjectBase } from "../../context/beatmap-context";
-
-function componentFor(object: BeatmapObject) {
-  switch (object.type) {
-    default: return TimelineCircle;
-  }
-}
-</script>
-
 <script lang="ts">
+import { BeatmapObject, BeatmapObjectBase } from "../../context/beatmap-context";
+import TimelineSlider from "./TimelineSlider.svelte";
+import TimelineSpinner from "./TimelineSpinner.svelte";
+import TimelineCircle from "./TimelineCircle.svelte";
 import { clamp, floorToMultiple } from "../../util/numbers";
 
 export let beatLength = 100000;
@@ -37,14 +30,14 @@ $: beatOffset = (time - timescaleOffset) / beatLength;
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / timescale;
 
-function timelinePosFor({ time, end = time, combo = 1, color = [0, 0, 0] }: BeatmapObjectBase) {
+function timelinePosFor({ time, length = 0, end = time + length, combo = 1, color = [0, 0, 0] }: BeatmapObjectBase) {
   time = (time - rangeStart) / range;
   end = (end - rangeStart) / range;
   return { time, end, combo, color };
 }
 
-function objectEnd(object: BeatmapObject): number {
-  return object.length !== undefined ? object.time + object.length : object.time;
+function objectEnd(object: BeatmapObject & { length?: number; end?: number }): number {
+  return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
 }
 
 function objectInRange(object: BeatmapObject, start: number, end: number): boolean {
@@ -95,10 +88,13 @@ function onScroll(e: WheelEvent) {
         class="timescale divisor{timescale}"
       />
       {#each visibleObjects as object (object.index)}
-        <svelte:component
-          this={componentFor(object)}
-          {...timelinePosFor(object)}
-        />
+        {#if object.type === "circle"}
+          <TimelineCircle {...timelinePosFor(object)} />
+        {:else if object.type === "slider"}
+          <TimelineSlider {...timelinePosFor(object)} />
+        {:else if object.type === "spinner"}
+          <TimelineSpinner {...timelinePosFor(object)} />
+        {/if}
       {/each}
     </div>
     <div class="info">
@@ -140,7 +136,7 @@ article {
   right: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 .5rem;
+  padding: 0 1rem .2rem .5rem;
   font-size: .8em;
   font-weight: bold;
   color: var(--colorFgLight);
@@ -151,7 +147,7 @@ article {
 }
 
 .shadow {
-  height: 2.6rem;
+  height: 3.2rem;
   margin: .2rem;
   border-radius: .35rem;
   position: absolute;
@@ -162,8 +158,8 @@ article {
   background: transparent;
   pointer-events: none;
   box-shadow:
-    inset 16px 0 12px -12px var(--colorBgDarker),
-    inset -16px 0 14px -12px var(--colorBgDarker),
+    inset 24px 0 12px -12px var(--colorBgDarker),
+    inset -24px 0 12px -12px var(--colorBgDarker),
     var(--shadowInner),
     var(--shadowInner);
 }

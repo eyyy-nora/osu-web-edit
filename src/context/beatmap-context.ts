@@ -30,9 +30,10 @@ export interface WithChildren<T extends BeatmapObject = BeatmapObject> {
 export interface HitCircle extends BeatmapObjectBase, WithPosition { type: "circle" }
 export interface HoldCircle extends BeatmapObjectBase, WithPosition, WithBeatLength { type: "hold" }
 export interface Slider extends BeatmapObjectBase, WithPosition, WithBeatLength, WithVelocity { type: "slider" }
+export interface Spinner extends BeatmapObjectBase, WithBeatLength { type: "spinner" }
 export interface HitCircleStream extends BeatmapObjectBase, WithPosition, WithBeatLength, WithVelocity, WithChildren<HitCircle> { type: "circle-stream" }
 export interface SliderStream extends BeatmapObjectBase, WithPosition, WithBeatLength, WithVelocity, WithChildren<Slider> { type: "slider-stream" }
-export type BeatmapObject = HitCircle | HoldCircle | HitCircleStream | Slider | SliderStream;
+export type BeatmapObject = HitCircle | HoldCircle | HitCircleStream | Slider | SliderStream | Spinner;
 
 export interface BeatmapContext {
 
