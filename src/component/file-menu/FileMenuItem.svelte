@@ -1,15 +1,31 @@
 <script lang="ts">
+import { onDestroy } from "svelte";
 import type { OwoId } from "../../icons";
 import { allMatches } from "../../util/regex";
 
-
+export let action: (() => void) | undefined = undefined;
 
 export let name = "<Unknown>";
 export let keybind = "";
+export let disabled = false;
 
-let keybindIcons: OwoId[];
-$: keybindIcons = allMatches(keybind, /(ctrl|shift|alt|cmd)\+/g).map(([, key]): OwoId => {
-  switch (key) {
+type KeyModifier = "ctrl" | "shift" | "alt" | "cmd";
+
+function runAction() {
+  if (disabled || !action) return false;
+  action();
+  return true;
+}
+
+function keyModifiers(keybind: string): KeyModifier[] {
+  return allMatches(keybind, /(ctrl|shift|alt|cmd)\+/g).map(([, key]) => key) as KeyModifier[];
+}
+
+let key: string, mods: KeyModifier[], icons: OwoId[];
+$: key = keybind.replace(/(ctrl|shift|alt|cmd)\+/g, "");
+$: mods = keyModifiers(keybind);
+$: icons = mods.map(mod => {
+  switch (mod) {
     case "ctrl":
       return "control";
     case "shift":
@@ -18,25 +34,51 @@ $: keybindIcons = allMatches(keybind, /(ctrl|shift|alt|cmd)\+/g).map(([, key]): 
       return "alt";
     case "cmd":
       return "command";
-    default:
-      return "mania";
   }
 });
 
-let keybindRaw: string;
-$: keybindRaw = keybind.replace(/(ctrl|shift|alt|cmd)\+/g, "");
+function registerKeyBind(key: string, mods: KeyModifier[]) {
+  if (unregister) unregister();
+  if (!key) return;
+
+  if (key === "Space") key = " ";
+  const hasCtrl = mods.includes("ctrl");
+  const hasShift = mods.includes("shift");
+  const hasAlt = mods.includes("alt");
+  const hasCmd = mods.includes("cmd");
+
+  function listener(e: KeyboardEvent) {
+    const { shiftKey, altKey, ctrlKey, metaKey, key: eventKey } = e;
+    if (eventKey !== key
+      || shiftKey !== hasShift
+      || ctrlKey !== hasCtrl
+      || altKey !== hasAlt
+      || metaKey !== hasCmd
+    ) return;
+    if (runAction()) e.preventDefault();
+  }
+
+  window.addEventListener("keydown", listener);
+  return () => window.removeEventListener("keydown", listener);
+}
+
+let unregister: (() => void) | undefined;
+$: unregister = registerKeyBind(key, mods);
+
+onDestroy(() => unregister());
+
 </script>
 
 <li>
-  <div class="text">
+  <div class="text" on:click={runAction}>
     <span class="name">{name}</span>
     {#if keybind}
       <span class="keybind">
-        {#each keybindIcons as icon}
+        {#each icons as icon}
           <i class="icon icon-{icon}"/>
         {/each}
         <span class="key">
-          {keybindRaw}
+          {key}
         </span>
       </span>
     {/if}
@@ -92,7 +134,7 @@ ul {
   left: 0;
   list-style: none;
   padding: 0;
-  z-index: 1;
+  z-index: 1000;
   width: content-box;
   background-color: var(--colorBgLighter);
   margin-top: .2rem;
