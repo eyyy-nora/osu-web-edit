@@ -1,6 +1,6 @@
 import { HitType } from "./Objects/osu!/HitType";
 import { PathType } from "./Objects/osu!/PathType";
-import { Vector2 } from "./Objects/Vector2";
+import { Vector2 } from "../../util/Vector2";
 import { Beatmap } from "./Objects/osu!/Beatmap";
 import { HitObject } from "./Objects/osu!/HitObjects/HitObject";
 import { HitCircle } from "./Objects/osu!/HitObjects/HitCircle";

@@ -2,7 +2,7 @@ import { HitObject } from "./Objects/osu!/HitObjects/HitObject";
 import { DifficultyHitObject } from "./Objects/osu!/HitObjects/DifficultyHitObject";
 import { Slider } from "./Objects/osu!/HitObjects/Slider";
 import { Spinner } from "./Objects/osu!/HitObjects/Spinner";
-import { Vector2 } from "./Objects/Vector2";
+import { Vector2 } from "../../util/Vector2";
 
 class DifficultyHitObjectCreator {
     private difficultyHitObjects: DifficultyHitObject[];
