@@ -7,59 +7,65 @@ function logAction(name: string) {
   return () => console.log(name);
 }
 
+function openLink(link: string) {
+  return () => window.open(link, "_blank");
+}
+
 </script>
 
 <FileMenu>
   <FileMenuItem name="File">
-    <FileMenuItem name="New" keybind="ctrl+N" action={logAction("new")} />
-    <FileMenuItem name="Open..." keybind="ctrl+O" action={logAction("open")} />
-    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={logAction("import")} />
-    <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("save")} />
-    <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("save as")} />
-    <FileMenuItem name="Export" action={logAction("export")} />
+    <FileMenuItem name="New" keybind="alt+shift+N" action={logAction("file-new")} />
+    <FileMenuItem name="Open..." keybind="ctrl+O" action={logAction("file-open")} />
+    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={logAction("file-import")} />
+    <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
+    <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
+    <FileMenuItem name="Export" action={logAction("file-export")} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
-    <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("undo")} />
-    <FileMenuItem name="Redo" keybind="ctrl+Y" action={logAction("redo")} />
-    <FileMenuItem name="Copy" keybind="ctrl+C" action={logAction("copy")} />
-    <FileMenuItem name="Cut" keybind="ctrl+X" action={logAction("cut")} />
-    <FileMenuItem name="Paste" keybind="ctrl+V" action={logAction("paste")} />
-    <FileMenuItem name="Delete" keybind="Delete" action={logAction("delete")} />
-    <FileMenuItem name="Rotate Selection" keybind="ctrl+R" action={logAction("rotate")} />
-    <FileMenuItem name="Scale Selection" keybind="ctrl+H" action={logAction("scale")} />
+    <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />
+    <FileMenuItem name="Redo" keybind="ctrl+Y" action={logAction("edit-redo")} />
+    <FileMenuItem name="Copy" keybind="ctrl+C" action={logAction("edit-copy")} />
+    <FileMenuItem name="Cut" keybind="ctrl+X" action={logAction("edit-cut")} />
+    <FileMenuItem name="Paste" keybind="ctrl+V" action={logAction("edit-paste")} />
+    <FileMenuItem name="Delete" keybind="Delete" action={logAction("edit-delete")} />
+    <FileMenuItem name="Rotate Selection" keybind="ctrl+R" action={logAction("edit-rotate")} />
+    <FileMenuItem name="Scale Selection" keybind="ctrl+H" action={logAction("edit-scale")} />
   </FileMenuItem>
   <FileMenuItem name="Insert">
-    <FileMenuItem name="Circle" action={logAction("toggle grids")} />
-    <FileMenuItem name="Slider" action={logAction("configure grids")} />
-    <FileMenuItem name="Spinner" action={logAction("configure grids")} />
-    <FileMenuItem name="Break" action={logAction("configure grids")} />
-    <FileMenuItem name="Timing Point" action={logAction("configure grids")} />
-    <FileMenuItem name="Polygon Notes" action={logAction("configure grids")} />
+    <FileMenuItem name="Circle" action={logAction("insert-circle")} />
+    <FileMenuItem name="Slider" action={logAction("insert-slider")} />
+    <FileMenuItem name="Spinner" action={logAction("insert-spinner")} />
+    <FileMenuItem name="Break" action={logAction("insert-break")} />
+    <FileMenuItem name="Timing Point" action={logAction("insert-timing-point")} />
+    <FileMenuItem name="Polygon Notes" action={logAction("insert-polygon-notes")} />
   </FileMenuItem>
   <FileMenuItem name="View">
   </FileMenuItem>
   <FileMenuItem name="Navigate">
-    <FileMenuItem name="Next Tick" keybind="ArrowRight" action={logAction("next tick")} />
-    <FileMenuItem name="Previous Tick" keybind="ArrowLeft" action={logAction("prev tick")} />
-    <FileMenuItem name="Next Object" keybind="shift+ArrowRight" action={logAction("next object")} />
-    <FileMenuItem name="Previous Object" keybind="shift+ArrowLeft" action={logAction("prev object")} />
-    <FileMenuItem name="Next Bookmark" keybind="ctrl+ArrowRight" action={logAction("next bookmark")} />
-    <FileMenuItem name="Previous Bookmark" keybind="ctrl+ArrowLeft" action={logAction("prev bookmark")} />
-    <FileMenuItem name="Next Timing Point" keybind="alt+ArrowRight" action={logAction("next timing point")} />
-    <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={logAction("prev timing point")} />
+    <FileMenuItem name="Next Tick" keybind="ArrowRight" action={logAction("nav-next-tick")} />
+    <FileMenuItem name="Previous Tick" keybind="ArrowLeft" action={logAction("nav-prev-tick")} />
+    <FileMenuItem name="Next Object" keybind="shift+ArrowRight" action={logAction("nav-next-object")} />
+    <FileMenuItem name="Previous Object" keybind="shift+ArrowLeft" action={logAction("nav-prev-object")} />
+    <FileMenuItem name="Next Bookmark" keybind="ctrl+ArrowRight" action={logAction("nav-next-bookmark")} />
+    <FileMenuItem name="Previous Bookmark" keybind="ctrl+ArrowLeft" action={logAction("nav-prev-bookmark")} />
+    <FileMenuItem name="Next Timing Point" keybind="alt+ArrowRight" action={logAction("nav-next-timing-point")} />
+    <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={logAction("nav-prev-timing-point")} />
   </FileMenuItem>
   <FileMenuItem name="Guides">
-    <FileMenuItem name="New Guide" action={logAction("new guide")} />
-    <FileMenuItem name="New Grid" action={logAction("new grid")} />
-    <FileMenuItem name="Toggle Grids" keybind="ctrl+G" action={logAction("toggle grids")} />
-    <FileMenuItem name="Toggle Guides" keybind="ctrl+shift+G" action={logAction("toggle guides")} />
+    <FileMenuItem name="New Guide" action={logAction("guide-new-guide")} />
+    <FileMenuItem name="New Grid" action={logAction("guide-new-new-grid")} />
+    <FileMenuItem name="Toggle Grids" keybind="ctrl+G" action={logAction("guide-toggle-grids")} />
+    <FileMenuItem name="Toggle Guides" keybind="ctrl+shift+G" action={logAction("guide-toggle-guides")} />
   </FileMenuItem>
   <FileMenuItem name="Help">
-    <FileMenuItem name="Documentation" keybind="F11" action={logAction("docs")} />
-    <FileMenuItem name="What's New" action={logAction("whats new")} />
-    <FileMenuItem name="Search for Feature" action={logAction("search")} />
-    <FileMenuItem name="About" action={logAction("about")} />
-    <FileMenuItem name="Support owe.monster" action={logAction("support")} />
+    <FileMenuItem name="Documentation" keybind="F11" action={logAction("help-docs")} />
+    <FileMenuItem name="What's New" action={logAction("help-whats-new")} />
+    <FileMenuItem name="Search for Feature" action={logAction("help-search")} />
+    <FileMenuItem name="About" action={logAction("help-about")} />
+    <FileMenuItem name="Support owe.monster" action={openLink("https://www.patreon.com/osuwebedit")} />
+    <FileMenuItem name="Discord" action={openLink("https://discord.gg/anbBhx3DNs")} />
+    <FileMenuItem name="Credits" action={logAction("help-credits")} />
   </FileMenuItem>
   <OsuEditorUserMenu slot="end" />
 </FileMenu>
