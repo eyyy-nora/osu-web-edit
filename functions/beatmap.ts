@@ -16,7 +16,7 @@ export const handler: Handler = async (event, context) => {
 
   const client = authorized(event);
 
-  if (scope === "mods") {
+  if (scope == "mods") {
     return {
       statusCode: 200,
       body: JSON.stringify(fetchBeatmapMods(beatmapSetId, client)) + JSON.stringify({ "id": id, "scope": scope })
