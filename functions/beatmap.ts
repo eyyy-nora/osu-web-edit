@@ -16,15 +16,11 @@ export const handler: Handler = async (event, context) => {
 
   const client = authorized(event);
 
-  switch (scope[0]) {
-    case "mods": return modsRequest(beatmapSetId, client);
-    case "info": return badRequest("Uninplemented scope!");
-
-    default: return badRequest("Invalid scope specified!");
-  }
+  if (scope.includes("mods")) return modsResponse(beatmapSetId, client);
+  else return badRequest("Invalid or uninplemented scope!");
 }
 
-function modsRequest(beatmapSetId: number, client: AxiosInstance) {
+function modsResponse(beatmapSetId: number, client: AxiosInstance) {
   return {
     statusCode: 200,
     body: JSON.stringify(fetchBeatmapMods(beatmapSetId, client))
