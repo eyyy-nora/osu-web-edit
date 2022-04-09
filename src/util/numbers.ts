@@ -1,5 +1,5 @@
 import { Point } from "pixi.js";
-import { Vector2 } from "./Vector2";
+import { ParsedPoint } from "../parse/types";
 
 export function clamp(value: number, min: number = 0, max: number = 1): number {
   return Math.min(max, Math.max(min, value));
@@ -41,7 +41,7 @@ export function bernstein(i: number, n: number, t: number): number {
   return binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
 }
 
-export function intersect_slope(p1: Vector2, n1: Vector2, p2: Vector2, n2: Vector2, precision: Number) {
+export function intersect_slope(p1: ParsedPoint, n1: ParsedPoint, p2: ParsedPoint, n2: ParsedPoint, precision: Number) {
   let des = n1.x*n2.y - n1.y*n2.x;
   if(Math.abs(des) < precision) {
     return null;
@@ -50,8 +50,11 @@ export function intersect_slope(p1: Vector2, n1: Vector2, p2: Vector2, n2: Vecto
   return (n1.x*(p2.y - p1.y) - n1.y*(p2.x - p1.x)) / des;
 }
 
-export function rot90(v: Vector2): Vector2 {
-  return new Vector2(-v.y, v.x);
+export function rot90(v: ParsedPoint): ParsedPoint {
+  return {
+    x: -v.y,
+    y:  v.x
+  } as ParsedPoint;
 }
 
 export const BIT0 = 1;

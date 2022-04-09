@@ -1,7 +1,5 @@
-import { Point } from "pixi.js";
 import { ParsedSlider, ParsedPoint } from "../parse/types";
 import { lerp, intersect_slope, rot90 } from "./numbers";
-import { Vector2 } from "./Vector2";
 
 
 const linearSubdivision = 5;
@@ -25,7 +23,7 @@ const tickCutoffMs = 10;
 const endTickOffsetMs = 36;
 
 
-export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): [Point, Point, Point] {
+export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   if(slider.sliderType === "linear") {
     return linearPath(slider.pathSegments, cs, percent);
   } else if(slider.sliderType === "circle") {
@@ -38,44 +36,44 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
 
   // else error?
   return [
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
   ];
 }
 
-function linearPath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
-  const segment = segments[0];
-  const nextSegment = segments[1];
+function linearPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+  const p1 = segments[0];
+  const p2 = segments[1];
 
   const posC = {
-    x: lerp(segment.x, nextSegment.x, percent),
-    y: lerp(segment.y, nextSegment.y, percent)
-  } as Point;
+    x: lerp(p1.x, p2.x, percent),
+    y: lerp(p1.y, p2.y, percent)
+  } as ParsedPoint;
 
   const posL = {
-    x: lerp(segment.x, nextSegment.x, percent),
-    y: lerp(segment.y, nextSegment.y, percent)
-  } as Point;
+    x: 0,
+    y: 0
+  } as ParsedPoint;
 
   const posR = {
-    x: lerp(segment.x, nextSegment.x, percent),
-    y: lerp(segment.y, nextSegment.y, percent)
-  } as Point;
+    x: 0,
+    y: 0
+  } as ParsedPoint;
 
-  return [posL, posC, posR];
+  return [posL, posC, posR];  
 }
 
 /* Demonstration of the algorithm: https://www.desmos.com/calculator/se3jth7qy9 */
-function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
+function circlePath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L316
   if(segments.length != 3) {
     return bezierPath(segments, cs, percent);
   }
 
-  const pStart = new Vector2(segments[0].x, segments[0].y);
-  const pMid   = new Vector2(segments[1].x, segments[1].y)
-  const pEnd   = new Vector2(segments[2].x, segments[2].y)
+  const pStart = segments[0];
+  const pMid   = segments[1];
+  const pEnd   = segments[2];
 
   // Fallback to linear in degenerate cases
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L318-L322
@@ -86,12 +84,24 @@ function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Poin
   }
 
   // Mid points
-  const midA = pStart.add(pMid).divide(2);
-  const midB = pEnd.add(pMid).divide(2);
+  const midA = {
+    x: (pStart.x + pMid.x) / 2,
+    y: (pStart.x + pMid.x) / 2
+  } as ParsedPoint;
+  const midB = {
+    x: (pEnd.x + pMid.x) / 2,
+    y: (pEnd.x + pMid.x) / 2
+  } as ParsedPoint;
 
   // Normal vectors to lines from mid points to pMid
-  const normA = rot90(pMid.subtract(pStart));
-  const normB = rot90(pMid.subtract(pEnd));
+  const normA = rot90({
+    x: pMid.x - pStart.x,
+    y: pMid.y - pStart.y
+  } as ParsedPoint);
+  const normB = rot90({
+    x: pMid.x - pEnd.x,
+    y: pMid.y - pEnd.y
+  } as ParsedPoint);
 
   // Calc intersection point of normal vectors. That is the circle's center.
   const intSlope = intersect_slope(midA, normA, midB, normB, arcParallelThreshold);
@@ -100,8 +110,12 @@ function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Poin
   }
 
   // Circle center and radius
-  const center = midB.add(normB.scale(intSlope));
-  const radius = center.distance(pMid);
+  const center = {
+    x : midB.x + normB.x*intSlope,
+    y : midB.y + normB.y*intSlope
+  } as ParsedPoint;
+  
+  const radius = Math.sqrt((center.x - pMid.x)**2 + (center.y - pMid.y)**2);
 
   // Calc circle outline 
   const angleStart = Math.atan2(pStart.y - center.y, pStart.x - center.x);
@@ -112,54 +126,53 @@ function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Poin
   const angle1 = Math.max(angleStart, angleMid, angleEnd);
 
   // Calc point on circle outline
+  // TODO: Cache this result
   const anglePercent = angle0 + (angle1 - angle0)*percent;
 
   const posC = {
     x: center.x + radius * Math.cos(anglePercent),
     y: center.y + radius * Math.sin(anglePercent),
-  } as Point;
+  } as ParsedPoint;
 
   const posL = {
     x: 0,
     y: 0
-  } as Point;
+  } as ParsedPoint;
 
   const posR = {
     x: 0,
     y: 0
-  } as Point;
+  } as ParsedPoint;
   
   return [posL, posC, posR];
 }
 
-function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
+function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
 
 
   return [
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
   ];
 }
 
-function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [Point, Point, Point] {
+function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
 
   return [
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
-    {x:0, y:0} as Point,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
+    {x:0, y:0} as ParsedPoint,
   ];
 }
 
-function catmullFindPoint(ps: number[], t: number): number {
+function catmullFindPoint(p1: ParsedPoint, p2: ParsedPoint, p3: ParsedPoint, p4: ParsedPoint, t: number): ParsedPoint {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L449
   let t2 = t * t;
   let t3 = t2 * t;
 
-  return 0.5 * (
-    (2 * ps[1])
-    + (ps[2] - ps[0]) * t
-    + (2 * ps[0] - 5 * ps[1] + 4 * ps[2] - ps[3]) * t2
-    + (ps[3] - 3 * ps[2] + 3 * ps[1] - ps[0]) * t3
-  );
+  return {
+    x: 0.5 * (2 * p2.x + (-p1.x + p3.x) * t + (2 * p1.x - 5 * p2.x + 4 * p3.x - p4.x) * t2 + (-p1.x + 3 * p2.x - 3 * p3.x + p4.x) * t3),
+    y: 0.5 * (2 * p2.y + (-p1.y + p3.y) * t + (2 * p1.y - 5 * p2.y + 4 * p3.y - p4.y) * t2 + (-p1.y + 3 * p2.y - 3 * p3.y + p4.y) * t3),
+  } as ParsedPoint;
 }
