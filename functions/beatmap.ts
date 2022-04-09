@@ -19,7 +19,7 @@ export const handler: Handler = async (event, context) => {
   if (scope === "mods") {
     return {
       statusCode: 200,
-      body: JSON.stringify(fetchBeatmapMods(beatmapSetId, client))
+      body: JSON.stringify(fetchBeatmapMods(beatmapSetId, client)) + JSON.stringify({ "id": id, "scope": scope })
     }
   } else return badRequest("Invalid or uninplemented scope!");
 }
