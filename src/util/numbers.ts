@@ -1,5 +1,12 @@
-import { Point } from "pixi.js";
 import { ParsedPoint } from "../parse/types";
+
+export function* range(n: number): Iterable<number> {
+  for (let i = 0; i<n; i++) yield i;
+}
+
+export function* mapIterator(iterator, mapping) {
+  for (let i of iterator) yield mapping(i);
+}
 
 export function clamp(value: number, min: number = 0, max: number = 1): number {
   return Math.min(max, Math.max(min, value));
@@ -31,10 +38,8 @@ export function binomialCoefficient(n: number, k: number): number {
   k = Math.min(k, n - k);
 
   // [0 ... k]
-  let k_range = Array.from(Array(k).keys());
-
-  // prod((n - k_range[]) / (k_range[] + 1))
-  return prod(k_range.map((x) => (n - x) / (x + 1)));
+  // prod((n - kRange[]) / (kRange[] + 1))
+  return prod(Array.from(mapIterator(range(k), (x) => (n - x) / (x + 1))));
 }
 
 export function bernstein(i: number, n: number, t: number): number {
