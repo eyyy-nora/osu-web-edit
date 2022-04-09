@@ -5,18 +5,18 @@ import { badRequest } from "./util";
 import { fetchBeatmapMods } from "./osu/beatmap";
 
 export const handler: Handler = async (event, context) => {
-  const { id, scope = ["info", "mods"] } = event.multiValueQueryStringParameters ?? {};
+  const { id, scope } = event.queryStringParameters ?? {};
 
-  if (!id?.length) return badRequest("No beatmapset id given!");
-  if (!scope.length) return badRequest("No scopes requested. available scopes are ['info', 'mods']!");
+  if (requestLacksQueryArguments(id, scope))
+    return badRequest("You have to provide at least 2 parameters (id, scope)!");
 
-  const beatmapSetId = parseInt(id[0]);
+  const beatmapSetId = parseInt(id ?? "0");
 
   if (isNaN(beatmapSetId)) return badRequest("id is not a number!");
 
   const client = authorized(event);
 
-  if (scope.includes("mods")) return modsResponse(beatmapSetId, client);
+  if (scope === "mods") return modsResponse(beatmapSetId, client);
   else return badRequest("Invalid or uninplemented scope!");
 }
 
@@ -25,4 +25,8 @@ function modsResponse(beatmapSetId: number, client: AxiosInstance) {
     statusCode: 200,
     body: JSON.stringify(fetchBeatmapMods(beatmapSetId, client))
   }
+}
+
+function requestLacksQueryArguments(id: any, scope: any) {
+  return (id === undefined && scope === undefined);
 }
