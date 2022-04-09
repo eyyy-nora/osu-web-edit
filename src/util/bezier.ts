@@ -1,5 +1,5 @@
 import { ParsedSlider, ParsedPoint } from "../parse/types";
-import { lerp, intersect_slope, rot90 } from "./numbers";
+import { range, mapIterator, lerp, intersect_slope, rot90 } from "./numbers";
 
 
 const linearSubdivision = 5;
@@ -165,8 +165,8 @@ function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [Pars
 
 function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L142
-  const subdiv = Array.from(Array(catmullSubdivision).keys());
-  const pieces = Array.from(Array(segments.length).keys());
+  const subdiv = range(catmullSubdivision);
+  const pieces = range(segments.length);
 
   let v1 = (i: number) => (i > 0)? segments[i - 1] : segments[i];
 
@@ -182,11 +182,12 @@ function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [Par
     y: 2*segments[i].y - v1(i).y,
   } as ParsedPoint;
 
-  const points = pieces.map((i) =>
-    subdiv.map((c) => 
-      catmullFindPoint(v1(i), segments[i], v3(i), v4(i), c / catmullSubdivision)
-    )
-  );
+  const points = 
+    mapIterator(pieces, (i) =>
+      mapIterator(subdiv, (c) => 
+        catmullFindPoint(v1(i), segments[i], v3(i), v4(i), c / catmullSubdivision)
+      )
+    );
 
   // TODO cache points
 
