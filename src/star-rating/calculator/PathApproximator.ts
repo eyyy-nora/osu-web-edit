@@ -1,4 +1,4 @@
-import { Vector2 } from "../../util/Vector2";
+import { Vector2 } from "./Objects/Vector2";
 import { Precision } from "./Precision";
 
 class PathApproximator {

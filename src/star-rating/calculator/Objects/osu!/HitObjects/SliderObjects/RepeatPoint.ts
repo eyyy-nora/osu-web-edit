@@ -1,5 +1,5 @@
 import { HitObject } from "../HitObject";
-import { Vector2 } from "../../../../../../util/Vector2";
+import { Vector2 } from "../../../Vector2";
 
 export class RepeatPoint extends HitObject {
     RepeatIndex: number;
