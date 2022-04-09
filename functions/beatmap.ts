@@ -1,8 +1,8 @@
 import { Handler } from "@netlify/functions";
 import { AxiosInstance } from "axios";
-import { authorized } from "../oauth";
-import { badRequest } from "../util";
-import { fetchBeatmapMods } from "./beatmap/";
+import { authorized } from "./oauth";
+import { badRequest } from "./util";
+import { fetchBeatmapMods } from "./osu/beatmap";
 
 export const handler: Handler = async (event, context) => {
   const { id, scope = ["info", "mods"] } = event.multiValueQueryStringParameters ?? {};
