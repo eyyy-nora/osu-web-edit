@@ -35,46 +35,17 @@ export interface NominationSummary {
 }
 
 
-export interface Discussion {
-  Id: number;
-  BeatmapsetId: number;
-  UserId: number;
-  MessageType: string;
-  ParentId?: number;
-  Resolved: boolean;
-  CanGrantKudosu: boolean;
-  CreatedAt: string;
-  UpdatedAt: string;
-  LastPostAt: string;
-  CurrentUserAttributes: UserDiscussionAttributes;
-  StartingPost: Post;
-  Posts: Post[];
-  EngagedUsers: DiscussionUser[];
-}
-
-export interface DiscussionUser {
-  Id: number;
-  Username: string;
-  AvatarURL: string;
-  CountryCode: string;
-  IsBot: boolean;
-  IsSupporter: boolean;
-  IsOWEUser?: boolean;
-}
-
-export interface UserDiscussionAttributes {
-  VoteScore: number;
-  CanModerateKudosu: boolean;
-  CanResolve: boolean;
-  CanReopen: boolean;
-  CanDestroy: boolean;
-}
-
-export interface Post {
-  BeatmapsetDiscussionId: number;
-  CreatedAt: string;
-  Message: string;
-  System: boolean;
-  UpdatedAt: string;
-  UserId: number;
+export type Discussion = {
+  id: number;
+  beatmapset_id: number;
+  beatmap_id: number;
+  user_id: number;
+  message_type: string;
+  parent_id: number;
+  resolved: boolean;
+  can_grant_kudosu: boolean;
+  created_at: string;
+  updated_at: string;
+  last_post_at: string;
+  starting_post: {};
 }
