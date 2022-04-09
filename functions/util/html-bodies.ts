@@ -13,5 +13,5 @@ export function scriptBody(script: string, title = "Script"): string {
 }
 
 export function windowClose(title?: string): string {
-  return scriptBody("window.close();", title);
+  return scriptBody("if (window.opener && !window.opener.closed) window.close(); else location.href = 'https://owe.monster/';", title);
 }
