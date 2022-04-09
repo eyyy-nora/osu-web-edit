@@ -3,6 +3,8 @@ import { lerp, intersect_slope, rot90 } from "./numbers";
 
 
 const linearSubdivision = 5;
+
+// The amount of pieces to calculate for each control point quadruplet.
 const catmullSubdivision = 50;
 
 const precisionThresholdPx = 0.01;
@@ -43,6 +45,10 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
 }
 
 function linearPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+  if(segments.length != 2) {
+    // ???
+  }
+
   const p1 = segments[0];
   const p2 = segments[1];
 
@@ -158,6 +164,31 @@ function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [Pars
 }
 
 function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+  // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L142
+  const subdiv = Array.from(Array(catmullSubdivision).keys());
+  const pieces = Array.from(Array(segments.length).keys());
+
+  let v1 = (i: number) => (i > 0)? segments[i - 1] : segments[i];
+
+  // v2 = segments[i]
+
+  let v3 = (i: number) => (i < (segments.length - 1))? segments[i + 1] : {
+    x: 2*segments[i].x - v1(i).x,
+    y: 2*segments[i].y - v1(i).y,
+  } as ParsedPoint;
+
+  let v4 = (i: number) => (i < (segments.length - 2))? segments[i + 2] : {
+    x: 2*segments[i].x - v1(i).x,
+    y: 2*segments[i].y - v1(i).y,
+  } as ParsedPoint;
+
+  const points = pieces.map((i) =>
+    subdiv.map((c) => 
+      catmullFindPoint(v1(i), segments[i], v3(i), v4(i), c / catmullSubdivision)
+    )
+  );
+
+  // TODO cache points
 
   return [
     {x:0, y:0} as ParsedPoint,
