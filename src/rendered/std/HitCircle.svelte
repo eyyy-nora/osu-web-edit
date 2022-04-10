@@ -19,12 +19,11 @@ let unregister: undefined | (() => void);
 function draw(
   x: number, y: number, r: number,
   color: number, alpha: number, combo: number,
-  hit: boolean, approach: number, zIndex: number,
+  hit: boolean, approach: number
 ) {
   if (unregister) unregister();
 
   g = new Graphics();
-  g.zIndex = zIndex;
   g.beginFill(color, alpha);
   g.lineStyle({
     alpha,
@@ -45,7 +44,6 @@ function draw(
     fill: hit ? "#aaaaaa" : "#ffffff",
     fontWeight: "500",
   });
-  t.zIndex = zIndex + .5;
   t.anchor.set(.5);
   t.position.set(x, y);
   t.alpha = alpha;

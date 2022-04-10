@@ -1,10 +1,6 @@
 <script lang="ts">
-import { login } from "./client";
-import Button from "./component/form/Button.svelte";
-import HBox from "./component/layout/HBox.svelte";
-import Spacer from "./component/layout/Spacer.svelte";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
-import { downloadMapSet } from "./parse/parse-osu-file";
+import { downloadMapSet, parseMapSet } from "./parse/parse-osu-file";
 import { onMount } from "svelte";
 import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
@@ -26,11 +22,25 @@ let mapset: ParsedMapSet;
 let selectedDifficulty: ParsedBeatmap;
 let time: number = 0;
 
-onMount(async () => {
-  mapset = await downloadMapSet("/DotEXE - Battlecry.osz");
-  selectedDifficulty = mapset.difficulties[0];
+function loadMapSet(parsed: ParsedMapSet) {
+  mapset = parsed;
+  selectedDifficulty = mapset?.difficulties[0];
   time = selectedDifficulty.TimingPoints[0].time;
-});
+}
+
+onMount(async () => loadMapSet(await downloadMapSet("/DotEXE - Battlecry.osz")));
+
+function onDrop(ev: DragEvent) {
+  if (!ev.dataTransfer) return;
+  const files = [...ev.dataTransfer.files];
+  if (!files.length) return;
+  const reader = new FileReader();
+  reader.addEventListener("load", (ev) => {
+    parseMapSet(ev.target.result as ArrayBuffer).then(loadMapSet);
+  });
+  reader.readAsArrayBuffer(files[0]);
+
+}
 
 function matchingPoint(timingPoints: ParsedTimingPoint[], time: number) {
   const firstBiggerIndex = timingPoints.findIndex(point => point.time > time);
@@ -81,6 +91,8 @@ $: beatLength = currentTimingPoint?.beatLength ?? 200;
 $: offset = currentTimingPoint?.time ?? 0;
 $: meter = currentTimingPoint?.meter ?? 4;
 </script>
+
+<svelte:window on:dragover|preventDefault on:dragenter|capture={() => {}} on:drop|preventDefault={onDrop} />
 
 <main>
   <ScreenBox>

@@ -33,7 +33,7 @@ export async function downloadMapSet(url: string): Promise<ParsedMapSet> {
 }
 
 
-export async function parseMapSet(file: Blob | Uint8Array): Promise<ParsedMapSet> {
+export async function parseMapSet(file: Blob | Uint8Array | ArrayBuffer): Promise<ParsedMapSet> {
   const zip = await jszip.loadAsync(file);
 
   const mapset: ParsedMapSet = { difficulties: [], files: {} };
@@ -68,7 +68,7 @@ export function parseOsuFile(data: string): ParsedBeatmap {
         case "TimingPoints": value[section]!.push(parseTimingPoint(line)); break;
         case "Events": value[section]!.push(parseEvent(line)); break;
       }
-    } else if (section && section === "Colors") {
+    } else if (section && section === "Colours") {
       value[section] ??= {};
       const [key, val] = line.split(":", 2).map((str) => str.trim());
       const [r, g, b] = val.split(",").map(Number);

@@ -111,37 +111,6 @@ div.vertical {
   margin: 0 -1px;
 }
 
-div:after, div:before {
-  position: absolute;
-  display: block;
-  content: " ";
-  background-color: var(--colorBgLighter);
-}
-
-div.vertical:after {
-  top: 100%;
-  width: 12px;
-  height: 1px;
-}
-
-div.vertical:before {
-  top: -1px;
-  width: 12px;
-  height: 1px;
-}
-
-div.horizontal:after {
-  left: 100%;
-  height: 12px;
-  width: 1px;
-}
-
-div.horizontal:before {
-  left: -1px;
-  height: 12px;
-  width: 1px;
-}
-
 div.horizontal {
   cursor: ns-resize;
   border-left: 0;
@@ -150,9 +119,7 @@ div.horizontal {
   margin: -1px 0;
 }
 
-
 div.disabled {
   cursor: default;
 }
-
 </style>
