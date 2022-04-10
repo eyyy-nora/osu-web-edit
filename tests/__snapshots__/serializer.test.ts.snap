@@ -44,12 +44,12 @@ SliderTickRate:0.5
 
 [Events]
 //Background and Video events
-0,0,\\"acidbg.jpg\\",0,0 
+0,0,\\"acidbg.jpg\\",0,0
 //Break Periods
-2,83120,85007 
-2,118590,122119 
-2,129487,135532 
-2,225936,254146 
+2,83120,85007
+2,118590,122119
+2,129487,135532
+2,225936,254146
 //Storyboard Layer 0 (Background)
 //Storyboard Layer 1 (Fail)
 //Storyboard Layer 2 (Pass)
@@ -1594,7 +1594,7 @@ SliderTickRate:1
 
 [Events]
 //Background and Video events
-0,0,\\"pandapeder3.jpg\\",0,0 
+0,0,\\"pandapeder3.jpg\\",0,0
 //Break Periods
 //Storyboard Layer 0 (Background)
 //Storyboard Layer 1 (Fail)
@@ -8026,7 +8026,7 @@ SliderTickRate:1
 
 [Events]
 //Background and Video events
-0,0,\\"bg.jpg\\",0,0 
+0,0,\\"bg.jpg\\",0,0
 //Break Periods
 //Storyboard Layer 0 (Background)
 //Storyboard Layer 1 (Fail)
@@ -10150,14 +10150,14 @@ SliderTickRate:1
 
 [Events]
 //Background and Video events
-0,0,\\"Dubstep.jpg\\",0,0 
+0,0,\\"Dubstep.jpg\\",0,0
 //Break Periods
-2,5926,7592 
-2,9676,11342 
-2,13426,15092 
-2,17176,18842 
-2,136240,137436 
-2,138115,139311 
+2,5926,7592
+2,9676,11342
+2,13426,15092
+2,17176,18842
+2,136240,137436
+2,138115,139311
 //Storyboard Layer 0 (Background)
 //Storyboard Layer 1 (Fail)
 //Storyboard Layer 2 (Pass)
@@ -10235,7 +10235,7 @@ SliderTickRate:1
 199790,-25,4,1,0,50,0,0
 
 [Colours]
-undefined
+
 
 [HitObjects]
 212,112,4789,6,0,P|318:249|167:206,1,440.000002384184
@@ -11185,10 +11185,10 @@ SliderTickRate:1
 
 [Events]
 //Background and Video events
-0,0,\\"maxresdefault.jpg\\",0,0 
-1,304,\\"La de da de da de da de day oh.mp4\\" 
+0,0,\\"maxresdefault.jpg\\",0,0
+1,304,\\"La de da de da de da de day oh.mp4\\"
 //Break Periods
-2,182835,187337 
+2,182835,187337
 //Storyboard Layer 0 (Background)
 //Storyboard Layer 1 (Fail)
 //Storyboard Layer 2 (Pass)

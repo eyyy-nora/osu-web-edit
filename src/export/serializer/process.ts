@@ -1,98 +1,81 @@
-import { ParsedHitObject, ParsedSlider, ParsedTimingPoint, ParsedEvent, ParsedOsuColors } from "../../parse/types";
+import { ParsedHitObject, ParsedTimingPoint, ParsedEvent } from "../../parse/types";
+import { EMPTY_STRING, isEmpty } from "./util";
+
 import {
-  transformHitObjectType, transformHitSample, transformSliderType,
-  transformSliderPath, transformEdgeSounds, transformEdgeSets, transformBool
-} from "./transform";
+  serializeBackground,
+  serializeBreak,
+  serializeCircle, serializeHoldOrSpinner,
+  serializeSlider, serializeTimingPoint, serializeVideo
+} from "./serialize";
 
-export function processKVPairs(section: Object, isSpaced: boolean): string {
-  if (isSpaced) return KeyValueProcessor(section, ": ");
+export function processKeyValuePairs(section: Object, appointedSeparator: string): string {
+  if (section === undefined) return EMPTY_STRING;
 
-  else return KeyValueProcessor(section, ":");
+  return Object.entries(section).map(([key, value]) => `${key}${appointedSeparator}${value}`).join("\n");
 }
 
 export function processHitObjects(hitObjects: ParsedHitObject[]): string {
-  let serialHitObjects = "";
+  if (isEmpty(hitObjects)) return EMPTY_STRING;
 
-  if (hitObjects === undefined || hitObjects.length <= 0) return;
+  let hitObjectsAsString = "";
 
-  hitObjects.forEach(hitObject => {
+  for (const hitObject of hitObjects) {
     if (hitObject === undefined) return;
 
     switch (hitObject.type) {
-      case "circle": serialHitObjects += `${hitObject.x},${hitObject.y},${hitObject.time},${transformHitObjectType(hitObject)},${hitObject.hitSound}${transformHitSample(hitObject.hitSample)}\n`; break;
+      case "circle": hitObjectsAsString += serializeCircle(hitObject); break;
 
-      case "slider": serialHitObjects += `${hitObject.x},${hitObject.y},${hitObject.time},${transformHitObjectType(hitObject)},${hitObject.hitSound},${transformSliderType(asSlider(hitObject).sliderType)}${transformSliderPath(asSlider(hitObject))},${asSlider(hitObject).slides},${asSlider(hitObject).length}${transformEdgeSounds(asSlider(hitObject).edgeSounds)}${transformEdgeSets(asSlider(hitObject).edgeSets)}${transformHitSample(asSlider(hitObject).hitSample)}\n`; break;
+      case "slider": hitObjectsAsString += serializeSlider(hitObject); break;
 
-      case "spinner": serialHitObjects += `${hitObject.x},${hitObject.y},${hitObject.time},${transformHitObjectType(hitObject)},${hitObject.hitSound},${hitObject.end}${transformHitSample(hitObject.hitSample)}\n`; break;
-
-      case "hold": serialHitObjects += `${hitObject.x},${hitObject.y},${hitObject.time},${transformHitObjectType(hitObject)},${hitObject.hitSound},${hitObject.end}${transformHitSample(hitObject.hitSample)}\n`; break;
+      case "spinner":
+      case "hold": hitObjectsAsString += serializeHoldOrSpinner(hitObject); break;
     }
-  })
+  }
 
-  return serialHitObjects;
+  return hitObjectsAsString;
 }
 
 export function processTimingPoints(timingPoints: ParsedTimingPoint[]): string {
-  let serialPoints = "";
+  if (isEmpty(timingPoints)) return EMPTY_STRING;
 
-  if (timingPoints === undefined || timingPoints.length <= 0) return;
+  let timingPointsAsString = "";
 
-  timingPoints.forEach(point => {
+  for (const point of timingPoints) {
     if (point === undefined) return;
 
-    serialPoints +=
-      `${point.time},${point.beatLength},${point.meter},${point.sampleSet},${point.sampleIndex},${point.volume},${transformBool(point.inherited, true)},${transformBool(point.kiai, false)}\n`;
-  })
+    timingPointsAsString += serializeTimingPoint(point);
+  }
 
-  return serialPoints;
+  return timingPointsAsString;
 }
 
-export function processVBEvents(events: ParsedEvent[]): string {
-  let serialVideoBGEvents = "";
+export function processVideoAndBackgroundEvents(events: ParsedEvent[]): string {
+  if (isEmpty(events)) return EMPTY_STRING;
 
-  if (events === undefined || events.length <= 0) return;
+  let serialVideoBGEvents = "";
 
   events.forEach(event => {
     if (event === undefined) return;
 
     switch (event.type) {
-      case "background": serialVideoBGEvents += `0,0,${event.filename},${event.x},${event.y} \n`; break;
-      case "video": serialVideoBGEvents += `1,${event.time},${event.filename}${optionalCoordinates(event.x, event.y)} \n`; break;
+      case "background": serialVideoBGEvents += serializeBackground(event); break;
+      case "video": serialVideoBGEvents += serializeVideo(event); break;
     }
   })
 
   return serialVideoBGEvents;
 }
 
-export function processColours(colours: ParsedOsuColors): string {
-  if (colours === undefined) return;
-
-  return KeyValueProcessor(colours, " : ");
-}
-
 export function processBreakEvents(events: ParsedEvent[]): string {
-  let breaks = "";
+  if (isEmpty(events)) return EMPTY_STRING;
 
-  if (events === undefined || events.length <= 0) return;
+  let breaks = "";
 
   events.forEach(event => {
     if (event === undefined) return;
 
-    if (event.type === "break") breaks += `2,${event.time},${event.end} \n`;
+    if (event.type === "break") breaks += serializeBreak(event);
   });
 
   return breaks;
-}
-
-function KeyValueProcessor(section: Object, appointedSeparator: string): string {
-  return Object.entries(section).map(([key, value]) => `${key}${appointedSeparator}${value}`).join("\n");
-}
-
-function asSlider(hitObject: ParsedHitObject): ParsedSlider {
-  return (hitObject as ParsedSlider);
-}
-
-function optionalCoordinates(x: number, y: number): string {
-  if (isNaN(x) && isNaN(y)) return "";
-  else return `,${x},${y}`;
 }
