@@ -71,22 +71,22 @@ function linearPath(segments: ParsedPoint[], cs: number, percent: number): [Pars
 }
 
 /* Demonstration of the algorithm: https://www.desmos.com/calculator/se3jth7qy9 */
-function circlePath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+function circlePath(points: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L316
-  if(segments.length != 3) {
-    return bezierPath(segments, cs, percent);
+  if(points.length != 3) {
+    return bezierPath(points, cs, percent);
   }
 
-  const pStart = segments[0];
-  const pMid   = segments[1];
-  const pEnd   = segments[2];
+  const pStart = points[0];
+  const pMid   = points[1];
+  const pEnd   = points[2];
 
   // Fallback to linear in degenerate cases
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L318-L322
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L366
   const is_linear = Math.abs(((pMid.y - pStart.y) * (pEnd.x - pStart.x)) - ((pMid.x - pStart.x) * (pEnd.y - pStart.y))) < precisionThresholdPx;
   if(is_linear) {
-    return linearPath(segments, cs, percent);
+    return linearPath(points, cs, percent);
   }
 
   // Mid points
@@ -112,7 +112,7 @@ function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Pars
   // Calc intersection point of normal vectors. That is the circle's center.
   const intSlope = intersect_slope(midA, normA, midB, normB, arcParallelThreshold);
   if(intSlope === null) {
-    return linearPath(segments, cs, percent);
+    return linearPath(points, cs, percent);
   }
 
   // Circle center and radius
@@ -153,8 +153,6 @@ function circlePath(segments: ParsedPoint[], cs: number, percent: number): [Pars
   return [posL, posC, posR];
 }
 
-function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
-
 
   return [
     {x:0, y:0} as ParsedPoint,
@@ -163,29 +161,29 @@ function bezierPath(segments: ParsedPoint[], cs: number, percent: number): [Pars
   ];
 }
 
-function catmullPath(segments: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+function catmullPath(points: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L142
   const subdiv = range(catmullSubdivision);
-  const pieces = range(segments.length);
+  const pieces = range(points.length);
 
-  let v1 = (i: number) => (i > 0)? segments[i - 1] : segments[i];
+  let v1 = (i: number) => (i > 0)? points[i - 1] : points[i];
 
-  // v2 = segments[i]
+  // v2 = points[i]
 
-  let v3 = (i: number) => (i < (segments.length - 1))? segments[i + 1] : {
-    x: 2*segments[i].x - v1(i).x,
-    y: 2*segments[i].y - v1(i).y,
+  let v3 = (i: number) => (i < (points.length - 1))? points[i + 1] : {
+    x: 2*points[i].x - v1(i).x,
+    y: 2*points[i].y - v1(i).y,
   } as ParsedPoint;
 
-  let v4 = (i: number) => (i < (segments.length - 2))? segments[i + 2] : {
-    x: 2*segments[i].x - v1(i).x,
-    y: 2*segments[i].y - v1(i).y,
+  let v4 = (i: number) => (i < (points.length - 2))? points[i + 2] : {
+    x: 2*points[i].x - v1(i).x,
+    y: 2*points[i].y - v1(i).y,
   } as ParsedPoint;
 
-  const points = 
+  const genPoints = 
     mapIterator(pieces, (i) =>
       mapIterator(subdiv, (c) => 
-        catmullFindPoint(v1(i), segments[i], v3(i), v4(i), c / catmullSubdivision)
+        catmullFindPoint(v1(i), points[i], v3(i), v4(i), c / catmullSubdivision)
       )
     );
 
