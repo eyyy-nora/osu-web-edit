@@ -17,3 +17,7 @@ export function lighten(color: Color, value: number): Color {
 export function darken(color: Color, value: number): Color {
   return color.map(channel => clamp(channel * (1 - value), 0, 255) | 0) as Color;
 }
+
+export function numberToRgba(color: number, alpha: number = 1) {
+  return `rgba(${numberToColor(color).join(", ")}, ${alpha})`;
+}

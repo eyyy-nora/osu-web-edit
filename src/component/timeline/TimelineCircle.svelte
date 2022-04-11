@@ -1,8 +1,10 @@
 <script lang="ts">
+import { numberToRgba } from "../../util/color";
+
 export let time: number = 0;
 export let end: number = 0;
 export let combo: number = 1;
-export let color: [number, number, number] = [42, 57, 84];
+export let color: number = 0xffffff;
 </script>
 
 <style>
@@ -30,6 +32,6 @@ span {
 }
 </style>
 
-<div style="--pos: {time}; --color: rgb({color.join(',')})">
+<div style="--pos: {time}; --color: {numberToRgba(color)}">
   <span>{combo}</span>
 </div>

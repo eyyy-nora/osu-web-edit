@@ -1,7 +1,6 @@
 import { Graphics, Text } from "pixi.js";
 import { onDestroy } from "svelte";
 import { registerPixi } from "../../context/pixi-context";
-import { colorToNumber } from "../../util/color";
 import { ParsedHitCircle } from "../../parse/types";
 import {
   approachCircleColor,
@@ -63,15 +62,15 @@ export interface HitCircleInitProps {
   alpha: number;
   approach: number;
   zIndex: number;
-  color: [number, number, number];
+  color: number;
   combo: number;
   cs: number;
 }
 
 export function useHitCircle(circle: ParsedHitCircle, { alpha, approach, zIndex, color, combo, cs }: HitCircleInitProps) {
-  let { x, y } = circle, r = radiusForCs(cs), colorNum = colorToNumber(color);
+  let { x, y } = circle, r = radiusForCs(cs);
 
-  let [body, updateBody] = initHitCircleBody(x, y, r, colorNum, alpha, zIndex);
+  let [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);
   let [text, updateText] = initComboText(x, y, r, alpha, combo, zIndex + .1);
   let [aCircle, updateACircle] = initApproachCircle(x, y, r, alpha, approach, zIndex + .2);
 
@@ -92,14 +91,13 @@ export function useHitCircle(circle: ParsedHitCircle, { alpha, approach, zIndex,
     aCircle.position.set(x, y);
   }
 
-  function refresh(newCombo: number, newColor: [number, number, number], newCs: number) {
-    const newColorNum = colorToNumber(newColor);
-    if (newCombo === combo && cs === newCs && newColorNum === colorNum) return;
-    cs = newCs; r = radiusForCs(cs); colorNum = newColorNum; combo = newCombo;
+  function refresh(newCombo: number, newColor: number, newCs: number) {
+    if (newCombo === combo && cs === newCs && newColor === color) return;
+    cs = newCs; r = radiusForCs(cs); color = newColor; combo = newCombo;
 
     unregister();
 
-    [body, updateBody] = initHitCircleBody(x, y, r, colorToNumber(color), alpha, zIndex);
+    [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);
     [text, updateText] = initComboText(x, y, r, alpha, newCombo, zIndex + .1);
     [aCircle, updateACircle] = initApproachCircle(x, y, r, alpha, approach, zIndex + .2);
 

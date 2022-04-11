@@ -15,6 +15,7 @@ import OsuEditorStdMapView from "./rendered/OsuEditorStdMapView.svelte";
 import { GIRDER_LEFT_WIDTH, GIRDER_RIGHT_WIDTH, local } from "./user-preferences";
 import { storedValue } from "./util/stored-value";
 import DoubleGirder from "./component/girder/DoubleGirder.svelte";
+import { colorToNumber } from "./util/color";
 
 const girderLeftWidth = storedValue(local, GIRDER_LEFT_WIDTH, .25);
 const girderRightWidth = storedValue(local, GIRDER_RIGHT_WIDTH, .25);
@@ -97,7 +98,7 @@ function hitObjectsWithCombos(objects: ParsedHitObject[] = [], colors: ParsedOsu
   let comboIndex = -1;
   const nextColor = () => {
     if (++comboIndex >= comboColors.length) comboIndex = 0;
-    return comboColors[comboIndex];
+    return colorToNumber(comboColors[comboIndex]);
   }
 
   let combo = 1, color = comboColors[0];

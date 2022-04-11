@@ -2,7 +2,6 @@ import { registerPixi } from "../../context/pixi-context";
 import { ParsedSlider } from "../../parse/types";
 import { radiusForCs } from "./general";
 import { initComboText, initHitCircleBody, initApproachCircle } from "./hit-circle";
-import { colorToNumber } from "../../util/color";
 import { onDestroy } from "svelte";
 
 
@@ -11,15 +10,15 @@ export interface SliderInitProps {
   alpha: number;
   approach: number;
   zIndex: number;
-  color: [number, number, number];
+  color: number;
   combo: number;
   cs: number;
 }
 
 export function useSlider(circle: ParsedSlider, { alpha, approach, zIndex, color, combo, cs }: SliderInitProps) {
-  let { x, y } = circle, r = radiusForCs(cs), colorNum = colorToNumber(color);
+  let { x, y } = circle, r = radiusForCs(cs);
 
-  let [body, updateBody] = initHitCircleBody(x, y, r, colorNum, alpha, zIndex);
+  let [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);
   let [text, updateText] = initComboText(x, y, r, alpha, combo, zIndex + .1);
   let [aCircle, updateACircle] = initApproachCircle(x, y, r, alpha, approach, zIndex + .2);
 
@@ -40,14 +39,13 @@ export function useSlider(circle: ParsedSlider, { alpha, approach, zIndex, color
     aCircle.position.set(x, y);
   }
 
-  function refresh(newCombo: number, newColor: [number, number, number], newCs: number) {
-    const newColorNum = colorToNumber(newColor);
-    if (newCombo === combo && cs === newCs && newColorNum === colorNum) return;
-    cs = newCs; r = radiusForCs(cs); colorNum = newColorNum; combo = newCombo;
+  function refresh(newCombo: number, newColor: number, newCs: number) {
+    if (newCombo === combo && cs === newCs && newColor === color) return;
+    cs = newCs; r = radiusForCs(cs); color = newColor; combo = newCombo;
 
     unregister();
 
-    [body, updateBody] = initHitCircleBody(x, y, r, colorToNumber(color), alpha, zIndex);
+    [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);
     [text, updateText] = initComboText(x, y, r, alpha, newCombo, zIndex + .1);
     [aCircle, updateACircle] = initApproachCircle(x, y, r, alpha, approach, zIndex + .2);
 

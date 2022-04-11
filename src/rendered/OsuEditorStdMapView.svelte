@@ -52,7 +52,7 @@ function filterInRange(objects: ParsedHitObject[], start: number, end: number, s
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
-function visibleObjectStats(object: ParsedHitObject) {
+function visibleObjectStats(object: ParsedHitObject, zIndex: nuber) {
   const baseAlphaEditor = .3;
 
   let t = object.time - time;
@@ -82,7 +82,7 @@ function visibleObjectStats(object: ParsedHitObject) {
   const percent = (end === t) ? hit ? 1 : 0 : (t < 0 && end >= 0) ? 1 - Math.max(0, Math.min(1, end / length)) : 0;
   const approach = t > 0 ? t > preempt ? 0 : 1 - (t / preempt) : 0;
 
-  return { ...object, hit, alpha, approach, percent, complete, cs };
+  return { ...object, hit, alpha, approach, percent, complete, cs, zIndex };
 }
 
 let visibleObjects: (ParsedHitObject & any)[];
