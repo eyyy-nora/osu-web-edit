@@ -163,8 +163,9 @@ function circlePath(points: ParsedPoint[], cs: number, percent: number): [Parsed
 
 function catmullPath(points: ParsedPoint[], cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L142
+  // Demo: https://www.desmos.com/calculator/gdo3e6rleh
   const subdiv = range(catmullSubdivision);
-  const pieces = range(points.length);
+  const pieces = range(points.length - 1);
 
   let v1 = (i: number) => (i > 0)? points[i - 1] : points[i];
 
@@ -176,8 +177,8 @@ function catmullPath(points: ParsedPoint[], cs: number, percent: number): [Parse
   } as ParsedPoint;
 
   let v4 = (i: number) => (i < (points.length - 2))? points[i + 2] : {
-    x: 2*points[i].x - v1(i).x,
-    y: 2*points[i].y - v1(i).y,
+    x: 2*v3(i).x - points[i].x,
+    y: 2*v3(i).y - points[i].y,
   } as ParsedPoint;
 
   const genPoints = 
@@ -202,7 +203,7 @@ function catmullFindPoint(p1: ParsedPoint, p2: ParsedPoint, p3: ParsedPoint, p4:
   let t3 = t2 * t;
 
   return {
-    x: 0.5 * (2 * p2.x + (-p1.x + p3.x) * t + (2 * p1.x - 5 * p2.x + 4 * p3.x - p4.x) * t2 + (-p1.x + 3 * p2.x - 3 * p3.x + p4.x) * t3),
-    y: 0.5 * (2 * p2.y + (-p1.y + p3.y) * t + (2 * p1.y - 5 * p2.y + 4 * p3.y - p4.y) * t2 + (-p1.y + 3 * p2.y - 3 * p3.y + p4.y) * t3),
+    x: 0.5 * (2*p2.x + (-p1.x + p3.x)*t + (2*p1.x - 5*p2.x + 4*p3.x - p4.x)*t2 + (-p1.x + 3*p2.x - 3*p3.x + p4.x)*t3),
+    y: 0.5 * (2*p2.y + (-p1.y + p3.y)*t + (2*p1.y - 5*p2.y + 4*p3.y - p4.y)*t2 + (-p1.y + 3*p2.y - 3*p3.y + p4.y)*t3),
   } as ParsedPoint;
 }
