@@ -1,10 +1,12 @@
 import { ParsedPoint } from "../parse/types";
+import { vecProd } from "./vector";
+
 
 export function* range(n: number): Iterable<number> {
   for (let i = 0; i<n; i++) yield i;
 }
 
-export function* mapIterator(iterator, mapping) {
+export function* mapIterator(iterator: Iterable<any>, mapping: (arg: any) => any): Iterable<any> {
   for (let i of iterator) yield mapping(i);
 }
 
@@ -22,9 +24,6 @@ export function floorToMultiple(value: number, divisor: number, offset = 0) {
   return round(value - rest);
 }
 
-export function prod(values: number[]): number {
-  return values.reduce((a, b) => a*b, 1);
-}
 
 export function lerp(low: number, high: number, percent: number): number {
   return low*(1.0 - percent) + high*percent;
@@ -39,7 +38,7 @@ export function binomialCoefficient(n: number, k: number): number {
 
   // [0 ... k]
   // prod((n - kRange[]) / (kRange[] + 1))
-  return prod(Array.from(mapIterator(range(k), (x) => (n - x) / (x + 1))));
+  return vecProd(Array.from(mapIterator(range(k), (x) => (n - x) / (x + 1))));
 }
 
 export function bernstein(i: number, n: number, t: number): number {
