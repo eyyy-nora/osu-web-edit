@@ -55,20 +55,17 @@ export function bernstein(i: number, n: number, t: number): number {
   return binomialCoefficient(n, i) * Math.pow(t, i) * Math.pow(1 - t, n - i);
 }
 
-export function intersect_slope(p1: ParsedPoint, n1: ParsedPoint, p2: ParsedPoint, n2: ParsedPoint, precision: Number) {
-  let des = n1.x*n2.y - n1.y*n2.x;
+export function intersect_slope(p1: number[], n1: number[], p2: number[], n2: number[], precision: Number) {
+  let des = n1[0]*n2[1] - n1[1]*n2[0];
   if(Math.abs(des) < precision) {
     return null;
   }
 
-  return (n1.x*(p2.y - p1.y) - n1.y*(p2.x - p1.x)) / des;
+  return (n1[0]*(p2[1] - p1[1]) - n1[1]*(p2[0] - p1[0])) / des;
 }
 
-export function rot90(v: ParsedPoint): ParsedPoint {
-  return {
-    x: -v.y,
-    y:  v.x
-  } as ParsedPoint;
+export function rot90(xy: number[]): number[] {
+  return [ -xy[1], xy[0] ];
 }
 
 export const BIT0 = 1;

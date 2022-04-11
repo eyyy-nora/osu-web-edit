@@ -7,12 +7,20 @@ export function vecSub(vec1: number[], vec2: number[]): number[] {
   return vec1.map((v, i) => v - vec2[i]);
 }
 
-export function vecMul(vec1: number[], vec2: number[]): number[] {
+export function vecMulVal(vec1: number[], x: number): number[] {
+  return vec1.map((v, i) => v * x);
+}
+
+export function vecMulVec(vec1: number[], vec2: number[]): number[] {
   return vec1.map((v, i) => v * vec2[i]);
 }
 
-export function vecDiv(vec1: number[], vec2: number[]): number[] {
-  return vec1.map((v, i) => v * vec2[i]);
+export function vecDivVal(vec1: number[], x: number): number[] {
+  return vec1.map((v, i) => v / x);
+}
+
+export function vecDivVec(vec1: number[], vec2: number[]): number[] {
+  return vec1.map((v, i) => v / vec2[i]);
 }
 
 export function vecPowVal(vec1: number[], x: number): number[] {

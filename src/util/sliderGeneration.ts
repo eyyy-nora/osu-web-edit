@@ -1,6 +1,6 @@
 import { ParsedSlider, ParsedPoint } from "../parse/types";
 import { range, mapIterator, lerp, intersect_slope, rot90, bernstein } from "./numbers";
-import { vecSum, vecAdd, vecSub, vecPowVal, vecDiff, vec2DLen, xyCol } from "./vector";
+import { vecAdd, vecSub, vecDivVal, vecMulVal, vec2DLen } from "./vector";
 
 
 const linearSubdivision = 5;
@@ -46,10 +46,10 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
   let p1 = path(percent);
   let p2 = (percent == 1)? path(percent - 0.01): path(percent + 0.01);
 
-  let vecXY = {
-    x: p1.x - p2.x,
-    y: p1.y - p2.y
-  } as ParsedPoint;
+  let vecXY = [
+    p1.x - p2.x,
+    p1.y - p2.y
+  ];
 
   vecXY = rot90(vecXY);
 
@@ -78,37 +78,25 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
     return bezierPath(points);
   }
 
-  const pStart = points[0];
-  const pMid   = points[1];
-  const pEnd   = points[2];
+  const pStart = [ points[0].x, points[0].y ];
+  const pMid   = [ points[1].x, points[1].y ];
+  const pEnd   = [ points[2].x, points[2].y ];
 
   // Fallback to linear in degenerate cases
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L318-L322
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L366
-  const is_linear = Math.abs(((pMid.y - pStart.y) * (pEnd.x - pStart.x)) - ((pMid.x - pStart.x) * (pEnd.y - pStart.y))) < precisionThresholdPx;
+  const is_linear = Math.abs(((pMid[1] - pStart[1]) * (pEnd[0] - pStart[0])) - ((pMid[0] - pStart[0]) * (pEnd[1] - pStart[1]))) < precisionThresholdPx;
   if(is_linear) {
     return linearPath(points);
   }
 
   // Mid points
-  const midA = {
-    x: (pStart.x + pMid.x) / 2,
-    y: (pStart.x + pMid.x) / 2
-  } as ParsedPoint;
-  const midB = {
-    x: (pEnd.x + pMid.x) / 2,
-    y: (pEnd.x + pMid.x) / 2
-  } as ParsedPoint;
+  const midA = vecDivVal(vecAdd(pStart, pMid), 2);
+  const midB = vecDivVal(vecAdd(pEnd, pMid), 2);
 
   // Normal vectors to lines from mid points to pMid
-  const normA = rot90({
-    x: pMid.x - pStart.x,
-    y: pMid.y - pStart.y
-  } as ParsedPoint);
-  const normB = rot90({
-    x: pMid.x - pEnd.x,
-    y: pMid.y - pEnd.y
-  } as ParsedPoint);
+  const normA = rot90(vecSub(pMid, pStart));
+  const normB = rot90(vecSub(pMid, pEnd));
 
   // Calc intersection point of normal vectors. That is the circle's center.
   const intSlope = intersect_slope(midA, normA, midB, normB, arcParallelThreshold);
@@ -117,17 +105,13 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   }
 
   // Circle center and radius
-  const center = {
-    x : midB.x + normB.x*intSlope,
-    y : midB.y + normB.y*intSlope
-  } as ParsedPoint;
-  
-  const radius = Math.sqrt((center.x - pMid.x)**2 + (center.y - pMid.y)**2);
+  const center = vecAdd(midB, vecMulVal(normB, intSlope));
+  const radius = Math.sqrt((center[0] - pMid[0])**2 + (center[1] - pMid[1])**2);
 
   // Calc circle outline 
-  const angleStart = Math.atan2(pStart.y - center.y, pStart.x - center.x);
-  const angleMid   = Math.atan2(pMid.y - center.y, pMid.x - center.x);
-  const angleEnd   = Math.atan2(pEnd.y - center.y, pEnd.x - center.x);  
+  const angleStart = Math.atan2(pStart[1] - center[1], pStart[0] - center[0]);
+  const angleMid   = Math.atan2(pMid[1] - center[1], pMid[0] - center[0]);
+  const angleEnd   = Math.atan2(pEnd[1] - center[1], pEnd[0] - center[0]);  
 
   const angle0 = Math.min(angleStart, angleMid, angleEnd);
   const angle1 = Math.max(angleStart, angleMid, angleEnd);
@@ -138,8 +122,8 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
     let anglePercent = angle0 + (angle1 - angle0)*Math.max(0, Math.min(1, percent));
 
     return {
-      x: center.x + radius * Math.cos(anglePercent),
-      y: center.y + radius * Math.sin(anglePercent),
+      x: center[0] + radius * Math.cos(anglePercent),
+      y: center[1] + radius * Math.sin(anglePercent),
     } as ParsedPoint;
   };
 }
@@ -201,8 +185,8 @@ function parsedPointsToY(points: ParsedPoint[]): number[] {
 function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
   let segmentStart = 0;
 
-  // Beziers: splits points into different Beziers if has the same points (red points) or is end of list
-  // a b c - c d - d e f g
+  // Splits points into different Beziers if two control points are same (red points) or it's end of list
+  // Example control point list: a b c - c d - d e f g
   let isSegmentBezier = (i) => (
     (i >= (points.length - 1)) ||
     ((points[i].x != points[i + 1].x) || (points[i].y != points[i + 1].y))
