@@ -200,7 +200,6 @@ function parsedPointsToY(points: ParsedPoint[]): number[] {
 
 function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
   let segmentStart = 0;
-  let segmentEnd = 0;
 
   // Beziers: splits points into different Beziers if has the same points (red points) or is end of list
   // a b c - c d - d e f g
@@ -211,9 +210,9 @@ function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
 
   for(let i = 0; i < points.length; i++) {
     if(isSegmentBezier(i)) {
-      segmentEnd = i;
-      let segmentPoints = points.slice(segmentStart, segmentEnd);
-      segmentStart = segmentEnd;
+      // segmentEnd = i
+      let segmentPoints = points.slice(segmentStart, i);
+      segmentStart = i;
 
       yield* createBezier(parsedPointsToX(segmentPoints), parsedPointsToY(segmentPoints));
     }
