@@ -1,5 +1,6 @@
 import { ParsedSlider, ParsedPoint } from "../parse/types";
-import { range, mapIterator, lerp, intersect_slope, rot90 } from "./numbers";
+import { range, mapIterator, lerp, intersect_slope, rot90, bernstein } from "./numbers";
+import { vecSum, vecAdd, vecSub, vecPowVal, vecDiff, vec2DLen, xyCol } from "./vector";
 
 
 const linearSubdivision = 5;
@@ -8,6 +9,8 @@ const linearSubdivision = 5;
 const catmullSubdivision = 50;
 
 const precisionThresholdPx = 0.01;
+
+const approxLevel = 4
 
 const arcParallelThreshold = 0.00001;
 
@@ -40,7 +43,16 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
     // error?
   }
 
-  // else error?
+  let p1 = path(percent);
+  let p2 = (percent == 1)? path(percent - 0.01): path(percent + 0.01);
+
+  let vecXY = {
+    x: p1.x - p2.x,
+    y: p1.y - p2.y
+  } as ParsedPoint;
+
+  vecXY = rot90(vecXY);
+
   return [
     {x:0, y:0} as ParsedPoint,
     {x:0, y:0} as ParsedPoint,
@@ -132,6 +144,9 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   };
 }
 
+function bezierPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
+  let genPoints: ParsedPoint[] = Array.from(createBeziers(points));
+  return (percent: number) => genPoints[Math.floor(percent * (genPoints.length - 1))];
 }
 
 function catmullPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
@@ -174,3 +189,54 @@ function catmullFindPoint(p1: ParsedPoint, p2: ParsedPoint, p3: ParsedPoint, p4:
     y: 0.5 * (2*p2.y + (-p1.y + p3.y)*t + (2*p1.y - 5*p2.y + 4*p3.y - p4.y)*t2 + (-p1.y + 3*p2.y - 3*p3.y + p4.y)*t3),
   } as ParsedPoint;
 }
+
+function parsedPointsToX(points: ParsedPoint[]): number[] {
+  return points.map(({ x }) => x);
+}
+
+function parsedPointsToY(points: ParsedPoint[]): number[] {
+  return points.map(({ y }) => y);
+}
+
+function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
+  let segmentStart = 0;
+  let segmentEnd = 0;
+
+  // Beziers: splits points into different Beziers if has the same points (red points) or is end of list
+  // a b c - c d - d e f g
+  let isSegmentBezier = (i) => (
+    (i >= (points.length - 1)) ||
+    ((points[i].x != points[i + 1].x) || (points[i].y != points[i + 1].y))
+  );
+
+  for(let i = 0; i < points.length; i++) {
+    if(isSegmentBezier(i)) {
+      segmentEnd = i;
+      let segmentPoints = points.slice(segmentStart, segmentEnd);
+      segmentStart = segmentEnd;
+
+      yield* createBezier(parsedPointsToX(segmentPoints), parsedPointsToY(segmentPoints));
+    }
+  }
+}
+
+function* createBezier(vecX: number[], vecY: number[]): Iterable<ParsedPoint> {
+  let approxLen = vec2DLen(vecX, vecY);
+  let subdivisions = (Math.min(approxLen / approxLevel)) + 2;
+
+  for(let t = 0; t < subdivisions; t++) {
+    let resX = 0;
+    let resY = 0;
+
+    for(let i = 0; i < vecX.length; i++) {
+      let b = bernstein(i, vecX.length - 1, t/subdivisions);
+      resX += b*vecX[i];
+      resY += b*vecY[i];
+    }
+
+    yield {
+      x: resX,
+      y: resY,
+    } as ParsedPoint;
+  }
+};
