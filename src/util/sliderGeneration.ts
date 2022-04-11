@@ -28,7 +28,7 @@ const tickCutoffMs = 10;
 const endTickOffsetMs = 36;
 
 
-export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): [ParsedPoint, ParsedPoint, ParsedPoint] {
+export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): (percent: number) => ParsedPoint {
   let path: (percent: number) => ParsedPoint;
 
   if(slider.sliderType === "linear") {
@@ -43,21 +43,7 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
     // error?
   }
 
-  let p1 = path(percent);
-  let p2 = (percent == 1)? path(percent - 0.01): path(percent + 0.01);
-
-  let vecXY = [
-    p1.x - p2.x,
-    p1.y - p2.y
-  ];
-
-  vecXY = rot90(vecXY);
-
-  return [
-    {x:0, y:0} as ParsedPoint,
-    {x:0, y:0} as ParsedPoint,
-    {x:0, y:0} as ParsedPoint,
-  ];
+  return path;
 }
 
 function linearPath(segments: ParsedPoint[]): (percent: number) => ParsedPoint {
