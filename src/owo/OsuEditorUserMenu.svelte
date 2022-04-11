@@ -8,7 +8,12 @@ let loginButton;
 let userData: MeResponse | undefined = undefined;
 
 onMount(async () => {
-  try { userData = await me("basic"); } catch {}
+  try {
+    userData = await me("basic");
+    if (!userData.basic) userData = undefined;
+  } catch {
+    userData = undefined;
+  }
 })
 
 async function onLogoutClick() {
@@ -28,8 +33,8 @@ async function onLoginClick() {
     <Button bind:this={loginButton} text="Login with osu!" pad on:click={onLoginClick} />
   {:else}
     <div class="userInfo">
-      <img src={userData?.basic.avatar} alt="avatar" />
-      <span>{userData?.basic.username}</span>
+      <img src={userData?.basic?.avatar} alt="avatar" />
+      <span>{userData?.basic?.username}</span>
     </div>
   {/if}
   <div class="menu">

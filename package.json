@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c && pnpm run icons",
     "dev": "rollup -c -w",
-    "start": "sirv public --no-clear",
+    "start": "sirv public --no-clear -s",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "icons": "fantasticon",
     "test": "jest",

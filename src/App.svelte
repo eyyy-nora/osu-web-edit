@@ -20,25 +20,33 @@ import { colorToNumber } from "./util/color";
 const girderLeftWidth = storedValue(local, GIRDER_LEFT_WIDTH, .25);
 const girderRightWidth = storedValue(local, GIRDER_RIGHT_WIDTH, .25);
 
-let mapset: ParsedMapSet;
-let selectedDifficulty: ParsedBeatmap;
-let time: number = 0;
-let audio: HTMLAudioElement | undefined = undefined;
-let audioUrl: string | undefined = undefined;
+export let mapset: ParsedMapSet | undefined = undefined;
+export let selectedDifficulty: ParsedBeatmap | undefined = undefined;
+export let time: number = 0;
+let audio: HTMLAudioElement | undefined = undefined, destroyAudio: (() => void) | undefined = undefined;
 
-function loadMapSet(parsed: ParsedMapSet) {
+function loadMapSet(parsed: ParsedMapSet, beatmapId?: string) {
   mapset = parsed;
-  selectedDifficulty = mapset?.difficulties[0];
+  selectedDifficulty = parsed.difficulties.find(it =>
+    `${it.Metadata.BeatmapID}` === beatmapId || it.Metadata.Version === beatmapId
+  ) ?? mapset.difficulties[0];
   time = selectedDifficulty.TimingPoints[0].time;
-  const file = selectedDifficulty.General.AudioFilename;
-  const blob = mapset.files[file];
-  if (audioUrl) URL.revokeObjectURL(audioUrl);
-  audioUrl = URL.createObjectURL(blob);
-  if (audio) document.body.removeChild(audio);
+  loadMapsetAudio();
+}
+
+function loadMapsetAudio() {
+  if (destroyAudio) destroyAudio();
+
   audio = document.createElement("audio");
-  document.body.appendChild(audio);
-  audio.src = audioUrl;
+  audio.src = URL.createObjectURL(mapset.files[selectedDifficulty.General.AudioFilename]);
   audio.volume = .1;
+
+  document.body.appendChild(audio);
+
+  destroyAudio = () => {
+    document.body.removeChild(audio);
+    URL.revokeObjectURL(audio.src);
+  };
 }
 
 function adjustTimeToAudio() {
@@ -59,8 +67,17 @@ async function audioPlayPause() {
   }
 }
 
-onMount(async () => loadMapSet(await downloadMapSet("/DotEXE - Battlecry.osz")));
-onDestroy(() => cancelPlayback?.());
+onMount(() => {
+  const path = location.pathname.split("/").map(it => it.trim()).filter(it => it);
+  if (path.length > 0) {
+    const [mapsetId, beatmapId] = path;
+    downloadMapSet(`https://api.chimu.moe/v1/download/${mapsetId}`).then(mapset => loadMapSet(mapset, beatmapId));
+  }
+});
+onDestroy(() => {
+  cancelPlayback?.();
+  destroyAudio?.();
+});
 
 function onDrop(ev: DragEvent) {
   if (!ev.dataTransfer) return;
@@ -88,7 +105,9 @@ const defaultColors: ParsedOsuColors = {
   Combo3: [0, 0, 128],
 }
 
-function hitObjectsWithCombos(objects: ParsedHitObject[] = [], colors: ParsedOsuColors = defaultColors): BeatmapObject[] {
+function hitObjectsWithCombos(difficulty: ParsedBeatmap | undefined): BeatmapObject[] {
+  const objects: ParsedHitObject[] = difficulty?.HitObjects ?? [];
+  const colors: ParsedOsuColors = difficulty?.Colours ?? defaultColors;
 
   const comboColors = Object.entries(colors).map(([name, color]) => {
     if (!/Combo[0-9]+/g.test(name)) return;
@@ -106,16 +125,17 @@ function hitObjectsWithCombos(objects: ParsedHitObject[] = [], colors: ParsedOsu
     if (object.type === "spinner" || object.newCombo) {
       combo = 1;
       color = nextColor();
+      if (object.type === "spinner") return { ...object, index } as any;
     }
     return { ...object, index, combo: combo++, color } as BeatmapObject;
   })
 }
 
 let timelineObjects: BeatmapObject[];
-$: timelineObjects = hitObjectsWithCombos(selectedDifficulty?.HitObjects, selectedDifficulty?.Colours);
+$: timelineObjects = hitObjectsWithCombos(selectedDifficulty);
 
 let timingPoints: ParsedTimingPoint[], currentTimingPoint: ParsedTimingPoint;
-$: timingPoints = selectedDifficulty?.TimingPoints.filter(point => !point.inherited);
+$: timingPoints = selectedDifficulty?.TimingPoints?.filter(point => !point.inherited) ?? [];
 $: currentTimingPoint = matchingPoint(timingPoints ?? [], time);
 
 let beatLength: number, offset: number, meter: number;
