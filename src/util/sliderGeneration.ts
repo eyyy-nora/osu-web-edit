@@ -1,6 +1,6 @@
 import { ParsedSlider, ParsedPoint } from "../parse/types";
 import { range, mapIterator, lerp, intersect_slope, rot90, bernstein } from "./numbers";
-import { vecAdd, vecSub, vecDivVal, vecMulVal, vec2DLen } from "./vector";
+import { vecAddVec, vecSubVec, vecDivVal, vecMulVal, vec2DLen } from "./vector";
 
 
 const linearSubdivision = 5;
@@ -91,12 +91,12 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   }
 
   // Mid points
-  const midA = vecDivVal(vecAdd(pStart, pMid), 2);
-  const midB = vecDivVal(vecAdd(pEnd, pMid), 2);
+  const midA = vecDivVal(vecAddVec(pStart, pMid), 2);
+  const midB = vecDivVal(vecAddVec(pEnd, pMid), 2);
 
   // Normal vectors to lines from mid points to pMid
-  const normA = rot90(vecSub(pMid, pStart));
-  const normB = rot90(vecSub(pMid, pEnd));
+  const normA = rot90(vecSubVec(pMid, pStart));
+  const normB = rot90(vecSubVec(pMid, pEnd));
 
   // Calc intersection point of normal vectors. That is the circle's center.
   const intSlope = intersect_slope(midA, normA, midB, normB, arcParallelThreshold);
@@ -105,7 +105,7 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   }
 
   // Circle center and radius
-  const center = vecAdd(midB, vecMulVal(normB, intSlope));
+  const center = vecAddVec(midB, vecMulVal(normB, intSlope));
   const radius = Math.sqrt((center[0] - pMid[0])**2 + (center[1] - pMid[1])**2);
 
   // Calc circle outline 
