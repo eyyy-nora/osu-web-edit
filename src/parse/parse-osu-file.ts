@@ -32,6 +32,16 @@ export async function downloadMapSet(url: string): Promise<ParsedMapSet> {
   return parseMapSet(data);
 }
 
+export function mimeTypeFor(fileName: string): string {
+  const ext = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+  switch (ext) {
+    case ".mp3": return "audio/mp3";
+    case ".wav": return "audio/wav";
+    case ".ogg": return "audio/ogg";
+    default: return "application/octet-stream";
+  }
+}
+
 
 export async function parseMapSet(file: Blob | Uint8Array | ArrayBuffer): Promise<ParsedMapSet> {
   const zip = await jszip.loadAsync(file);
@@ -42,7 +52,10 @@ export async function parseMapSet(file: Blob | Uint8Array | ArrayBuffer): Promis
     if (/\.osu$/.test(fileName)) {
       const content = await entry.async("string");
       mapset.difficulties.push(parseOsuFile(content));
-    } else mapset.files[fileName] = await entry.async("blob");
+    } else {
+      const type = mimeTypeFor(fileName)
+      mapset.files[fileName] = new Blob([await entry.async("blob")], { type });
+    }
   }
 
   return mapset;

@@ -1,21 +1,17 @@
 <script lang="ts">
-import { Graphics, Text } from "pixi.js";
-import { ParsedBezierSlider, ParsedLinearSlider, ParsedPerfectCircleSlider, ParsedSlider } from "../../parse/types";
-import { colorToNumber, darken } from "../../util/color";
-import { onDestroy } from "svelte";
-import { registerPixi } from "../../context/pixi-context";
-import { Bezier } from "bezier-js";
+import { SliderInitProps, useSlider } from "./slider";
+import { ParsedSlider } from "../../parse/types";
 
-export let x: number = 0;
-export let y: number = 0;
-export let color: [number, number, number] = [64, 0, 0];
-export let combo: number = 1;
-export let hit: boolean = false;
-export let cs: number = 4.2;
-export let alpha: number = 1;
-export let approach: number = 1;
 export let slider: ParsedSlider;
+export let init: SliderInitProps;
 
+const { update, move, refresh } = useSlider(slider, init);
+
+$: update(init.alpha, init.zIndex, init.approach);
+$: move(slider.x, slider.y);
+$: refresh(init.combo, init.color, init.cs);
+
+/*
 function bezierSliderPath(slider: ParsedBezierSlider) {
   const bezierCurves: Bezier[] = [];
   let points: number[] = [slider.x, slider.y];
@@ -62,37 +58,48 @@ function sliderPath(slider: ParsedSlider) {
     case "linear": return linearSliderPath(slider);
     default: return;
   }
-}
+}*/
 
-let g: Graphics, t: Text;
 
-let unregister: undefined | (() => void);
-function draw(
+/*function draw(
   x: number, y: number, r: number,
   slider: ParsedSlider,
   color: number, alpha: number, combo: number,
   hit: boolean, approach: number
 ) {
-  if (unregister) unregister();
-  g = new Graphics();
+  g.clear();
 
   // Slider Path
-  const path = sliderPath(slider);
-  if (path) {
+  /!*const path = sliderPath(slider);
+  if (path && path.length) {
     const { x: oldX, y: oldY } = g.position;
-    g.position.set(x, y);
-    g.beginFill(0x333333, alpha);
-    g.lineStyle({ alpha, color: 0x888888, width: r / 14, alignment: 0 });
+    g.moveTo(x, y);
+    g.beginFill(0x222222, alpha * .6);
+    g.lineStyle({ alpha, color: 0x555555, width: r / 14, alignment: 0 });
     // todo: slider path
+
+    const lhs: Bezier[] = [], rhs: Bezier[] = [], lengths: number[] = [];
+
     for (const segment of path) {
-      for (const curve of segment.outline(r).curves) {
-        for (const {x, y} of (curve as Bezier).getLUT(100)) {
-          g.lineTo(x, y);
-        }
-      }
+      lengths.push(segment.length());
+      const [,right,,left] = segment.outline(r).curves;
+      lhs.push(left);
+      rhs.push(right);
     }
+
+    drawSliderEndCap(g, x, y, path[0].normal(0), r, true);
+
+    for (let i = 0; i < lengths.length; ++i)
+      drawPathAlong(g, lhs[i].getLUT(Math.max(2, Math.floor(lengths[i] / r * 3))));
+
+    drawSliderEndCap(g, x, y, path[path.length - 1].normal(1), r);
+
+    // for (let i = lengths.length - 1; i >= 0; --i)
+      // drawPathAlong(g, rhs[i].getLUT(Math.max(2, Math.floor(lengths[i] / r * 3))));
+
+    g.endFill();
     g.position.set(oldX, oldY);
-  }
+  }*!/
 
   // HitCircle
   g.beginFill(color, alpha);
@@ -105,27 +112,5 @@ function draw(
     g.lineStyle({ alpha, color: 0x888888, width: r / 20, alignment: 1 });
     g.drawCircle(x, y, r + r * 2 * (1 - approach));
   }
-
-  // Combo
-  t = new Text(`${combo}`, { fontSize: r * 2, fill: hit ? "#aaaaaa" : "#ffffff", fontWeight: "500" });
-  t.anchor.set(.5);
-  t.position.set(x, y);
-  t.alpha = alpha;
-  t.scale.set(.5);
-
-  unregister = registerPixi(g, t);
-}
-
-$: draw(
-  x, y,
-  54.4 - 4.48 * cs,
-  slider,
-  colorToNumber(hit ? darken(color, .2) : color),
-  alpha,
-  combo,
-  hit,
-  approach
-);
-
-onDestroy(() => unregister?.());
+}*/
 </script>

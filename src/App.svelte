@@ -1,7 +1,8 @@
 <script lang="ts">
+import { everyFrame } from "./util/timing";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
 import { downloadMapSet, parseMapSet } from "./parse/parse-osu-file";
-import { onMount } from "svelte";
+import { onDestroy, onMount } from "svelte";
 import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
 import Girder from "./component/girder/Girder.svelte";
@@ -21,14 +22,44 @@ const girderRightWidth = storedValue(local, GIRDER_RIGHT_WIDTH, .25);
 let mapset: ParsedMapSet;
 let selectedDifficulty: ParsedBeatmap;
 let time: number = 0;
+let audio: HTMLAudioElement | undefined = undefined;
+let audioUrl: string | undefined = undefined;
 
 function loadMapSet(parsed: ParsedMapSet) {
   mapset = parsed;
   selectedDifficulty = mapset?.difficulties[0];
   time = selectedDifficulty.TimingPoints[0].time;
+  const file = selectedDifficulty.General.AudioFilename;
+  const blob = mapset.files[file];
+  if (audioUrl) URL.revokeObjectURL(audioUrl);
+  audioUrl = URL.createObjectURL(blob);
+  if (audio) document.body.removeChild(audio);
+  audio = document.createElement("audio");
+  document.body.appendChild(audio);
+  audio.src = audioUrl;
+  audio.volume = .1;
+}
+
+function adjustTimeToAudio() {
+  time = audio.currentTime * 1000;
+}
+
+let cancelPlayback: (() => void) | undefined = undefined;
+async function audioPlayPause() {
+  if (!audio) return;
+  if (audio.paused) {
+    audio.currentTime = time / 1000;
+    cancelPlayback = everyFrame(adjustTimeToAudio);
+    await audio.play();
+  } else {
+    if (cancelPlayback) cancelPlayback();
+    await audio.pause();
+    adjustTimeToAudio();
+  }
 }
 
 onMount(async () => loadMapSet(await downloadMapSet("/DotEXE - Battlecry.osz")));
+onDestroy(() => cancelPlayback?.());
 
 function onDrop(ev: DragEvent) {
   if (!ev.dataTransfer) return;
@@ -97,7 +128,7 @@ $: meter = currentTimingPoint?.meter ?? 4;
 <main>
   <ScreenBox>
     <VBox>
-      <OsuEditorFileMenu />
+      <OsuEditorFileMenu on:play-pause={audioPlayPause} />
       <Timeline bind:time bind:beatLength bind:timescaleOffset={offset} bind:meter objects={timelineObjects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <span slot="start">Start</span>

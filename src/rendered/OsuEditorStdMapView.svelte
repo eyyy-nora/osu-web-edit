@@ -5,6 +5,7 @@ import { osuVisibleArea, osuRankableArea } from "../constants";
 import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { providePixi } from "../context/pixi-context";
 import HitCircle from "./std/HitCircle.svelte";
+import Slider from "./std/Slider.svelte";
 import Spinner from "./std/Spinner.svelte";
 
 
@@ -21,12 +22,13 @@ export let settings: IApplicationOptions = {
 export let app: Application;
 $: app = new Application(settings);
 
-let approachRate: number, preempt: number, fadein: number, fadeOffset: number, scope: number;
+let approachRate: number, preempt: number, fadein: number, fadeOffset: number, scope: number, cs: number;
 $: approachRate = beatmap?.Difficulty.ApproachRate ?? 8;
 $: preempt = 1200 + (approachRate > 5 ? -150 * (approachRate - 5) : 120 * (5 - approachRate));
 $: fadein = 800 + (approachRate > 5 ? -100 * (approachRate - 5) : 80 * (5 - approachRate));
 $: fadeOffset = preempt - fadein;
 $: scope = preempt * zoom;
+$: cs = beatmap?.Difficulty?.CircleSize ?? 4.2;
 
 function objectEnd(object: ParsedHitObject & { length?: number; end?: number }): number {
   return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
@@ -53,7 +55,8 @@ function filterInRange(objects: ParsedHitObject[], start: number, end: number, s
 function visibleObjectStats(object: ParsedHitObject) {
   const baseAlphaEditor = .3;
 
-  const t = object.time - time;
+  let t = object.time - time;
+  if (t > -10 && t < 10) t = -1; // minimal timing errors
   const length = (object as any).length ?? ((object as any).end ?? object.time) - object.time;
   const end = t + length;
   const hit = t <= 0;
@@ -79,7 +82,7 @@ function visibleObjectStats(object: ParsedHitObject) {
   const percent = (end === t) ? hit ? 1 : 0 : (t < 0 && end >= 0) ? 1 - Math.max(0, Math.min(1, end / length)) : 0;
   const approach = t > 0 ? t > preempt ? 0 : 1 - (t / preempt) : 0;
 
-  return { ...object, hit, alpha, approach, percent, complete };
+  return { ...object, hit, alpha, approach, percent, complete, cs };
 }
 
 let visibleObjects: (ParsedHitObject & any)[];
@@ -107,9 +110,10 @@ $: if (clientHeight !== 0 && clientWidth !== 0) {
     offsetY,
     viewportZoom,
     viewportZoom,
-  )
+  );
   app.resizeTo = container;
   app.resize();
+  if (!app.stage.sortableChildren) app.stage.sortableChildren = true;
 }
 
 providePixi(() => app, () => app.stage);
@@ -118,9 +122,11 @@ providePixi(() => app, () => app.stage);
 <div bind:this={container} bind:clientHeight bind:clientWidth>
   {#each visibleObjects as object}
     {#if object.type === "circle"}
-      <HitCircle {...object} />
+      <HitCircle circle={object} init={object} />
     {:else if object.type === "spinner"}
-      <Spinner {...object} />
+      <Spinner spinner={object} />
+    {:else if object.type === "slider"}
+      <Slider slider={object} init={object} />
     {/if}
   {/each}
 

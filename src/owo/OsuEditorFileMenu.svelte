@@ -1,7 +1,13 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
 import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
+
+
+const emit = createEventDispatcher<{
+  "play-pause": void;
+}>()
 
 function logAction(name: string) {
   return () => console.log(name);
@@ -51,6 +57,13 @@ function openLink(link: string) {
     <FileMenuItem name="Previous Bookmark" keybind="ctrl+ArrowLeft" action={logAction("nav-prev-bookmark")} />
     <FileMenuItem name="Next Timing Point" keybind="alt+ArrowRight" action={logAction("nav-next-timing-point")} />
     <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={logAction("nav-prev-timing-point")} />
+  </FileMenuItem>
+  <FileMenuItem name="Playback">
+    <FileMenuItem name="Play / Pause" keybind="Space" action={() => emit("play-pause")} />
+    <FileMenuItem name="Rate 100%" action={logAction("playback-rate-100")} />
+    <FileMenuItem name="Rate 75%" action={logAction("playback-rate-75")} />
+    <FileMenuItem name="Rate 50%" action={logAction("playback-rate-50")} />
+    <FileMenuItem name="Rate 25%" action={logAction("playback-rate-25")} />
   </FileMenuItem>
   <FileMenuItem name="Guides">
     <FileMenuItem name="New Guide" action={logAction("guide-new-guide")} />
