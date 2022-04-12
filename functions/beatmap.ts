@@ -8,32 +8,32 @@ export const handler: Handler = async (event, context) => {
   const { id, scope } = event.queryStringParameters ?? {};
 
   if (requestLacksQueryArguments(event))
-    return badRequest("You have to provide at least 2 parameters (id, scope)!");
+    return badRequest("You have to provide at least 1 parameter (scope)!");
 
-  const beatmapSetId = parseInt(id ?? "0");
-
-  if (isNaN(beatmapSetId)) return badRequest("id is not a number!");
 
   const client = authorized(event);
-  const nonApiClient = authorized(event, "https://osu.ppy.sh");
 
-  switch (scope) {
-    case "mods": return {
+  if (scope === "mods") {
+    const beatmapSetId = parseInt(id ?? "0");
+    if (isNaN(beatmapSetId)) return badRequest("id is not a number!");
+
+    return {
       statusCode: 200,
       body: JSON.stringify(await fetchBeatmapMods(beatmapSetId, client))
     }
+  } else if (scope === "all-mine") {
+    const nonApiClient = authorized(event, "https://osu.ppy.sh");
 
-    case "all-mine": return {
+    return {
       statusCode: 200,
       body: JSON.stringify(await fetchUserBeatmaps(nonApiClient))
     }
 
-    default: return badRequest("Invalid or uninplemented scope!");
-  }
+  } else return badRequest("Invalid or uninplemented scope!");
 }
 
 function requestLacksQueryArguments(event: Event) {
-  const { id, scope } = event.queryStringParameters ?? {};
+  const { scope } = event.queryStringParameters ?? {};
 
-  return (id === undefined && scope === undefined);
+  return (scope === undefined);
 }
