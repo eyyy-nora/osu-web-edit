@@ -21,7 +21,7 @@ export const handler: Handler = async (event, context) => {
       statusCode: 200,
       body: JSON.stringify(await fetchBeatmapMods(beatmapSetId, client))
     }
-  } else if (scope === "all-mine") {
+  } else if (scope === "all") {
     const nonApiClient = authorized(event, "https://osu.ppy.sh");
 
     return {
