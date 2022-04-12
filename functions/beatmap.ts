@@ -29,7 +29,7 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify(await fetchUserBeatmaps(nonApiClient))
     }
 
-  } else return badRequest("Invalid or uninplemented scope!");
+  } else return badRequest(`Scope: (${scope}) Invalid or uninplemented scope!`);
 }
 
 function requestLacksQueryArguments(event: Event) {
