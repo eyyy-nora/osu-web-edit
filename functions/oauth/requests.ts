@@ -33,11 +33,11 @@ export async function requestAccessToken(code: string): Promise<{ token: string;
   return { token: data.access_token, expires: Date.now() + data.expires_in * 1000 };
 }
 
-export function authorized(event: Event) {
+export function authorized(event: Event, baseUrl?: string) {
   const { access_token } = getCookies(event.headers.cookie);
   if (!access_token) throw Object.assign(new Error("Unauthorized"), { status: 401 });
   return axios.create({
-    baseURL: "https://osu.ppy.sh/api/v2",
+    baseURL: baseUrl ?? "https://osu.ppy.sh/api/v2",
     headers: { Authorization: `Bearer ${access_token}` },
   });
 }
