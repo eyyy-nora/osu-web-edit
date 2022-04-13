@@ -1,7 +1,7 @@
 <script lang="ts">
+import { createMapsetContext } from "./context/mapset-context";
 import { everyFrame } from "./util/timing";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
-import { downloadMapSet, parseMapSet } from "./parse/parse-osu-file";
 import { onDestroy, onMount } from "svelte";
 import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
@@ -20,75 +20,34 @@ import { colorToNumber } from "./util/color";
 const girderLeftWidth = storedValue(local, GIRDER_LEFT_WIDTH, .25);
 const girderRightWidth = storedValue(local, GIRDER_RIGHT_WIDTH, .25);
 
-export let mapset: ParsedMapSet | undefined = undefined;
-export let selectedDifficulty: ParsedBeatmap | undefined = undefined;
-export let time: number = 0;
-let audio: HTMLAudioElement | undefined = undefined, destroyAudio: (() => void) | undefined = undefined;
+const [{
+  mapset,
+  beatmap,
+  time,
+  goto,
+  playbackSpeed,
+  selectBeatmap,
+  loadMapset,
+  togglePlayback,
+}, destroyMapsetContext] = createMapsetContext();
 
-function loadMapSet(parsed: ParsedMapSet, beatmapId?: string) {
-  mapset = parsed;
-  selectedDifficulty = parsed.difficulties.find(it =>
-    `${it.Metadata.BeatmapID}` === beatmapId || it.Metadata.Version === beatmapId
-  ) ?? mapset.difficulties[0];
-  time = selectedDifficulty.TimingPoints[0].time;
-  loadMapsetAudio();
-}
-
-function loadMapsetAudio() {
-  if (destroyAudio) destroyAudio();
-
-  audio = document.createElement("audio");
-  audio.src = URL.createObjectURL(mapset.files[selectedDifficulty.General.AudioFilename]);
-  audio.volume = .1;
-
-  document.body.appendChild(audio);
-
-  destroyAudio = () => {
-    document.body.removeChild(audio);
-    URL.revokeObjectURL(audio.src);
-  };
-}
-
-function adjustTimeToAudio() {
-  time = audio.currentTime * 1000;
-}
-
-let cancelPlayback: (() => void) | undefined = undefined;
-async function audioPlayPause() {
-  if (!audio) return;
-  if (audio.paused) {
-    audio.currentTime = time / 1000;
-    cancelPlayback = everyFrame(adjustTimeToAudio);
-    await audio.play();
-  } else {
-    if (cancelPlayback) cancelPlayback();
-    await audio.pause();
-    adjustTimeToAudio();
-  }
-}
 
 onMount(() => {
   const path = location.pathname.split("/").map(it => it.trim()).filter(it => it);
   if (path.length > 0) {
     const [mapsetId, beatmapId] = path;
-    downloadMapSet(`https://api.chimu.moe/v1/download/${mapsetId}`).then(mapset => loadMapSet(mapset, beatmapId));
+    loadMapset(`https://api.chimu.moe/v1/download/${mapsetId}`, beatmapId);
   }
 });
 onDestroy(() => {
-  cancelPlayback?.();
-  destroyAudio?.();
+  destroyMapsetContext();
 });
 
 function onDrop(ev: DragEvent) {
   if (!ev.dataTransfer) return;
   const files = [...ev.dataTransfer.files];
   if (!files.length) return;
-  const reader = new FileReader();
-  reader.addEventListener("load", (ev) => {
-    parseMapSet(ev.target.result as ArrayBuffer).then(loadMapSet);
-  });
-  reader.readAsArrayBuffer(files[0]);
-
+  loadMapset(files[0]);
 }
 
 function matchingPoint(timingPoints: ParsedTimingPoint[], time: number) {
@@ -132,11 +91,11 @@ function hitObjectsWithCombos(difficulty: ParsedBeatmap | undefined): BeatmapObj
 }
 
 let timelineObjects: BeatmapObject[];
-$: timelineObjects = hitObjectsWithCombos(selectedDifficulty);
+$: timelineObjects = hitObjectsWithCombos($beatmap);
 
 let timingPoints: ParsedTimingPoint[], currentTimingPoint: ParsedTimingPoint;
-$: timingPoints = selectedDifficulty?.TimingPoints?.filter(point => !point.inherited) ?? [];
-$: currentTimingPoint = matchingPoint(timingPoints ?? [], time);
+$: timingPoints = $beatmap?.TimingPoints?.filter(point => !point.inherited) ?? [];
+$: currentTimingPoint = matchingPoint(timingPoints ?? [], $time);
 
 let beatLength: number, offset: number, meter: number;
 $: beatLength = currentTimingPoint?.beatLength ?? 200;
@@ -149,18 +108,18 @@ $: meter = currentTimingPoint?.meter ?? 4;
 <main>
   <ScreenBox>
     <VBox>
-      <OsuEditorFileMenu on:play-pause={audioPlayPause} />
-      <Timeline bind:time bind:beatLength bind:timescaleOffset={offset} bind:meter objects={timelineObjects} zoom={4} />
+      <OsuEditorFileMenu on:play-pause={togglePlayback} />
+      <Timeline bind:time={$time} bind:beatLength bind:timescaleOffset={offset} bind:meter objects={timelineObjects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <span slot="start">Start</span>
         <ContentBox slot="end">
-          {#each mapset?.difficulties ?? [] as difficulty (difficulty.Metadata.BeatmapID ?? difficulty.Metadata.Version)}
-            <button type="button" on:click={() => selectedDifficulty = difficulty}>[{difficulty.Metadata.Version}]</button>
+          {#each $mapset?.difficulties ?? [] as difficulty (difficulty.Metadata.BeatmapID ?? difficulty.Metadata.Version)}
+            <button type="button" on:click={() => selectBeatmap(difficulty)}>[{difficulty.Metadata.Version}]</button>
           {/each}
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
-            <OsuEditorStdMapView beatmap={selectedDifficulty} {time} hitObjects={timelineObjects}>
+            <OsuEditorStdMapView beatmap={$beatmap} time={$time} hitObjects={timelineObjects}>
               <OsuEditorRankedArea />
             </OsuEditorStdMapView>
           </ContentBox>

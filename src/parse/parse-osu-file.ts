@@ -26,10 +26,21 @@ import type {
   ParsedTimingPoint
 } from "./types";
 
+export function readMapset(file: File) {
+  return new Promise<ParsedMapSet>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", (ev) => {
+      parseMapset(reader.result as ArrayBuffer).then(resolve).catch(reject);
+    });
+    reader.addEventListener("error", reject);
+    reader.addEventListener("abort", reject);
+    reader.readAsArrayBuffer(file);
+  });
+}
 
-export async function downloadMapSet(url: string): Promise<ParsedMapSet> {
+export async function downloadMapset(url: string): Promise<ParsedMapSet> {
   const { data } = await axios.get(url, { responseType: "blob" });
-  return parseMapSet(data);
+  return parseMapset(data);
 }
 
 export function mimeTypeFor(fileName: string): string {
@@ -43,7 +54,7 @@ export function mimeTypeFor(fileName: string): string {
 }
 
 
-export async function parseMapSet(file: Blob | Uint8Array | ArrayBuffer): Promise<ParsedMapSet> {
+export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promise<ParsedMapSet> {
   const zip = await jszip.loadAsync(file);
 
   const mapset: ParsedMapSet = { difficulties: [], files: {} };
