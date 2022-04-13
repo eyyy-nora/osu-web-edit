@@ -1,4 +1,4 @@
-import { downloadMapSet, parseMapSet, parseOsuFile } from "../src/parse/parse-osu-file";
+import { downloadMapset, parseMapset, parseOsuFile } from "../src/parse/parse-osu-file";
 import fs from "fs";
 import { ParsedBeatmap } from "../src/parse/types";
 
