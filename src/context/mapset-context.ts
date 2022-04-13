@@ -78,9 +78,10 @@ export function createMapsetContext() {
       beatmap = mapset.difficulties.find(version => {
         const { BeatmapID, Version } = version.Metadata;
         return BeatmapID?.toString(10) === beatmap || Version === beatmap;
-      }) ?? mapset.difficulties[0];
+      });
+    beatmap ??= mapset.difficulties[0];
     $beatmap.set(beatmap);
-    $time.set(beatmap.TimingPoints[0].time);
+    $time.set(beatmap?.TimingPoints[0].time ?? 0);
     if (destroyAudio) destroyAudio();
     [audio, destroyAudio] = createAudio(mapset.files[beatmap.General.AudioFilename]);
   }
@@ -143,6 +144,16 @@ function createAudio(file: Blob | File): [HTMLAudioElement, () => void] {
   const audio = document.createElement("audio");
   const url = audio.src = URL.createObjectURL(file);
   audio.volume = .1;
+  Object.assign(audio.style, {
+    position: "absolute",
+    top: "-1000000px",
+    left: "-1000000px",
+    opacity: "0",
+    width: "1px",
+    height: "1px",
+    tabIndex: "-1",
+  });
+  document.body.appendChild(audio);
   return [audio, () => {
     document.body.removeChild(audio);
     URL.revokeObjectURL(url);
