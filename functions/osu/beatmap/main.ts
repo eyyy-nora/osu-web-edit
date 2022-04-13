@@ -38,7 +38,7 @@ export async function fetchUserBeatmaps(client: AxiosInstance) {
   const beatmaps = getBeatmapScopes();
 
   for (const status of possibleStatus) {
-    const { data } = await client.get(`/users/${id}/beatmapsets/${status}`);
+    const { data } = await client.get(`/users/${id}/beatmapsets/${status}?limit=99999`);
 
     for (const map of data) {
       let { status, id } = map;
