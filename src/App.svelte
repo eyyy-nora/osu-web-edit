@@ -1,9 +1,9 @@
 <script lang="ts">
+import { snowflake } from "./util/snowflake";
 import { createMapsetContext } from "./context/mapset-context";
-import { everyFrame } from "./util/timing";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
 import { onDestroy, onMount } from "svelte";
-import type { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
+import type { ParsedBeatmap, ParsedTimingPoint, ParsedHitObject, ParsedOsuColors } from "./parse/types";
 import type { BeatmapObject } from "./context/beatmap-context";
 import Girder from "./component/girder/Girder.svelte";
 import ContentBox from "./component/layout/ContentBox.svelte";
@@ -24,8 +24,6 @@ const [{
   mapset,
   beatmap,
   time,
-  goto,
-  playbackSpeed,
   selectBeatmap,
   loadMapset,
   togglePlayback,
@@ -48,13 +46,6 @@ function onDrop(ev: DragEvent) {
   const files = [...ev.dataTransfer.files];
   if (!files.length) return;
   loadMapset(files[0]);
-}
-
-function matchingPoint(timingPoints: ParsedTimingPoint[], time: number) {
-  const firstBiggerIndex = timingPoints.findIndex(point => point.time > time);
-  if (firstBiggerIndex === -1) return timingPoints[timingPoints.length - 1];
-  if (firstBiggerIndex === 0) return timingPoints[0];
-  return timingPoints[firstBiggerIndex - 1];
 }
 
 const defaultColors: ParsedOsuColors = {
@@ -86,21 +77,15 @@ function hitObjectsWithCombos(difficulty: ParsedBeatmap | undefined): BeatmapObj
       color = nextColor();
       if (object.type === "spinner") return { ...object, index } as any;
     }
-    return { ...object, index, combo: combo++, color } as BeatmapObject;
+    return { ...object, index, combo: combo++, color, id: snowflake() } as BeatmapObject;
   })
 }
 
 let timelineObjects: BeatmapObject[];
 $: timelineObjects = hitObjectsWithCombos($beatmap);
 
-let timingPoints: ParsedTimingPoint[], currentTimingPoint: ParsedTimingPoint;
+let timingPoints: ParsedTimingPoint[];
 $: timingPoints = $beatmap?.TimingPoints?.filter(point => !point.inherited) ?? [];
-$: currentTimingPoint = matchingPoint(timingPoints ?? [], $time);
-
-let beatLength: number, offset: number, meter: number;
-$: beatLength = currentTimingPoint?.beatLength ?? 200;
-$: offset = currentTimingPoint?.time ?? 0;
-$: meter = currentTimingPoint?.meter ?? 4;
 </script>
 
 <svelte:window on:dragover|preventDefault on:dragenter|capture={() => {}} on:drop|preventDefault={onDrop} />
@@ -109,7 +94,7 @@ $: meter = currentTimingPoint?.meter ?? 4;
   <ScreenBox>
     <VBox>
       <OsuEditorFileMenu on:play-pause={togglePlayback} />
-      <Timeline bind:time={$time} bind:beatLength bind:timescaleOffset={offset} bind:meter objects={timelineObjects} zoom={4} />
+      <Timeline objects={timelineObjects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <span slot="start">Start</span>
         <ContentBox slot="end">

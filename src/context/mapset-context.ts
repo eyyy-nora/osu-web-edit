@@ -4,11 +4,16 @@ import {
   parseMapset
 } from "../parse/parse-osu-file";
 import { everyFrame } from "../util/timing";
-import { ParsedBeatmap, ParsedMapSet } from "../parse/types";
+import { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint } from "../parse/types";
 import { getContext, setContext } from "svelte";
-import { writable, Readable, Writable } from "svelte/store";
+import { writable, Readable, Writable, derived } from "svelte/store";
 
 
+export interface TimingMeta {
+  beatLength: number;
+  offset: number;
+  meter: number;
+}
 
 export const MAPSET_CONTEXT = {};
 
@@ -18,6 +23,8 @@ export interface MapsetContext {
   time: Writable<number>;
   playbackSpeed: Writable<number>;
 
+  timingPoint: Readable<ParsedTimingPoint | undefined>;
+  timing: Readable<TimingMeta>;
 
   loadMapset(mapset: ParsedMapSet | File | Blob | string, beatmap?: string | number): Promise<void>;
   selectBeatmap(beatmap: ParsedBeatmap | string | number): Promise<void>;
@@ -35,6 +42,20 @@ export function createMapsetContext() {
   const $beatmap = writable<ParsedBeatmap | undefined>();
   const $time = writable<number>(0);
   const $playbackSpeed = writable<number>(1);
+
+  const $timingPoint = derived([$beatmap, $time], ([beatmap, time]) => {
+    const timingPoints = beatmap?.TimingPoints?.filter(it => !it.inherited) ?? [];
+    if (!timingPoints.length) return;
+    const firstBiggerIndex = timingPoints.findIndex(point => point.time > time);
+    if (firstBiggerIndex === -1) return timingPoints[timingPoints.length - 1];
+    if (firstBiggerIndex === 0) return timingPoints[0];
+    return timingPoints[firstBiggerIndex - 1];
+  });
+
+  const $timing = derived([$timingPoint], ([timingPoint]) => {
+    const { beatLength = 200, time: offset = 0, meter = 4 } = timingPoint ?? {};
+    return { beatLength, offset, meter };
+  })
 
   let mapset: ParsedMapSet | undefined = undefined;
   const unlinkMapset = $mapset.subscribe(value => mapset = value);
@@ -74,6 +95,7 @@ export function createMapsetContext() {
 
   let cancelPlayback: (() => void) | undefined = undefined;
   async function togglePlayback() {
+    if (!audio) return;
     if (audio.paused) {
       syncAudioToTime();
       cancelPlayback = everyFrame(syncTimeToAudio);
@@ -98,6 +120,8 @@ export function createMapsetContext() {
     beatmap: $beatmap,
     time: $time,
     playbackSpeed: $playbackSpeed,
+    timingPoint: $timingPoint,
+    timing: $timing,
 
     loadMapset,
     selectBeatmap,

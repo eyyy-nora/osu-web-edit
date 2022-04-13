@@ -1,31 +1,34 @@
 <script lang="ts">
+import { getMapsetContext } from "../../context/mapset-context";
 import { BeatmapObject, BeatmapObjectBase } from "../../context/beatmap-context";
 import TimelineSlider from "./TimelineSlider.svelte";
 import TimelineSpinner from "./TimelineSpinner.svelte";
 import TimelineCircle from "./TimelineCircle.svelte";
 import { clamp, floorToMultiple } from "../../util/numbers";
 
-export let beatLength = 100000;
 export let objects: BeatmapObject[] = [];
-export let time = 0;
 export let scale = 4;
 export let zoom = 4;
-export let meter = 4;
 export let timescaleLevels = [.5, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32];
 export let timescaleOffset = 0;
+
+const { time, goto, timing } = getMapsetContext();
+
+let beatLength: number, offset: number, meter: number;
+$: ({ beatLength, offset, meter } = $timing)
 
 let clientWidth: number = 0;
 
 let range: number, rangeStart: number, rangeEnd: number, timescale: number, rangeScale: number;
 $: rangeScale = Math.pow(2, zoom);
 $: timescale = timescaleLevels[scale];
-$: range = (beatLength * rangeScale);
-$: rangeStart = Math.max(-range * .5, time - range / 2);
+$: range = ($timing.beatLength * rangeScale);
+$: rangeStart = Math.max(-range * .5, $time - range / 2);
 $: rangeEnd = rangeStart + range;
 
 let beatWidth: number, beatOffset: number;
 $: beatWidth = clientWidth / rangeScale;
-$: beatOffset = (time - timescaleOffset) / beatLength;
+$: beatOffset = ($time - timescaleOffset) / $timing.beatLength;
 
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / timescale;
@@ -66,7 +69,7 @@ export function zoomBy(levels: number) {
 }
 
 export function scrollBy(steps: number) {
-  time = clamp(floorToMultiple(time + steps * smallestDivisor, smallestDivisor, timescaleOffset), 0, Infinity);
+  goto(clamp(floorToMultiple($time + steps * smallestDivisor, smallestDivisor, timescaleOffset), 0, Infinity));
 }
 
 export function scaleBy(steps: number) {

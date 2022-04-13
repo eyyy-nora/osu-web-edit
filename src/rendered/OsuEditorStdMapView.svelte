@@ -120,7 +120,7 @@ providePixi(() => app, () => app.stage);
 </script>
 
 <div bind:this={container} bind:clientHeight bind:clientWidth>
-  {#each visibleObjects as object}
+  {#each visibleObjects as object (object.id)}
     {#if object.type === "circle"}
       <HitCircle circle={object} init={object} />
     {:else if object.type === "spinner"}

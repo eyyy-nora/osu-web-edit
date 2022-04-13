@@ -5,11 +5,12 @@ import { ParsedSlider } from "../../parse/types";
 export let slider: ParsedSlider;
 export let init: SliderInitProps;
 
-const { update, move, refresh } = useSlider(slider, init);
+const { update, move, refresh, updatePath } = useSlider(slider, init);
 
 $: update(init.alpha, init.zIndex, init.approach);
 $: move(slider.x, slider.y);
 $: refresh(init.combo, init.color, init.cs);
+$: updatePath(slider.x, slider.y, slider.sliderType, slider.pathSegments, init.cs);
 
 /*
 function bezierSliderPath(slider: ParsedBezierSlider) {
