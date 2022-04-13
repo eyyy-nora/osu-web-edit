@@ -150,7 +150,6 @@ function areTheSamePoints(oldPoints: ParsedPoint[], newPoints: ParsedPoint[]): b
 
 
 export function initSliderBody(x: number, y: number, type: ParsedSlider["sliderType"], points: ParsedPoint[], r: number) {
-  console.log("init", x, y);
   const g = new Graphics();
   g.position.set(x, y);
   const render = sliderTypeRenderer[type];
