@@ -14,7 +14,7 @@ const approxLevel = 4
 
 const arcParallelThreshold = 0.00001;
 
-const curvePointsSeperation = 5;
+const curvePointsSeparation = 5;
 
 /* Ticks closer to the end time of the slider than this are not generated.
  * Value: https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/SliderEventGenerator.cs#L24 */
@@ -94,10 +94,10 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   const center = vecAddVec(midB, vecMulVal(normB, intSlope));
   const radius = Math.sqrt((center[0] - pMid[0])**2 + (center[1] - pMid[1])**2);
 
-  // Calc circle outline 
+  // Calc circle outline
   const angleStart = Math.atan2(pStart[1] - center[1], pStart[0] - center[0]);
   const angleMid   = Math.atan2(pMid[1] - center[1], pMid[0] - center[0]);
-  const angleEnd   = Math.atan2(pEnd[1] - center[1], pEnd[0] - center[0]);  
+  const angleEnd   = Math.atan2(pEnd[1] - center[1], pEnd[0] - center[0]);
 
   const angle0 = Math.min(angleStart, angleMid, angleEnd);
   const angle1 = Math.max(angleStart, angleMid, angleEnd);
@@ -141,7 +141,7 @@ function catmullPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
 
   const genPoints = Array.from(
     mapIterator(pieces, (i) =>
-      mapIterator(subdiv, (c) => 
+      mapIterator(subdiv, (c) =>
         catmullFindPoint(v1(i), points[i], v3(i), v4(i), c / catmullSubdivision)
       )
     ));
