@@ -64,7 +64,7 @@ function hitObjectsWithCombos(difficulty: ParsedBeatmap | undefined): BeatmapObj
     return color;
   }).filter(it => it);
 
-  let comboIndex = -1;
+  let comboIndex = 0;
   const nextColor = () => {
     if (++comboIndex >= comboColors.length) comboIndex = 0;
     return colorToNumber(comboColors[comboIndex]);
