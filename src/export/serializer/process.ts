@@ -27,8 +27,7 @@ export function processHitObjects(hitObjects: ParsedHitObject[]): string {
 
       case "slider": hitObjectsAsString += serializeSlider(hitObject); break;
 
-      case "spinner":
-      case "hold": hitObjectsAsString += serializeHoldOrSpinner(hitObject); break;
+      case "spinner": case "hold": hitObjectsAsString += serializeHoldOrSpinner(hitObject); break;
     }
   }
 
