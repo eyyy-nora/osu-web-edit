@@ -1,7 +1,6 @@
 import { HitObject } from "./HitObject";
 import { Vector2 } from "../../Vector2";
-import SliderPath = require("../../../SliderPath");
-import { HitCircle } from "./HitCircle";
+import { SliderPath } from "../../../SliderPath"
 import { HeadCircle } from "./SliderObjects/HeadCircle";
 import { TailCircle } from "./SliderObjects/TailCircle";
 import { SliderTick } from "./SliderObjects/SliderTick";
@@ -28,7 +27,7 @@ export class Slider extends HitObject {
     private SpanCount: number;
 
     /**
-     * 
+     *
      * @param pos The raw position of the slider (as listed in the .osu file)
      * @param startTime The start time of the slider
      * @param path The calculated slider path of the slider
@@ -67,7 +66,7 @@ export class Slider extends HitObject {
         this.createSliderEnds();
         this.createSliderTicks();
         this.createRepeatPoints();
-        
+
         this.NestedHitObjects.sort((a, b) => {
             return a.StartTime - b.StartTime;
         });
@@ -91,7 +90,7 @@ export class Slider extends HitObject {
 
         if (tickDistance === 0)
             return;
-        
+
         const minDistanceFromEnd: number = this.Velocity * 10;
         this.SpanDuration = this.Duration / this.SpanCount;
 
@@ -102,7 +101,7 @@ export class Slider extends HitObject {
             for (let d = tickDistance; d <= length; d += tickDistance) {
                 if (d > length - minDistanceFromEnd)
                     break;
-                
+
                 const distanceProgress: number = d / length;
                 const timeProgress: number = reversed ? 1 - distanceProgress : distanceProgress;
 

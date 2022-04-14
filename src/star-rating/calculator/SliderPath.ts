@@ -3,7 +3,7 @@ import PathApproximator from "./PathApproximator";
 import { Vector2 } from "./Objects/Vector2";
 import { Precision } from "./Precision";
 
-class SliderPath {
+export class SliderPath {
     pathType: PathType;
     controlPoints: Vector2[];
     expectedDistance: number;
@@ -157,5 +157,3 @@ class SliderPath {
         return index;
     };
 }
-
-export = SliderPath;

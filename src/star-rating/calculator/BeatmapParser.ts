@@ -6,7 +6,7 @@ import { HitObject } from "./Objects/osu!/HitObjects/HitObject";
 import { HitCircle } from "./Objects/osu!/HitObjects/HitCircle";
 import { Slider } from "./Objects/osu!/HitObjects/Slider";
 import { Spinner } from "./Objects/osu!/HitObjects/Spinner";
-import SliderPath from "./SliderPath";
+import { SliderPath } from "./SliderPath";
 import { Precision } from "./Precision";
 
 class BeatmapParser {
