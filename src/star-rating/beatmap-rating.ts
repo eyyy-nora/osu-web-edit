@@ -1,5 +1,6 @@
 import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { createAimAccumulator } from "./aim";
+import { createSpeedAccumulator } from "./speed";
 import { BeatmapMod, SkillAccumulatorMap, SkillResultMap, Skills } from "./types";
 
 
