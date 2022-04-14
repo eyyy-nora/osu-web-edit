@@ -20,6 +20,7 @@ function importBeatmap() {
 
   const fileInput = document.createElement('input');
     fileInput.setAttribute("type", "file");
+    fileInput.setAttribute("visibility", "hidden");
 
   return () => {
     document.body.appendChild(fileInput);
@@ -36,9 +37,11 @@ function importBeatmap() {
 
       reader.readAsArrayBuffer(files[0]);
 
-      fileInput.remove();
     });
+    fileInput.remove();
   }
+
+
 }
 
 function openLink(link: string) {
