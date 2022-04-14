@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import jszip from "jszip";
+import { MapsetWithFolder } from "../context/mapset-context";
 import {
   BIT0,
   BIT1,
@@ -26,8 +27,8 @@ import type {
   ParsedTimingPoint
 } from "./types";
 
-export function readMapset(file: File) {
-  return new Promise<ParsedMapSet>((resolve, reject) => {
+export function readMapset(file: File): Promise<MapsetWithFolder>  {
+  return new Promise<MapsetWithFolder>((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("load", (ev) => {
       parseMapset(reader.result as ArrayBuffer).then(resolve).catch(reject);
@@ -38,7 +39,7 @@ export function readMapset(file: File) {
   });
 }
 
-export async function downloadMapset(url: string): Promise<ParsedMapSet> {
+export async function downloadMapset(url: string): Promise<MapsetWithFolder>  {
   const { data } = await axios.get(url, { responseType: "blob" });
   return parseMapset(data);
 }
@@ -54,7 +55,7 @@ export function mimeTypeFor(fileName: string): string {
 }
 
 
-export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promise<ParsedMapSet> {
+export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promise<MapsetWithFolder> {
   const zip = await jszip.loadAsync(file);
 
   const mapset: ParsedMapSet = { difficulties: [], files: {} };
@@ -69,7 +70,7 @@ export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promis
     }
   }
 
-  return mapset;
+  return { mapSet: mapset, mapFolder: zip } as MapsetWithFolder;
 }
 
 

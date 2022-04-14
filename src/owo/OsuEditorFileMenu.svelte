@@ -1,11 +1,12 @@
 <script lang="ts">
 import { parseMapset } from "../parse/parse-osu-file";
+import { getMapsetContext } from "../context/mapset-context";
+import { compressToOsz } from "../export/packer/packing";
 
-import { createEventDispatcher, getContext } from "svelte";
+import { createEventDispatcher } from "svelte";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
 import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
-import { getMapsetContext } from "../context/mapset-context";
 
 const emit = createEventDispatcher<{
   "play-pause": void;
@@ -32,16 +33,13 @@ function importBeatmap() {
 
       const reader = new FileReader();
       reader.addEventListener("load", (ev) => {
-        parseMapset(ev.target.result as ArrayBuffer).then(loadMapset);
+        parseMapset(ev.target.result as ArrayBuffer).then(map => loadMapset(map));
       });
 
       reader.readAsArrayBuffer(files[0]);
-
+      fileInput.remove();
     });
-    fileInput.remove();
   }
-
-
 }
 
 function openLink(link: string) {
@@ -57,7 +55,7 @@ function openLink(link: string) {
     <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={importBeatmap()} />
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
-    <FileMenuItem name="Export" action={logAction("file-export")} />
+    <FileMenuItem name="Export" action={compressToOsz()} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
     <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />

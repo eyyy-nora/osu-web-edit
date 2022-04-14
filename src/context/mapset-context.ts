@@ -7,6 +7,7 @@ import { everyFrame } from "../util/timing";
 import { ParsedBeatmap, ParsedMapSet, ParsedTimingPoint } from "../parse/types";
 import { getContext, setContext } from "svelte";
 import { writable, Readable, Writable, derived } from "svelte/store";
+import JSZip from "jszip";
 
 
 export interface TimingMeta {
@@ -17,16 +18,22 @@ export interface TimingMeta {
 
 export const MAPSET_CONTEXT = {};
 
+export type MapsetWithFolder = {
+  mapSet: ParsedMapSet;
+  mapFolder: JSZip;
+};
+
 export interface MapsetContext {
   mapset: Readable<ParsedMapSet | undefined>;
   beatmap: Readable<ParsedBeatmap | undefined>;
+  folder: Readable<JSZip | undefined>;
   time: Writable<number>;
   playbackSpeed: Writable<number>;
 
   timingPoint: Readable<ParsedTimingPoint | undefined>;
   timing: Readable<TimingMeta>;
 
-  loadMapset(mapset: ParsedMapSet | File | Blob | string, beatmap?: string | number): Promise<void>;
+  loadMapset(mapset: MapsetWithFolder | File | Blob | string, beatmap?: string | number): Promise<void>;
   selectBeatmap(beatmap: ParsedBeatmap | string | number): Promise<void>;
   goto(time: number): void;
 
@@ -40,6 +47,7 @@ export function getMapsetContext() {
 export function createMapsetContext() {
   const $mapset = writable<ParsedMapSet | undefined>();
   const $beatmap = writable<ParsedBeatmap | undefined>();
+  const $folder = writable<JSZip | undefined>();
   const $time = writable<number>(0);
   const $playbackSpeed = writable<number>(1);
 
@@ -60,16 +68,22 @@ export function createMapsetContext() {
   let mapset: ParsedMapSet | undefined = undefined;
   const unlinkMapset = $mapset.subscribe(value => mapset = value);
 
+  let folder: JSZip | undefined = undefined;
+  const unlinkFolder = $folder.subscribe(value => folder = value);
+
   let time: number = 0;
   const unlinkTime = $time.subscribe(value => time = value);
 
   let audio: HTMLAudioElement | undefined = undefined, destroyAudio: (() => void) | undefined = undefined;
 
-  async function loadMapset(mapset: ParsedMapSet | File | Blob | string, beatmap?: string | number): Promise<void> {
+  async function loadMapset(mapset: MapsetWithFolder | File | Blob | string, beatmap?: string | number): Promise<void> {
     if (typeof mapset === "string") mapset = await downloadMapset(mapset);
     if (mapset instanceof File) mapset = await readMapset(mapset);
-    if (mapset instanceof Blob) mapset = await parseMapset(mapset);
-    $mapset.set(mapset);
+    if (mapset instanceof Blob) mapset = await parseMapset(mapset)
+
+    $mapset.set(mapset.mapSet);
+    $folder.set(mapset.mapFolder);
+
     await selectBeatmap(beatmap);
   }
 
@@ -119,6 +133,7 @@ export function createMapsetContext() {
   const context: MapsetContext = {
     mapset: $mapset,
     beatmap: $beatmap,
+    folder: $folder,
     time: $time,
     playbackSpeed: $playbackSpeed,
     timingPoint: $timingPoint,
@@ -134,6 +149,7 @@ export function createMapsetContext() {
 
   return [context, () => {
     unlinkMapset();
+    unlinkFolder();
     unlinkTime();
     cancelPlayback?.();
     destroyAudio?.();

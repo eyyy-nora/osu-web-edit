@@ -29,7 +29,6 @@ const [{
   togglePlayback,
 }, destroyMapsetContext] = createMapsetContext();
 
-
 onMount(() => {
   const path = location.pathname.split("/").map(it => it.trim()).filter(it => it);
   if (path.length > 0) {
@@ -37,6 +36,7 @@ onMount(() => {
     loadMapset(`https://api.chimu.moe/v1/download/${mapsetId}`, beatmapId);
   }
 });
+
 onDestroy(() => {
   destroyMapsetContext();
 });
