@@ -2,13 +2,13 @@ import {
   BeatmapDifficultySection,
   BeatmapEditorSection,
   BeatmapGeneralSection, BeatmapMetadataSection
-} from "src/io";
+} from "../types";
 import {
   countdowns,
   modes,
   overlayPositions,
   sampleSets
-} from "src/io/constants";
+} from "../constants";
 
 
 

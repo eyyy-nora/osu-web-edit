@@ -3,7 +3,7 @@ import {
   BeatmapGameMode,
   BeatmapOverlayPosition,
   BeatmapSampleSet
-} from "src/io/types/beatmap/sections/enums";
+} from "./enums";
 
 export interface BeatmapGeneralSection {
   audioFilename: string;

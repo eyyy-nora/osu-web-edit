@@ -1,5 +1,4 @@
 import { BeatmapSliderPoint } from "./point";
-import { BeatmapSampleSet } from "../../sections";
 import { BeatmapSliderType } from "./enums";
 import { BeatmapObjectBase } from "../base";
 
