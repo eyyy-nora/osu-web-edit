@@ -1,8 +1,8 @@
 <script lang="ts">
-import { ParsedHitCircle } from "../../parse/types";
+import { BeatmapCircle } from "src/io";
 import { HitCircleInitProps, useHitCircle } from "./hit-circle";
 
-export let circle: ParsedHitCircle;
+export let circle: BeatmapCircle;
 export let init: HitCircleInitProps;
 
 const { update, move, refresh } = useHitCircle(circle, init);

@@ -64,6 +64,7 @@ export const mappedSections: Record<string, keyof Beatmap> = {
   Events: "events",
   TimingPoints: "timingPoints",
   HitObjects: "objects",
+  Colours: "colors",
 };
 
 export const bitmasks = {

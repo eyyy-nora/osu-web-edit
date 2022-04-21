@@ -7,6 +7,6 @@ export interface BeatmapMetadataSection {
   version: string;
   source: string;
   tags: string[];
-  beatmapId?: number;
-  beatmapSetId?: number;
+  beatmapID?: number;
+  beatmapSetID?: number;
 }

@@ -1,8 +1,8 @@
 import { Bezier } from "bezier-js";
 import { Graphics, LINE_CAP, LINE_JOIN } from "pixi.js";
 import { onDestroy } from "svelte";
-import { registerPixi } from "../../context/pixi-context";
-import { ParsedPoint, ParsedSlider } from "../../parse/types";
+import { registerPixi } from "src/context/pixi-context";
+import { BeatmapSliderPoint, BeatmapSlider } from "src/io";
 import {
   borderWidthFactor,
   radiusForCs,
@@ -20,7 +20,11 @@ import {
 interface SliderPoint { x: number; y: number; }
 
 function drawSliderPoints(g: Graphics, points: SliderPoint[]) {
-  for (const { x, y } of points) g.lineTo(x, y);
+  let prevX: number | undefined = undefined, prevY: number | undefined = undefined;
+  for (const { x, y } of points) {
+    if (x === prevX && y === prevY) continue;
+    g.lineTo(prevX = x, prevY = y);
+  }
 }
 
 function centerOf(p1: SliderPoint, p2: SliderPoint): SliderPoint {
@@ -96,10 +100,10 @@ function drawCircleSlider(g: Graphics, points: SliderPoint[]) {
   g.arcTo(middle.x, middle.y, end.x, end.y, radius);
 }
 
-function separateAtAnchors(points: ParsedPoint[]): ParsedPoint[][] {
+function separateAtAnchors(points: BeatmapSliderPoint[]): BeatmapSliderPoint[][] {
   if (!points.length) return [];
-  let current: ParsedPoint[] = [];
-  const results: ParsedPoint[][] = [];
+  let current: BeatmapSliderPoint[] = [];
+  const results: BeatmapSliderPoint[][] = [];
   for (const point of points) {
     if (point.anchor && current.length > 0) {
       current.push(point);
@@ -112,7 +116,7 @@ function separateAtAnchors(points: ParsedPoint[]): ParsedPoint[][] {
   return results;
 }
 
-function drawBezierSlider(g: Graphics, points: ParsedPoint[]) {
+function drawBezierSlider(g: Graphics, points: BeatmapSliderPoint[]) {
   const bezierSections = separateAtAnchors(points);
   for (const section of bezierSections) {
     const bezier = new Bezier(section);
@@ -121,19 +125,19 @@ function drawBezierSlider(g: Graphics, points: ParsedPoint[]) {
   }
 }
 
-function drawCatmullSlider(g: Graphics, points: ParsedPoint[]) {
+function drawCatmullSlider(g: Graphics, points: BeatmapSliderPoint[]) {
   // todo: render catmull sliders
   console.warn("Catmull sliders not supported yet!");
 }
 
-const sliderTypeRenderer: Record<ParsedSlider["sliderType"], (g: Graphics, points: ParsedPoint[]) => void> = {
+const sliderTypeRenderer: Record<BeatmapSlider["sliderType"], (g: Graphics, points: BeatmapSliderPoint[]) => void> = {
   "linear": drawSliderPoints,
   "circle": drawCircleSlider,
   "bezier": drawBezierSlider,
   "catmull": drawCatmullSlider,
 };
 
-function offsetSliderPoints(offsetX: number, offsetY: number, points: ParsedPoint[]): ParsedPoint[] {
+function offsetSliderPoints(offsetX: number, offsetY: number, points: BeatmapSliderPoint[]): BeatmapSliderPoint[] {
   points = points.map(({ x, y, anchor }) => {
     return { anchor, x: x - offsetX, y: y - offsetY };
   });
@@ -141,7 +145,7 @@ function offsetSliderPoints(offsetX: number, offsetY: number, points: ParsedPoin
   return points;
 }
 
-function areTheSamePoints(oldPoints: ParsedPoint[], newPoints: ParsedPoint[]): boolean {
+function areTheSamePoints(oldPoints: BeatmapSliderPoint[], newPoints: BeatmapSliderPoint[]): boolean {
   return oldPoints.length === newPoints.length && !oldPoints.find((oldPoint, index) => {
     const { x, y, anchor } = newPoints[index];
     return oldPoint.x !== x || oldPoint.y !== y || oldPoint.anchor !== anchor;
@@ -149,7 +153,7 @@ function areTheSamePoints(oldPoints: ParsedPoint[], newPoints: ParsedPoint[]): b
 }
 
 
-export function initSliderBody(x: number, y: number, type: ParsedSlider["sliderType"], points: ParsedPoint[], r: number) {
+export function initSliderBody(x: number, y: number, type: BeatmapSlider["sliderType"], points: BeatmapSliderPoint[], r: number) {
   const g = new Graphics();
   g.position.set(x, y);
   const render = sliderTypeRenderer[type];
@@ -192,8 +196,8 @@ export interface SliderInitProps {
   cs: number;
 }
 
-export function useSlider(slider: ParsedSlider, { alpha, approach, progress, zIndex, color, combo, cs }: SliderInitProps) {
-  let { x, y, sliderType } = slider, r = radiusForCs(cs), points = slider.pathSegments;
+export function useSlider(slider: BeatmapSlider, { alpha, approach, progress, zIndex, color, combo, cs }: SliderInitProps) {
+  let { x, y, sliderType } = slider, r = radiusForCs(cs), points = slider.path;
 
   let [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);
   let [text, updateText] = initComboText(x, y, r, alpha, combo, zIndex + .1);
@@ -222,7 +226,7 @@ export function useSlider(slider: ParsedSlider, { alpha, approach, progress, zIn
 
   move(x, y, true);
 
-  function updatePath(newX: number, newY: number, type: ParsedSlider["sliderType"], newPoints: ParsedPoint[], newCs: number) {
+  function updatePath(newX: number, newY: number, type: BeatmapSlider["sliderType"], newPoints: BeatmapSliderPoint[], newCs: number) {
     if (x === newX && y === newY && sliderType === type && areTheSamePoints(points, newPoints) && cs === newCs) return;
     console.log("path", x === newX, y === newY,  sliderType === type, areTheSamePoints(points, newPoints), cs === newCs);
     x = newX; y = newY; sliderType = type; points = newPoints; cs = newCs; r = radiusForCs(cs);

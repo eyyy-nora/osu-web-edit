@@ -1,10 +1,10 @@
 <script lang="ts">
-import { getMapsetContext } from "../../context/mapset-context";
-import { BeatmapObject, BeatmapObjectBase } from "../../context/beatmap-context";
+import { getMapsetContext } from "src/context/mapset-context";
+import { BeatmapObject, BeatmapObjectBase } from "src/io";
 import TimelineSlider from "./TimelineSlider.svelte";
 import TimelineSpinner from "./TimelineSpinner.svelte";
 import TimelineCircle from "./TimelineCircle.svelte";
-import { clamp, floorToMultiple } from "../../util/numbers";
+import { clamp, floorToMultiple } from "src/util/numbers";
 
 export let objects: BeatmapObject[] = [];
 export let scale = 4;
@@ -22,13 +22,13 @@ let clientWidth: number = 0;
 let range: number, rangeStart: number, rangeEnd: number, timescale: number, rangeScale: number;
 $: rangeScale = Math.pow(2, zoom);
 $: timescale = timescaleLevels[scale];
-$: range = ($timing.beatLength * rangeScale);
+$: range = (beatLength * rangeScale);
 $: rangeStart = Math.max(-range * .5, $time - range / 2);
 $: rangeEnd = rangeStart + range;
 
 let beatWidth: number, beatOffset: number;
 $: beatWidth = clientWidth / rangeScale;
-$: beatOffset = ($time - timescaleOffset) / $timing.beatLength;
+$: beatOffset = ($time - timescaleOffset) / beatLength;
 
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / timescale;

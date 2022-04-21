@@ -1,8 +1,8 @@
 <script lang="ts">
 import { onMount, tick } from "svelte";
-import { login, logout, me } from "../client";
+import { login, logout, me } from "src/client";
 import Button from "../component/form/Button.svelte";
-import type { MeResponse } from "../../functions/types";
+import type { MeResponse } from "functions/types";
 
 let loginButton;
 let userData: MeResponse | undefined = undefined;

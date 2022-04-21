@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js";
-import { registerPixi } from "../../context/pixi-context";
+import { registerPixi } from "src/context/pixi-context";
 import { onDestroy } from "svelte";
-import { osuRankableArea } from "../../constants";
+import { osuRankableArea } from "src/constants";
 import {
   approachCircleColor,
   borderColor,

@@ -1,8 +1,6 @@
 <script lang="ts">
-import { parseMapset } from "../parse/parse-osu-file";
-import { getMapsetContext } from "../context/mapset-context";
-import { compressToOsz } from "../export/packer/packing";
-
+import { getMapsetContext } from "src/context/mapset-context";
+import { withFileDialog } from "src/util/open-file-dialog";
 import { createEventDispatcher } from "svelte";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
@@ -16,30 +14,10 @@ function logAction(name: string) {
   return () => console.log(name);
 }
 
+const { loadMapset, downloadMapset, audio } = getMapsetContext();
+
 function importBeatmap() {
-  const { loadMapset } = getMapsetContext();
-
-  const fileInput = document.createElement('input');
-    fileInput.setAttribute("type", "file");
-    fileInput.setAttribute("visibility", "hidden");
-
-  return () => {
-    document.body.appendChild(fileInput);
-    fileInput.click();
-
-    fileInput.addEventListener('change', () => {
-      const files = [...fileInput.files];
-      if (!files.length) return;
-
-      const reader = new FileReader();
-      reader.addEventListener("load", (ev) => {
-        parseMapset(ev.target.result as ArrayBuffer).then(map => loadMapset(map));
-      });
-
-      reader.readAsArrayBuffer(files[0]);
-      fileInput.remove();
-    });
-  }
+  withFileDialog(loadMapset);
 }
 
 function openLink(link: string) {
@@ -52,10 +30,10 @@ function openLink(link: string) {
   <FileMenuItem name="File">
     <FileMenuItem name="New" keybind="alt+shift+N" action={logAction("file-new")} />
     <FileMenuItem name="Open..." keybind="ctrl+O" action={logAction("file-open")} />
-    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={importBeatmap()} />
+    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={importBeatmap} />
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
-    <FileMenuItem name="Export" action={compressToOsz()} />
+    <FileMenuItem name="Export" action={() => downloadMapset()} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
     <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />
@@ -88,7 +66,7 @@ function openLink(link: string) {
     <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={logAction("nav-prev-timing-point")} />
   </FileMenuItem>
   <FileMenuItem name="Playback">
-    <FileMenuItem name="Play / Pause" keybind="Space" action={() => emit("play-pause")} />
+    <FileMenuItem name="Play / Pause" keybind="Space" action={() => audio.toggle()} />
     <FileMenuItem name="Rate 100%" action={logAction("playback-rate-100")} />
     <FileMenuItem name="Rate 75%" action={logAction("playback-rate-75")} />
     <FileMenuItem name="Rate 50%" action={logAction("playback-rate-50")} />

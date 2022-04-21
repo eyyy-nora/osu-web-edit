@@ -11,11 +11,12 @@ export function serializeGeneralSection(general: BeatmapGeneralSection): string 
     let line: string;
 
     switch (key) {
-      case "sampleSet":       line = `SampleSet: ${pascal(value)}`; break;
+      case "sampleSet":       line = `SampleSet: ${pascal(value ?? "normal")}`; break;
       case "countdown":       line = `Countdown: ${reverseLookup(countdowns, value, "0")}`; break;
       case "mode":            line = `Mode: ${reverseLookup(modes, value, "0")}`; break;
       case "overlayPosition": line = `OverlayPosition: ${reverseLookup(overlayPositions, value, "NoChange")}`; break;
-      default:                line = `${pascal(key)}: ${serializeConfigValue(value)}`;
+      default:                if (value === undefined || value === "") continue;
+                              line = `${pascal(key)}: ${serializeConfigValue(value)}`;
     }
 
     lines.push(line);

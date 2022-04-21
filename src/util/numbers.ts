@@ -1,4 +1,3 @@
-import { ParsedPoint } from "../parse/types";
 import { vecProd } from "./vector";
 
 

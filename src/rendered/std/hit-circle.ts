@@ -1,7 +1,7 @@
 import { Graphics, Text } from "pixi.js";
 import { onDestroy } from "svelte";
 import { registerPixi } from "../../context/pixi-context";
-import { ParsedHitCircle } from "../../parse/types";
+import { BeatmapCircle } from "src/io";
 import {
   approachCircleColor,
   approachCircleWidthFactor,
@@ -67,7 +67,7 @@ export interface HitCircleInitProps {
   cs: number;
 }
 
-export function useHitCircle(circle: ParsedHitCircle, { alpha, approach, zIndex, color, combo, cs }: HitCircleInitProps) {
+export function useHitCircle(circle: BeatmapCircle, { alpha, approach, zIndex, color, combo, cs }: HitCircleInitProps) {
   let { x, y } = circle, r = radiusForCs(cs);
 
   let [body, updateBody] = initHitCircleBody(x, y, r, color, alpha, zIndex);

@@ -37,8 +37,8 @@ export async function parseOsuFile(data: string): Promise<Beatmap> {
       case "colors": {
         const [key, value] = line.split(":", 2).map(str => str.trim());
         const color = value.split(",").map(it => Number(it.trim())) as any;
-        if (/^Color[0-9]+/.test(key)) (section as BeatmapColorSection).colors.push(color);
-        else section[camel(key)] = color;
+        if (/^Combo[0-9]+/.test(key)) (section as BeatmapColorSection).colors.push(color);
+        else section[camel(key.replace("ou", "o"))] = color;
       }
     }
   }

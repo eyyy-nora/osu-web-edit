@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { IApplicationOptions } from "pixi.js";
-import { Application, Container } from "pixi.js";
+import { Application } from "pixi.js";
 import { osuVisibleArea, osuRankableArea } from "../constants";
-import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
+import { Beatmap, BeatmapObject } from "src/io";
 import { providePixi } from "../context/pixi-context";
 import HitCircle from "./std/HitCircle.svelte";
 import Slider from "./std/Slider.svelte";
@@ -11,34 +11,35 @@ import Spinner from "./std/Spinner.svelte";
 
 export let time: number = 0;
 export let zoom: number = 2;
-export let beatmap: ParsedBeatmap | undefined;
-export let hitObjects: ParsedHitObject[] = [];
+export let beatmap: Beatmap | undefined;
+export let hitObjects: BeatmapObject[] = [];
 export let settings: IApplicationOptions = {
   antialias: true,
   backgroundAlpha: 0,
   ...osuVisibleArea,
+  forceCanvas: true,
 };
 
 export let app: Application;
 $: app = new Application(settings);
 
 let approachRate: number, preempt: number, fadein: number, fadeOffset: number, scope: number, cs: number;
-$: approachRate = beatmap?.Difficulty.ApproachRate ?? 8;
+$: approachRate = beatmap?.difficulty.approachRate ?? 8;
 $: preempt = 1200 + (approachRate > 5 ? -150 * (approachRate - 5) : 120 * (5 - approachRate));
 $: fadein = 800 + (approachRate > 5 ? -100 * (approachRate - 5) : 80 * (5 - approachRate));
 $: fadeOffset = preempt - fadein;
 $: scope = preempt * zoom;
-$: cs = beatmap?.Difficulty?.CircleSize ?? 4.2;
+$: cs = beatmap?.difficulty?.circleSize ?? 4.2;
 
-function objectEnd(object: ParsedHitObject & { length?: number; end?: number }): number {
+function objectEnd(object: BeatmapObject & { length?: number; end?: number }): number {
   return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
 }
 
-function objectInRange(object: ParsedHitObject, start: number, end: number): boolean {
+function objectInRange(object: BeatmapObject, start: number, end: number): boolean {
   return objectEnd(object) >= start && object.time <= end;
 }
 
-function filterInRange(objects: ParsedHitObject[], start: number, end: number, sections = 10): ParsedHitObject[] {
+function filterInRange(objects: BeatmapObject[], start: number, end: number, sections = 10): BeatmapObject[] {
   const length = objects.length;
   if (length <= sections) return objects.filter(object => objectInRange(object, start, end));
   const step = (length / sections) | 0;
@@ -52,7 +53,7 @@ function filterInRange(objects: ParsedHitObject[], start: number, end: number, s
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
-function visibleObjectStats(object: ParsedHitObject, index: number, { length: count }: ParsedHitObject[]) {
+function visibleObjectStats(object: BeatmapObject, index: number, { length: count }: BeatmapObject[]) {
   const baseAlphaEditor = .3;
 
   let t = object.time - time;
@@ -85,7 +86,7 @@ function visibleObjectStats(object: ParsedHitObject, index: number, { length: co
   return { ...object, hit, alpha, approach, percent, complete, cs, zIndex: count - index };
 }
 
-let visibleObjects: (ParsedHitObject & any)[];
+let visibleObjects: (BeatmapObject & any)[];
 $: visibleObjects = filterInRange(hitObjects, time - scope, time + scope).map(visibleObjectStats).reverse();
 
 let container: HTMLDivElement | undefined = undefined;

@@ -1,8 +1,8 @@
-import { lerp, binomialCoefficient, bernstein } from "../util/numbers";
+import { lerp, binomialCoefficient, bernstein } from "src/util/numbers";
 
-import lerpData from "./test_data/lerpData.json";
-import binCoeffData from "./test_data/binCoeffData.json";
-import bernsteinData from "./test_data/bernsteinData.json";
+import lerpData from "tests/test_data/lerpData.json";
+import binCoeffData from "tests/test_data/binCoeffData.json";
+import bernsteinData from "tests/test_data/bernsteinData.json";
 
 
 describe.each(lerpData)("lerp(%f, %f, %f)", (minVal, maxVal, percent, expected) => {
