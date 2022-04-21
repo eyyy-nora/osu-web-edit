@@ -1,3 +1,4 @@
+import { snowflake } from "src/util/snowflake";
 import { writable } from "./writable";
 import { Readable, Stores, Deriver, Destroyable } from "./types";
 
@@ -11,10 +12,15 @@ export function derived<S extends Stores, T>(
 ): Readable<T> & Destroyable {
   const { get, set, subscribe } = writable<T>(initial);
 
+  let prevId = "";
+
   const handler = () => {
     const retVal = fn(stores.map(store => store.get()) as any);
+    const id = prevId = snowflake();
     if ("then" in retVal && typeof retVal.then === "function")
-      retVal.then(set);
+      retVal.then(value => {
+        if (prevId === id) set(value);
+      });
     else set(retVal as T);
   }
 

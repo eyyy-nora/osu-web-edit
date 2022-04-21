@@ -8,6 +8,7 @@ export function createBeatmapAudioStore(
   $beatmap: Readable<Beatmap>,
   $time: Writable<number>,
 ) {
+  let cancelPlaybackSync: (() => void) | void;
 
   const $playback = writable(1);
 
@@ -16,11 +17,19 @@ export function createBeatmapAudioStore(
     if (destroyFn) destroyFn = destroyFn();
     if (!mapset || !beatmap) return;
     const [audio, destroy] = loadAudio(await mapset.files[beatmap.general.audioFilename]());
-    destroyFn = destroy;
+    destroyFn = () => {
+      if (cancelPlaybackSync) cancelPlaybackSync();
+      if (!audio.paused) audio.pause();
+      destroy();
+    }
     return audio;
   });
 
-  let cancelPlaybackSync: (() => void) | void;
+  const destroyPlaybackRateHook = $playback.subscribe((rate) => {
+    const audio = $audio.get();
+    if (audio) audio.playbackRate = rate;
+  });
+
   async function play() {
     const audio = $audio.get();
     if (!audio || !audio.paused) return;
@@ -50,11 +59,12 @@ export function createBeatmapAudioStore(
 
   function destroy() {
     $audio.destroy();
+    destroyPlaybackRateHook();
     if (destroyFn) destroyFn();
     if (cancelPlaybackSync) cancelPlaybackSync();
   }
 
-  return { $playback, $audio, play, pause, toggle, skipTo, destroy };
+  return { playback: $playback, audio: $audio, play, pause, toggle, skipTo, destroy };
 }
 
 

@@ -67,10 +67,10 @@ function openLink(link: string) {
   </FileMenuItem>
   <FileMenuItem name="Playback">
     <FileMenuItem name="Play / Pause" keybind="Space" action={() => audio.toggle()} />
-    <FileMenuItem name="Rate 100%" action={logAction("playback-rate-100")} />
-    <FileMenuItem name="Rate 75%" action={logAction("playback-rate-75")} />
-    <FileMenuItem name="Rate 50%" action={logAction("playback-rate-50")} />
-    <FileMenuItem name="Rate 25%" action={logAction("playback-rate-25")} />
+    <FileMenuItem name="Rate 100%" action={() => audio.playback.set(1)} />
+    <FileMenuItem name="Rate 75%" action={() => audio.playback.set(.75)} />
+    <FileMenuItem name="Rate 50%" action={() => audio.playback.set(.5)} />
+    <FileMenuItem name="Rate 25%" action={() => audio.playback.set(.25)} />
   </FileMenuItem>
   <FileMenuItem name="Guides">
     <FileMenuItem name="New Guide" action={logAction("guide-new-guide")} />
