@@ -65,6 +65,6 @@ article {
 
 main {
   overflow: hidden;
-  padding-top: .3rem;
+  padding: .1rem 0;
 }
 </style>

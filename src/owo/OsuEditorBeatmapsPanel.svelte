@@ -27,6 +27,7 @@ $: beatmaps = $mapset?.beatmaps.map(map => ({ map, selected: $selectedBeatmap ==
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
   position: relative;
 }
 
