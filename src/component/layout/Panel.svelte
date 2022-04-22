@@ -1,4 +1,6 @@
 <script lang="ts">
+import PanelHeader from "../partial/PanelHeader.svelte";
+import Icon from "../form/Icon.svelte";
 import { OwoId } from "src/icons";
 
 
@@ -20,13 +22,10 @@ export let icon: OwoId | undefined = undefined;
 
 <article>
   <header on:click|preventDefault={() => open = !open}>
-    <h3>
-      {#if icon}
-        <i class="icon icon-{icon}"/>
-      {/if}
-      {heading}
-    </h3>
-    <i class="icon icon-chevron-{open ? 'contract' : 'expand'}" />
+    <slot name="header">
+      <PanelHeader {heading} {icon} />
+    </slot>
+    <Icon icon={open ? "chevron-contract" : "chevron-expand"} />
   </header>
   {#if open}
     <main transition:expand={{ vertical: true }}>
@@ -48,12 +47,6 @@ header {
   cursor: pointer;
   color: var(--colorFgLight);
   user-select: none;
-}
-
-h3 {
-  margin: 0;
-  font-weight: 500;
-  font-size: 1rem;
 }
 
 article {

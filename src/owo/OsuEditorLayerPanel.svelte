@@ -1,4 +1,6 @@
 <script lang="ts">
+import { snowflake } from "src/util/snowflake";
+import PanelHeader from "../component/partial/PanelHeader.svelte";
 import Button from "../component/form/Button.svelte";
 import Panel from "../component/layout/Panel.svelte";
 import { BeatmapLayer } from "src/io";
@@ -13,15 +15,30 @@ $: layers = $beatmap?.layers.map(layer => ({
   visible: $visibleLayers.includes(layer),
 })) ?? [];
 
+function addLayer() {
+  const name = prompt("Layer Name");
+  const layer = { id: snowflake(), name, objects: [] };
+  $beatmap.layers = [...$beatmap.layers, layer];
+  toggleLayerVisible(layer);
+  selectLayer(layer);
+}
+
 </script>
 
 
 <Panel heading="Layers" icon="layers">
+  <PanelHeader icon="layers" heading="Layers" slot="header">
+    <Button inline icon="plus" on:click={addLayer} />
+  </PanelHeader>
   <ul>
     {#each layers as { layer, visible } (layer.id)}
       <li class:selected={$selectedLayer === layer} on:click={() => selectLayer(layer)}>
+        <Button
+          inline
+          icon={visible ? "eye" : "eye-slash"}
+          on:click={() => toggleLayerVisible(layer)}
+        />
         <span>{layer.name}</span>
-        <Button icon={visible ? "visible" : "invisible"} on:click={() => toggleLayerVisible(layer)} />
       </li>
     {/each}
   </ul>
@@ -40,13 +57,9 @@ li {
   display: flex;
   flex-direction: row;
   width: 100%;
-  padding: .2rem 1rem;
+  padding: .2rem .5rem;
   user-select: none;
   cursor: pointer;
-}
-
-span {
-  padding-left: .5rem;
 }
 
 li.selected {

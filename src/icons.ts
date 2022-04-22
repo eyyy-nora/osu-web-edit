@@ -10,6 +10,8 @@ export type OwoId =
   | "control"
   | "ctb-ring"
   | "ctb"
+  | "eye-slash"
+  | "eye"
   | "graveyard-fill"
   | "graveyard-stroke"
   | "layers"
@@ -21,6 +23,7 @@ export type OwoId =
   | "osu"
   | "pending-fill"
   | "pending-stroke"
+  | "plus"
   | "ranked-fill"
   | "ranked-stroke"
   | "shift"
@@ -41,22 +44,25 @@ export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
   "control": "61705",
   "ctb-ring": "61706",
   "ctb": "61707",
-  "graveyard-fill": "61708",
-  "graveyard-stroke": "61709",
-  "layers": "61710",
-  "loved-fill": "61711",
-  "loved-stroke": "61712",
-  "mania-ring": "61713",
-  "mania": "61714",
-  "osu-ring": "61715",
-  "osu": "61716",
-  "pending-fill": "61717",
-  "pending-stroke": "61718",
-  "ranked-fill": "61719",
-  "ranked-stroke": "61720",
-  "shift": "61721",
-  "star-fill": "61722",
-  "star-stroke": "61723",
-  "taiko-ring": "61724",
-  "taiko": "61725",
+  "eye-slash": "61708",
+  "eye": "61709",
+  "graveyard-fill": "61710",
+  "graveyard-stroke": "61711",
+  "layers": "61712",
+  "loved-fill": "61713",
+  "loved-stroke": "61714",
+  "mania-ring": "61715",
+  "mania": "61716",
+  "osu-ring": "61717",
+  "osu": "61718",
+  "pending-fill": "61719",
+  "pending-stroke": "61720",
+  "plus": "61721",
+  "ranked-fill": "61722",
+  "ranked-stroke": "61723",
+  "shift": "61724",
+  "star-fill": "61725",
+  "star-stroke": "61726",
+  "taiko-ring": "61727",
+  "taiko": "61728",
 };

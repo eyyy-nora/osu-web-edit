@@ -6,10 +6,11 @@ export let text: string = undefined;
 export let icon: OwoId = undefined;
 export let big: boolean = false;
 export let pad: boolean = false;
+export let inline: boolean = false;
 
 </script>
 
-<button type="button" class:big class:pad on:click>
+<button type="button" class:big class:pad class:inline on:click|stopPropagation>
   <slot>
     {#if icon}<Icon {icon} />{/if}
     {#if text}<span>{text}</span>{/if}
@@ -25,6 +26,13 @@ button {
   color: var(--colorFgLight);
   outline: none;
   background-color: var(--colorBgLighter);
+  cursor: pointer;
+}
+
+button.inline {
+  border: none;
+  background-color: transparent;
+  margin: 0;
 }
 
 button.pad {
