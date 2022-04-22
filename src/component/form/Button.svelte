@@ -1,6 +1,9 @@
 <script lang="ts">
+import Icon from "./Icon.svelte";
+import { OwoId } from "src/icons";
 
-export let text: string = "Submit";
+export let text: string = undefined;
+export let icon: OwoId = undefined;
 export let big: boolean = false;
 export let pad: boolean = false;
 
@@ -8,7 +11,8 @@ export let pad: boolean = false;
 
 <button type="button" class:big class:pad on:click>
   <slot>
-    <span>{text}</span>
+    {#if icon}<Icon {icon} />{/if}
+    {#if text}<span>{text}</span>{/if}
   </slot>
 </button>
 

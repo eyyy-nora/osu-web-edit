@@ -43,6 +43,8 @@ export async function parseOsuFile(data: string): Promise<Beatmap> {
     }
   }
 
+  beatmap.layers = [];
+
   return beatmap;
 }
 

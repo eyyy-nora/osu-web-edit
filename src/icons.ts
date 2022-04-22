@@ -17,6 +17,8 @@ export type OwoId =
   | "loved-stroke"
   | "mania-ring"
   | "mania"
+  | "osu-ring"
+  | "osu"
   | "pending-fill"
   | "pending-stroke"
   | "ranked-fill"
@@ -24,8 +26,6 @@ export type OwoId =
   | "shift"
   | "star-fill"
   | "star-stroke"
-  | "std-ring"
-  | "std"
   | "taiko-ring"
   | "taiko";
 
@@ -48,15 +48,15 @@ export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
   "loved-stroke": "61712",
   "mania-ring": "61713",
   "mania": "61714",
-  "pending-fill": "61715",
-  "pending-stroke": "61716",
-  "ranked-fill": "61717",
-  "ranked-stroke": "61718",
-  "shift": "61719",
-  "star-fill": "61720",
-  "star-stroke": "61721",
-  "std-ring": "61722",
-  "std": "61723",
+  "osu-ring": "61715",
+  "osu": "61716",
+  "pending-fill": "61717",
+  "pending-stroke": "61718",
+  "ranked-fill": "61719",
+  "ranked-stroke": "61720",
+  "shift": "61721",
+  "star-fill": "61722",
+  "star-stroke": "61723",
   "taiko-ring": "61724",
   "taiko": "61725",
 };

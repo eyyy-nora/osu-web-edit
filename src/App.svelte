@@ -9,6 +9,8 @@ import ScreenBox from "./component/layout/ScreenBox.svelte";
 import VBox from "./component/layout/VBox.svelte";
 import Timeline from "./component/timeline/Timeline.svelte";
 import OsuEditorFileMenu from "./owo/OsuEditorFileMenu.svelte";
+import OsuEditorLayerPanel from "./owo/OsuEditorLayerPanel.svelte";
+import OsuEditorBeatmapsPanel from "./owo/OsuEditorBeatmapsPanel.svelte";
 import OsuEditorStdMapView from "./rendered/OsuEditorStdMapView.svelte";
 import { GIRDER_LEFT_WIDTH, GIRDER_RIGHT_WIDTH, local } from "./user-preferences";
 import { storedValue } from "./util/stored-value";
@@ -21,7 +23,6 @@ const {
   mapset,
   beatmap,
   time,
-  selectBeatmap,
   loadMapset,
   objects,
 } = createMapsetContext();
@@ -52,21 +53,13 @@ function onDrop(ev: DragEvent) {
       <Timeline objects={$objects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <ContentBox slot="start">
-          <Panel heading="Elements" icon="std-ring">
+          <Panel heading="Elements" icon="osu-ring">
             Circle, Slider, Spinner, etc.
           </Panel>
         </ContentBox>
         <ContentBox slot="end">
-          <Panel heading="Layers" icon="layers">
-            Layers go here
-          </Panel>
-
-          <Panel heading="Beatmaps" icon="collection">
-            {#each $mapset?.beatmaps ?? [] as difficulty (difficulty.metadata.beatmapID ?? difficulty.metadata.version)}
-              <button type="button" on:click={() => selectBeatmap(difficulty)}>[{difficulty.metadata.version}]</button>
-            {/each}
-          </Panel>
-
+          <OsuEditorLayerPanel />
+          <OsuEditorBeatmapsPanel />
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>

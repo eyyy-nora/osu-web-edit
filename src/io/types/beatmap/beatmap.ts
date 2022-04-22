@@ -1,3 +1,4 @@
+import { BeatmapLayer } from "./layer";
 import {
   BeatmapColorSection,
   BeatmapDifficultySection,
@@ -20,4 +21,7 @@ export interface Beatmap {
   events: BeatmapEvent[];
   timingPoints: BeatmapTimingPoint[];
   objects: BeatmapObject[];
+
+  /* custom properties */
+  layers: BeatmapLayer[];
 }

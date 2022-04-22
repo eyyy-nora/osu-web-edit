@@ -24,8 +24,13 @@ export function beatmapFilename({ metadata }: Beatmap): string {
 }
 
 export function mapsetFilename(mapset: Mapset): string {
-  const { beatmapSetId, artist, title } =
+  const { beatmapSetID, artist, title } =
   mapset.beatmaps[0]?.metadata ?? { artist: "N/A", title: "Unknown" };
-  if (beatmapSetId !== undefined) return `${beatmapSetId} ${artist} - ${title}.osz`;
+  if (beatmapSetID !== undefined) return `${beatmapSetID} ${artist} - ${title}.osz`;
   return `${artist} - ${title}.osz`;
+}
+
+
+export function layerFilename({ metadata }: Beatmap, index: number): string {
+  return `${metadata.artist} - ${metadata.title} (${metadata.creator}) [${metadata.version}].${index}.osu-layer`;
 }

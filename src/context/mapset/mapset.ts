@@ -1,5 +1,5 @@
 import { writable } from "src/context/stores";
-import { Mapset, Beatmap, parseMapset } from "src/io";
+import { Mapset, Beatmap, parseMapset, BeatmapLayer } from "src/io";
 import { downloadMapset as dl, readMapset, exportMapset } from "src/io";
 import { createTimingStore } from "./timing";
 import { createBeatmapAudioStore } from "./audio";
@@ -10,11 +10,13 @@ import { createBeatmapObjectStore } from "./objects";
 export function createMapsetStore() {
   const $mapset = writable<Mapset | undefined>();
   const $beatmap = writable<Beatmap | undefined>();
+  const $layer = writable<BeatmapLayer | undefined>();
+  const $visibleLayers = writable<BeatmapLayer[]>([]);
   const $time = writable(0);
 
   const timing = createTimingStore($beatmap, $time);
   const audio = createBeatmapAudioStore($mapset, $beatmap, $time);
-  const objects = createBeatmapObjectStore($beatmap);
+  const objects = createBeatmapObjectStore($beatmap, $visibleLayers);
 
   async function loadMapset(mapset: string | Blob | File | Mapset, beatmap?: string | number) {
     if (typeof mapset === "string") mapset = await dl(mapset);
@@ -33,7 +35,20 @@ export function createMapsetStore() {
       );
     beatmap ??= $mapset.get().beatmaps[0];
     $beatmap.set(beatmap);
+    $visibleLayers.set([]);
     if (resetTime) $time.set(beatmap.timingPoints[0].time);
+  }
+
+  function selectLayer(layer?: BeatmapLayer) {
+    $layer.set(layer);
+  }
+
+  function toggleLayerVisible(layer: BeatmapLayer) {
+    if (!$beatmap.get().layers.includes(layer)) return;
+
+    const visible = $visibleLayers.get();
+    if (visible.includes(layer)) $visibleLayers.set(visible.filter(it => it !== layer));
+    else $visibleLayers.set([...visible, layer]);
   }
 
   async function downloadMapset() {
@@ -55,6 +70,8 @@ export function createMapsetStore() {
     mapset: $mapset,
     beatmap: $beatmap,
     time: $time,
+    visibleLayers: $visibleLayers,
+    layer: $layer,
     timing,
     audio,
     objects,
@@ -62,6 +79,8 @@ export function createMapsetStore() {
     goto,
     loadMapset,
     selectBeatmap,
+    selectLayer,
+    toggleLayerVisible,
     downloadMapset,
     destroy,
   };

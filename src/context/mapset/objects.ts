@@ -1,12 +1,13 @@
 import { Readable, derived } from "src/context/stores";
-import { Beatmap } from "src/io";
+import { Beatmap, BeatmapLayer, BeatmapObject } from "src/io";
 import { colorToNumber } from "src/util/color";
 import { snowflake } from "src/util/snowflake";
 
 
 
-export function createBeatmapObjectStore(beatmap: Readable<Beatmap>) {
-  return derived([beatmap], ([beatmap]) => {
+export function createBeatmapObjectStore(beatmap: Readable<Beatmap>, visibleLayers: Readable<BeatmapLayer[]>) {
+  return derived([beatmap, visibleLayers], ([beatmap, visibleLayers]) => {
+
     if (!beatmap) return [];
 
     const { colors: { colors: original } } = beatmap;
@@ -19,15 +20,18 @@ export function createBeatmapObjectStore(beatmap: Readable<Beatmap>) {
       currentColor = colors[currentColorIndex];
     }
 
-    return beatmap.objects.map((object, index) => {
-      const id = snowflake();
+    const sortedObjects: BeatmapObject[] = [
+      ...beatmap.objects,
+      ...visibleLayers.flatMap(layer => layer.objects),
+    ].sort((a, b) => a.time - b.time);
 
+    return sortedObjects.map((object, index) => {
       if (object.newCombo || object.type === "spinner") nextColor(object.skipColors);
       else combo++;
 
       return {
         ...object,
-        id,
+        id: snowflake(),
         index,
         color: currentColor,
         combo,

@@ -1,8 +1,10 @@
 import axios from "axios";
 import jszip from "jszip";
+import { beatmapFilename } from "src/io/serializer/util";
 import { mimetypeFor } from "./mimetype";
 import { parseOsuFile } from "./file";
-import { Mapset } from "../types";
+import { parseOsuLayer } from "./layer";
+import { BeatmapLayer, Mapset } from "../types";
 
 
 
@@ -14,11 +16,24 @@ export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promis
     files: {},
   };
 
+  const layers: Record<string, BeatmapLayer[]> = {};
+
   let cache: Record<string, Promise<Blob>> = {}
 
-  for (const [filename, file]of Object.entries(zip.files)) {
+  for (const [filename, file] of Object.entries(zip.files)) {
     if (/\.osu$/.test(filename)) {
-      mapset.beatmaps.push(await parseOsuFile(await file.async("string")));
+      const beatmap = await parseOsuFile(await file.async("string"));
+      if (layers[filename]) {
+        beatmap.layers = layers[filename];
+        delete layers[filename];
+      }
+      mapset.beatmaps.push(beatmap);
+    } else if (/\.[0-9]+\.osu-layer$/.test(filename)) {
+      const matchName = filename.replace(/\.[0-9]+\.osu-layer$/, ".osu");
+      const matching = mapset.beatmaps.find(beatmap => beatmapFilename(beatmap) === matchName)
+      const parsed = parseOsuLayer(await file.async("string"));
+      if (matching) matching.layers.push(parsed);
+      else (layers[matchName] ??= []).push(parsed)
     } else {
       mapset.files[filename] = () => {
         if (cache[filename]) return cache[filename];
