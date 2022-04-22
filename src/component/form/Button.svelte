@@ -32,6 +32,7 @@ button {
 button.inline {
   border: none;
   background-color: transparent;
+  color: inherit;
   margin: 0;
 }
 
@@ -41,7 +42,7 @@ button.pad {
 
 button.big {
   max-height: 2.4rem;
-  padding: .3rem 1rem;
+  padding: .3rem .5rem;
 }
 
 button:focus, button:active, button:hover {

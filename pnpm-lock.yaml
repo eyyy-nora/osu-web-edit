@@ -45,6 +45,7 @@ specifiers:
   svelte: ^3.46.4
   svelte-check: ^2.4.6
   svelte-loader: ^3.1.2
+  svelte-portal: ^2.1.2
   svelte-preprocess: ^4.10.4
   ts-jest: ^27.1.4
   tslib: ^2.3.1
@@ -59,6 +60,7 @@ dependencies:
   file-saver: 2.0.5
   jszip: 3.7.1
   pixi.js: 6.3.0
+  svelte-portal: 2.1.2
 
 devDependencies:
   '@babel/core': 7.17.8
@@ -13443,6 +13445,10 @@ packages:
       svelte-dev-helper: 1.1.9
       svelte-hmr: 0.14.11_svelte@3.46.4
     dev: true
+
+  /svelte-portal/2.1.2:
+    resolution: {integrity: sha512-u1ONI4ZJDNhVJPDW7tH6RH1ZIzALt6kJZbF00Hz9bgNIVRlzvzimsnwf35rGFMtPFA+FYenvsTHUR815yYNc9A==}
+    dev: false
 
   /svelte-preprocess/4.10.4_ef987dd6a70835c6be68cf70e8092daf:
     resolution: {integrity: sha512-fuwol0N4UoHsNQolLFbMqWivqcJ9N0vfWO9IuPAiX/5okfoGXURyJ6nECbuEIv0nU3M8Xe2I1ONNje2buk7l6A==}

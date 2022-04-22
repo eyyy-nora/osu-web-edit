@@ -1,13 +1,14 @@
 <script lang="ts">
-import { snowflake } from "src/util/snowflake";
+import OsuAddLayerDialog from "./OsuAddLayerDialog.svelte";
 import PanelHeader from "../component/partial/PanelHeader.svelte";
 import Button from "../component/form/Button.svelte";
 import Panel from "../component/layout/Panel.svelte";
 import { BeatmapLayer } from "src/io";
 import { getMapsetContext } from "src/context/mapset-context";
 
-const { beatmap, selectLayer, toggleLayerVisible, visibleLayers, layer: selectedLayer } = getMapsetContext();
+const { beatmap, selectLayer, toggleLayerVisible, visibleLayers, layer: selectedLayer, mainVisible } = getMapsetContext();
 
+let dialog: OsuAddLayerDialog;
 
 let layers: { layer: BeatmapLayer, visible: boolean }[];
 $: layers = $beatmap?.layers.map(layer => ({
@@ -16,11 +17,7 @@ $: layers = $beatmap?.layers.map(layer => ({
 })) ?? [];
 
 function addLayer() {
-  const name = prompt("Layer Name");
-  const layer = { id: snowflake(), name, objects: [] };
-  $beatmap.layers = [...$beatmap.layers, layer];
-  toggleLayerVisible(layer);
-  selectLayer(layer);
+  dialog.show();
 }
 
 </script>
@@ -31,6 +28,16 @@ function addLayer() {
     <Button inline icon="plus" on:click={addLayer} />
   </PanelHeader>
   <ul>
+    {#if $beatmap}
+      <li class:selected={!$selectedLayer} on:click={() => selectLayer()}>
+        <Button
+          inline
+          icon={$mainVisible ? "eye" : "eye-slash"}
+          on:click={() => toggleLayerVisible()}
+        />
+        <span>Main</span>
+      </li>
+    {/if}
     {#each layers as { layer, visible } (layer.id)}
       <li class:selected={$selectedLayer === layer} on:click={() => selectLayer(layer)}>
         <Button
@@ -43,6 +50,8 @@ function addLayer() {
     {/each}
   </ul>
 </Panel>
+
+<OsuAddLayerDialog bind:this={dialog} />
 
 <style>
 ul {

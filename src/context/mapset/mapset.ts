@@ -12,11 +12,12 @@ export function createMapsetStore() {
   const $beatmap = writable<Beatmap | undefined>();
   const $layer = writable<BeatmapLayer | undefined>();
   const $visibleLayers = writable<BeatmapLayer[]>([]);
+  const $mainVisible = writable(true);
   const $time = writable(0);
 
   const timing = createTimingStore($beatmap, $time);
   const audio = createBeatmapAudioStore($mapset, $beatmap, $time);
-  const objects = createBeatmapObjectStore($beatmap, $visibleLayers);
+  const objects = createBeatmapObjectStore($beatmap, $visibleLayers, $mainVisible);
 
   async function loadMapset(mapset: string | Blob | File | Mapset, beatmap?: string | number) {
     if (typeof mapset === "string") mapset = await dl(mapset);
@@ -43,7 +44,8 @@ export function createMapsetStore() {
     $layer.set(layer);
   }
 
-  function toggleLayerVisible(layer: BeatmapLayer) {
+  function toggleLayerVisible(layer?: BeatmapLayer) {
+    if (!layer) return $mainVisible.update(it => !it);
     if (!$beatmap.get().layers.includes(layer)) return;
 
     const visible = $visibleLayers.get();
@@ -72,6 +74,7 @@ export function createMapsetStore() {
     time: $time,
     visibleLayers: $visibleLayers,
     layer: $layer,
+    mainVisible: $mainVisible,
     timing,
     audio,
     objects,

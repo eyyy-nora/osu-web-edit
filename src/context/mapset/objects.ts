@@ -5,8 +5,8 @@ import { snowflake } from "src/util/snowflake";
 
 
 
-export function createBeatmapObjectStore(beatmap: Readable<Beatmap>, visibleLayers: Readable<BeatmapLayer[]>) {
-  return derived([beatmap, visibleLayers], ([beatmap, visibleLayers]) => {
+export function createBeatmapObjectStore($beatmap: Readable<Beatmap>, $visibleLayers: Readable<BeatmapLayer[]>, $mainVisible: Readable<boolean>) {
+  return derived([$beatmap, $visibleLayers, $mainVisible], ([beatmap, visibleLayers, mainVisible]) => {
 
     if (!beatmap) return [];
 
@@ -21,7 +21,7 @@ export function createBeatmapObjectStore(beatmap: Readable<Beatmap>, visibleLaye
     }
 
     const sortedObjects: BeatmapObject[] = [
-      ...beatmap.objects,
+      ...(mainVisible ? beatmap.objects : []),
       ...visibleLayers.flatMap(layer => layer.objects),
     ].sort((a, b) => a.time - b.time);
 

@@ -67,6 +67,8 @@ section {
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
+  flex-shrink: 1;
 }
 
 section.vertical {

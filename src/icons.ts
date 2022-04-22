@@ -30,7 +30,8 @@ export type OwoId =
   | "star-fill"
   | "star-stroke"
   | "taiko-ring"
-  | "taiko";
+  | "taiko"
+  | "x";
 
 export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
   "alt": "61697",
@@ -65,4 +66,5 @@ export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
   "star-stroke": "61726",
   "taiko-ring": "61727",
   "taiko": "61728",
+  "x": "61729",
 };
