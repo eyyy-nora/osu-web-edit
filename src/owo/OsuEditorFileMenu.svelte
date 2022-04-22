@@ -5,6 +5,7 @@ import { createEventDispatcher } from "svelte";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
 import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
+import { runAIMod } from "src/aimod/mod";
 
 const emit = createEventDispatcher<{
   "play-pause": void;
@@ -14,7 +15,7 @@ function logAction(name: string) {
   return () => console.log(name);
 }
 
-const { loadMapset, downloadMapset, audio } = getMapsetContext();
+const { beatmap, mapset, loadMapset, downloadMapset, audio } = getMapsetContext();
 
 function importBeatmap() {
   withFileDialog(loadMapset);
@@ -34,6 +35,7 @@ function openLink(link: string) {
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
     <FileMenuItem name="Export" action={() => downloadMapset()} />
+    <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => console.log(runAIMod($beatmap, $mapset.files))} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
     <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />
