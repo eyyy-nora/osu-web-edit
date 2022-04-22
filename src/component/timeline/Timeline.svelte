@@ -90,7 +90,7 @@ function onScroll(e: WheelEvent) {
       <div
         class="timescale divisor{timescale}"
       />
-      {#each visibleObjects as object (object.index)}
+      {#each visibleObjects as object (object.id)}
         {#if object.type === "circle"}
           <TimelineCircle {...timelinePosFor(object)} />
         {:else if object.type === "slider"}

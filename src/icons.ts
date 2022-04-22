@@ -3,12 +3,16 @@ export type OwoId =
   | "approved-fill"
   | "approved-ring"
   | "cheeseburger"
+  | "chevron-contract"
+  | "chevron-expand"
+  | "collection"
   | "command"
   | "control"
   | "ctb-ring"
   | "ctb"
   | "graveyard-fill"
   | "graveyard-stroke"
+  | "layers"
   | "loved-fill"
   | "loved-stroke"
   | "mania-ring"
@@ -30,25 +34,29 @@ export const OWO_CODEPOINTS: { [key in OwoId]: string } = {
   "approved-fill": "61698",
   "approved-ring": "61699",
   "cheeseburger": "61700",
-  "command": "61701",
-  "control": "61702",
-  "ctb-ring": "61703",
-  "ctb": "61704",
-  "graveyard-fill": "61705",
-  "graveyard-stroke": "61706",
-  "loved-fill": "61707",
-  "loved-stroke": "61708",
-  "mania-ring": "61709",
-  "mania": "61710",
-  "pending-fill": "61711",
-  "pending-stroke": "61712",
-  "ranked-fill": "61713",
-  "ranked-stroke": "61714",
-  "shift": "61715",
-  "star-fill": "61716",
-  "star-stroke": "61717",
-  "std-ring": "61718",
-  "std": "61719",
-  "taiko-ring": "61720",
-  "taiko": "61721",
+  "chevron-contract": "61701",
+  "chevron-expand": "61702",
+  "collection": "61703",
+  "command": "61704",
+  "control": "61705",
+  "ctb-ring": "61706",
+  "ctb": "61707",
+  "graveyard-fill": "61708",
+  "graveyard-stroke": "61709",
+  "layers": "61710",
+  "loved-fill": "61711",
+  "loved-stroke": "61712",
+  "mania-ring": "61713",
+  "mania": "61714",
+  "pending-fill": "61715",
+  "pending-stroke": "61716",
+  "ranked-fill": "61717",
+  "ranked-stroke": "61718",
+  "shift": "61719",
+  "star-fill": "61720",
+  "star-stroke": "61721",
+  "std-ring": "61722",
+  "std": "61723",
+  "taiko-ring": "61724",
+  "taiko": "61725",
 };

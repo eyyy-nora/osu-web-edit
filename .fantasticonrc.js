@@ -5,7 +5,7 @@ module.exports = {
   fontTypes: ['eot', 'svg', 'ttf', 'woff', 'woff2'],
   assetTypes: ['ts', 'css', 'html'],
   fontsUrl: '',
-  descent: 0,
+  descent: 33,
   normalize: true,
   formatOptions: {
     // Pass options directly to `svgicons2svgfont`

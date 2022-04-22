@@ -1,4 +1,5 @@
 <script lang="ts">
+import Panel from "./component/layout/Panel.svelte";
 import { createMapsetContext } from "./context/mapset-context";
 import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
 import { onMount } from "svelte";
@@ -50,11 +51,22 @@ function onDrop(ev: DragEvent) {
       <OsuEditorFileMenu />
       <Timeline objects={$objects} zoom={4} />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
-        <span slot="start">Start</span>
+        <ContentBox slot="start">
+          <Panel heading="Elements" icon="std-ring">
+            Circle, Slider, Spinner, etc.
+          </Panel>
+        </ContentBox>
         <ContentBox slot="end">
-          {#each $mapset?.beatmaps ?? [] as difficulty (difficulty.metadata.beatmapID ?? difficulty.metadata.version)}
-            <button type="button" on:click={() => selectBeatmap(difficulty)}>[{difficulty.metadata.version}]</button>
-          {/each}
+          <Panel heading="Layers" icon="layers">
+            Layers go here
+          </Panel>
+
+          <Panel heading="Beatmaps" icon="collection">
+            {#each $mapset?.beatmaps ?? [] as difficulty (difficulty.metadata.beatmapID ?? difficulty.metadata.version)}
+              <button type="button" on:click={() => selectBeatmap(difficulty)}>[{difficulty.metadata.version}]</button>
+            {/each}
+          </Panel>
+
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
@@ -87,7 +99,7 @@ main {
 
   --colorBgLightest: #6b6c7a;
   --colorBgLighter: #585a5d;
-  --colorBgLight: #3c3f41;
+  --colorBgLight: #484a4d;
   --colorBgRegular: #3c3f41;
   --colorBgDark: #2d2f31;
   --colorBgDarker: #2b2b2c;
