@@ -6,8 +6,19 @@ import { getMapsetContext } from "src/context/mapset-context";
 
 const { beatmap: selectedBeatmap, selectBeatmap, mapset } = getMapsetContext();
 
+function modePriority(map: Beatmap): number {
+  switch (map.general.mode) {
+    case "osu": return 1;
+    case "mania": return 2;
+    case "ctb": return 3;
+    case "taiko": return 4;
+  }
+}
+
 let beatmaps: { map: Beatmap, selected: boolean }[];
-$: beatmaps = $mapset?.beatmaps.map(map => ({ map, selected: $selectedBeatmap === map })) ?? [];
+$: beatmaps = $mapset?.beatmaps
+  .sort((a, b) => modePriority(a) - modePriority(b))
+  .map(map => ({ map, selected: $selectedBeatmap === map })) ?? [];
 
 </script>
 
