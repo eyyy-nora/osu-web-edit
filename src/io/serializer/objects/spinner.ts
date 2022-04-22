@@ -8,5 +8,5 @@ export function serializeSpinner(spinner: BeatmapSpinner): string {
     serializeObjectBase(spinner),
     spinner.end,
     serializeObjectSamples(spinner.hitSample),
-  ].join(",");
+  ].filter(it => it !== undefined).join(",");
 }

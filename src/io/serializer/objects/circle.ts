@@ -8,5 +8,5 @@ export function serializeCircle(circle: BeatmapCircle): string {
   return [
     serializeObjectBase(circle),
     serializeObjectSamples(circle.hitSample),
-  ].join(",");
+  ].filter(it => it !== undefined).join(",");
 }

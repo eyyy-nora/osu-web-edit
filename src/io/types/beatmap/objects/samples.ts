@@ -4,4 +4,5 @@ export interface BeatmapHitSamples {
   index: number;
   volume: number;
   filename?: string;
+  noSample?: true;
 }

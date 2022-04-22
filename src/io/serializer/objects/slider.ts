@@ -10,12 +10,12 @@ export function serializeSlider(slider: BeatmapSlider): string {
   return [
     serializeObjectBase(slider),
     `${reverseLookup(sliderTypes, slider.sliderType)}|${
-      slider.path.map(point => point.anchor ? `${point.x}|${point.y}|${point.x}|${point.y}` : `${point.x}|${point.y}`)
+      slider.path.map(point => point.anchor ? `${point.x}:${point.y}|${point.x}:${point.y}` : `${point.x}:${point.y}`).join("|")
     }`,
     slider.slides,
     slider.length,
     slider.edgeSounds.join("|"),
     slider.edgeSets.map(set => set.join(":")).join("|"),
     serializeObjectSamples(slider.hitSample),
-  ].join(",");
+  ].filter(it => it !== undefined && it !== "").join(",");
 }

@@ -9,5 +9,5 @@ export function serializeHold(hold: BeatmapHold): string {
     serializeObjectBase(hold),
     hold.end,
     serializeObjectSamples(hold.hitSample),
-  ].join(",");
+  ].filter(it => it !== undefined).join(",");
 }

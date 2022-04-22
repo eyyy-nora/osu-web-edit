@@ -1,4 +1,4 @@
-import { BeatmapTimingPoint } from "../../types";
+import { BeatmapTimingPoint, BeatmapUninheritedTimingPoint } from "../../types";
 import { bitmasks, sampleSets } from "../../constants";
 import { reverseLookup } from "../util";
 
@@ -10,8 +10,30 @@ export function serializeTimingPointSection(points: BeatmapTimingPoint[]): strin
 
 export function serializeTimingPoint(point: BeatmapTimingPoint): string {
   const effects = (point.kiai ? bitmasks.kiai : 0) | (point.omitFirstBarLine ? bitmasks.omitFirstBarLine : 0);
-  if (point.inherited)
-    return `${point.time},${point.sliverVelocityMultiplier},0,${reverseLookup(sampleSets, point.sampleSet)},${point.volume},1,${effects}`
-  else if (point.inherited === false)
-    return `${point.time},${point.beatLength},${point.meter},${reverseLookup(sampleSets, point.sampleSet)},${point.volume},1,${effects}`
+  if (isUninherited(point))
+    return [
+      point.time,
+      point.beatLength,
+      point.meter,
+      reverseLookup(sampleSets, point.sampleSet),
+      point.sampleIndex,
+      point.volume,
+      1,
+      effects,
+    ].join(",")
+  else
+    return [
+      point.time,
+      point.sliverVelocityMultiplier,
+      0,
+      reverseLookup(sampleSets, point.sampleSet),
+      point.sampleIndex,
+      point.volume,
+      0,
+      effects,
+    ].join(",")
+}
+
+function isUninherited(point: BeatmapTimingPoint): point is BeatmapUninheritedTimingPoint {
+  return !point.inherited;
 }

@@ -14,7 +14,7 @@ export function serializeConfigValue(value: any) {
   switch (typeof value) {
     case "boolean": return value ? "1" : "0";
     case "number": return `${value}`;
-    case "string": return pascal(value);
+    case "string": return value;
   }
 }
 
