@@ -43,7 +43,7 @@ function createLayer() {
 
 <Dialog bind:this={dialog} closable {open} heading="Create Layer">
 
-  <Input bind:this={nameInput} name="layer-name" bind:value={layerName} />
+  <Input bind:this={nameInput} name="layer-name" bind:value={layerName} on:submit={createLayer} />
 
   <svelte:fragment slot="footer">
     <Button big pad inline text="Close" on:click={hide} />

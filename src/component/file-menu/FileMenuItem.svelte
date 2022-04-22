@@ -48,7 +48,8 @@ function registerKeyBind(key: string, mods: KeyModifier[]) {
   const hasCmd = mods.includes("cmd");
 
   function listener(e: KeyboardEvent) {
-    const { shiftKey, altKey, ctrlKey, metaKey, key: eventKey } = e;
+    const { shiftKey, altKey, ctrlKey, metaKey, key: eventKey, target } = e;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
     if (eventKey !== key
       || shiftKey !== hasShift
       || ctrlKey !== hasCtrl

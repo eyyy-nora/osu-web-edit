@@ -52,7 +52,13 @@ $: calculateInputWidth(input, value);
 
 <div class="input-container" on:click={focus}>
   <span class="shadow-prefix" tabindex="-1">{prefixValue}</span>
-  <input bind:this={input} type="text" {name} {id} bind:value on:keydown|stopPropagation />
+  <input
+    bind:this={input} bind:value
+    type="text" {name} {id}
+    on:input on:submit on:change
+    on:keydown on:keyup on:keypress
+    on:focus on:blur
+  />
   <span class="shadow-suffix">{restValue}</span>
 </div>
 
