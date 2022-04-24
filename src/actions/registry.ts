@@ -91,6 +91,9 @@ export function createActionRegistry({
   limit = 10000,
 }: ActionRegistryParams = {}): ActionRegistry {
 
+  const restore = firstHook(plugins, "restore");
+  const persist = firstHook(plugins, "persist");
+
   const actions: Record<string, ActionDefinition> = {};
   const actionResolvers: Record<string, (action: ActionDefinition) => void> = {};
   const actionPromises: Record<string, Promise<ActionDefinition>> = {};
@@ -144,6 +147,7 @@ export function createActionRegistry({
   function pushHistory(entry: ActionHistoryEntry): void {
     history.push(entry);
     while (history.length > limit) history.shift();
+    persist?.(history);
   }
 
   const run = async (action: string, params: Record<string, any>, issuer: string) => {
@@ -192,14 +196,10 @@ export function createActionRegistry({
     entry.redo = undefined;
   }
 
-  for (const plugin of plugins) {
-    if (plugin.restore && !restoring) {
-      restoring = plugin.restore().then(entries => {
-        history = entries;
-        restoring = undefined;
-      });
-    }
-  }
+  restoring = restore?.().then(entries => {
+    history = entries;
+    restoring = undefined;
+  });
 
 
   return {
@@ -215,4 +215,9 @@ export function createActionRegistry({
     undo,
     redo,
   };
+}
+
+
+function firstHook<T, Key extends keyof T, F extends T[Key] | undefined>(plugins: T[], key: Key, fallback?: F): T[Key] | F {
+  return plugins.find(plugin => key in plugin)?.[key] ?? fallback;
 }
