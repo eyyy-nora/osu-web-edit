@@ -102,7 +102,6 @@ onDestroy(() => unregister());
 
 <style>
 li {
-  padding: .3rem .6rem;
   position: relative;
   word-break: keep-all;
   white-space: nowrap;
@@ -111,6 +110,7 @@ li {
 }
 
 .text {
+  padding: .3rem .6rem;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
