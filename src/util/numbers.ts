@@ -18,9 +18,14 @@ export function round(value: number): number {
 }
 
 export function floorToMultiple(value: number, divisor: number, offset = 0) {
-  let rest = (value - offset) % divisor;
-  if (divisor - rest < .0001) rest = -divisor + rest;
-  return round(value - rest);
+  value -= offset;
+  const middle = Math.floor(value / divisor) * divisor;
+  const high = middle + divisor;
+  const low = middle - divisor;
+  const diffMiddle = Math.abs(value - middle);
+  if (diffMiddle > Math.abs(value - high)) return high + offset;
+  if (diffMiddle > Math.abs(value - low)) return low + offset;
+  return middle + offset;
 }
 
 export function approachRateToMs(ar: number): [preempt: number, fadein: number] {

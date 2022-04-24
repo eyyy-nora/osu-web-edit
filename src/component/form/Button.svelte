@@ -1,5 +1,5 @@
 <script lang="ts">
-import Icon from "./Icon.svelte";
+import Icon from "src/component/general/Icon.svelte";
 import { OwoId } from "src/icons";
 
 export let text: string = undefined;

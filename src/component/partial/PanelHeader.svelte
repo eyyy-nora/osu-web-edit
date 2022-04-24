@@ -1,5 +1,5 @@
 <script lang="ts">
-import Icon from "../form/Icon.svelte";
+import Icon from "src/component/general/Icon.svelte";
 import { OwoId } from "src/icons";
 
 export let heading: string = "Panel";

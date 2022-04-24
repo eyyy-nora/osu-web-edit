@@ -1,3 +1,4 @@
+import { actions } from "src/actions";
 import { getContext, onDestroy, setContext } from "svelte";
 import { createMapsetStore } from "./mapset";
 
@@ -9,6 +10,7 @@ export function createMapsetContext() {
   const context = createMapsetStore();
   setContext(MAPSET_CONTEXT, context);
   onDestroy(context.destroy);
+  actions.registerContext("mapset", context);
   return context;
 }
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-import Icon from "../component/form/Icon.svelte";
-import Panel from "../component/layout/Panel.svelte";
+import Icon from "src/component/general/Icon.svelte";
+import Panel from "src/component/page/Panel.svelte";
 import { Beatmap } from "src/io";
 import { getMapsetContext } from "src/context/mapset-context";
 

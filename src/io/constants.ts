@@ -53,7 +53,8 @@ export const beatmapDefaults = (): Beatmap => ({
   },
   timingPoints: [],
   events: [],
-  objects: []
+  objects: [],
+  layers: [],
 });
 
 export const mappedSections: Record<string, keyof Beatmap> = {

@@ -1,45 +1,86 @@
+<script lang="ts" context="module">
+import { GameObject, Graphics } from "black-engine";
+import { osuRankableArea, osuVisibleArea } from "src/constants";
+import { BeatmapObjectWithCombo } from "src/context";
+
+export interface BeatmapObjectWithStdProps extends BeatmapObjectWithCombo {
+  complete: boolean;
+  alpha: number;
+  approach: number;
+  percent: number;
+  zIndex: number;
+}
+
+const { width: rankedWidth, height: rankedHeight } = osuRankableArea;
+const { width: visibleWidth, height: visibleHeight } = osuVisibleArea;
+
+export class OsuEditorStdStage extends GameObject {
+  rankedArea: Graphics;
+
+  constructor() {
+    super();
+  }
+
+  public onAdded() {
+    this.rankedArea = new Graphics();
+    this.add(this.rankedArea);
+  }
+
+  draw() {
+    const g = this.rankedArea;
+
+    this.setTransform(
+      (visibleWidth - rankedWidth) / 2,
+      (visibleHeight - rankedHeight) / 2,
+      0,
+      1, 1,
+      0, 0,
+      true,
+    );
+
+    g.clear();
+    g.lineStyle(2, 0xffffff, 1);
+
+    g.beginPath();
+    g.rect(0, 0, rankedWidth, rankedHeight);
+    g.stroke();
+  }
+
+  protected onUpdate() {
+    this.draw();
+  }
+
+}
+</script>
+
 <script lang="ts">
-import type { IApplicationOptions } from "pixi.js";
-import { Application } from "pixi.js";
-import { osuVisibleArea, osuRankableArea } from "../constants";
-import { Beatmap, BeatmapObject } from "src/io";
-import { providePixi } from "../context/pixi-context";
-import HitCircle from "./std/HitCircle.svelte";
-import Slider from "./std/Slider.svelte";
-import Spinner from "./std/Spinner.svelte";
+import { getMapsetContext, pushBlackStage } from "src/context";
+import { BeatmapObject } from "src/io";
+// import HitCircle from "./std/HitCircle.svelte";
+// import Slider from "./std/Slider.svelte";
+// import Spinner from "./std/Spinner.svelte";
 
+const { beatmap, objects, time } = getMapsetContext();
 
-export let time: number = 0;
 export let zoom: number = 2;
-export let beatmap: Beatmap | undefined;
-export let hitObjects: BeatmapObject[] = [];
-export let settings: IApplicationOptions = {
-  antialias: true,
-  backgroundAlpha: 0,
-  ...osuVisibleArea,
-  forceCanvas: true,
-};
-
-export let app: Application;
-$: app = new Application(settings);
 
 let approachRate: number, preempt: number, fadein: number, fadeOffset: number, scope: number, cs: number;
-$: approachRate = beatmap?.difficulty.approachRate ?? 8;
+$: approachRate = $beatmap?.difficulty.approachRate ?? 8;
 $: preempt = 1200 + (approachRate > 5 ? -150 * (approachRate - 5) : 120 * (5 - approachRate));
 $: fadein = 800 + (approachRate > 5 ? -100 * (approachRate - 5) : 80 * (5 - approachRate));
 $: fadeOffset = preempt - fadein;
 $: scope = preempt * zoom;
-$: cs = beatmap?.difficulty?.circleSize ?? 4.2;
+$: cs = $beatmap?.difficulty?.circleSize ?? 4.2;
 
-function objectEnd(object: BeatmapObject & { length?: number; end?: number }): number {
+function objectEnd(object: BeatmapObjectWithCombo & { length?: number; end?: number }): number {
   return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
 }
 
-function objectInRange(object: BeatmapObject, start: number, end: number): boolean {
+function objectInRange(object: BeatmapObjectWithCombo, start: number, end: number): boolean {
   return objectEnd(object) >= start && object.time <= end;
 }
 
-function filterInRange(objects: BeatmapObject[], start: number, end: number, sections = 10): BeatmapObject[] {
+function filterInRange(objects: BeatmapObjectWithCombo[], start: number, end: number, sections = 10): BeatmapObjectWithCombo[] {
   const length = objects.length;
   if (length <= sections) return objects.filter(object => objectInRange(object, start, end));
   const step = (length / sections) | 0;
@@ -53,10 +94,10 @@ function filterInRange(objects: BeatmapObject[], start: number, end: number, sec
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
-function visibleObjectStats(object: BeatmapObject, index: number, { length: count }: BeatmapObject[]) {
+function visibleObjectStats(object: BeatmapObjectWithCombo, index: number, { length: count }: BeatmapObjectWithStdProps[]) {
   const baseAlphaEditor = .3;
 
-  let t = object.time - time;
+  let t = object.time - $time;
   if (t > -10 && t < 10) t = -1; // minimal timing errors
   const length = (object as any).length ?? ((object as any).end ?? object.time) - object.time;
   const end = t + length;
@@ -87,16 +128,8 @@ function visibleObjectStats(object: BeatmapObject, index: number, { length: coun
 }
 
 let visibleObjects: (BeatmapObject & any)[];
-$: visibleObjects = filterInRange(hitObjects, time - scope, time + scope).map(visibleObjectStats).reverse();
+$: visibleObjects = filterInRange($objects, $time - scope, $time + scope).map(visibleObjectStats).reverse();
 
-let container: HTMLDivElement | undefined = undefined;
-$: if (container) {
-  const child = [...container!.children].filter(child => (child as HTMLElement).tagName === "CANVAS")?.[0];
-  if (child !== app.view) {
-    if (child) container!.removeChild(child);
-    container!.appendChild(app.view);
-  }
-}
 
 let clientHeight = 0, clientWidth = 0;
 $: if (clientHeight !== 0 && clientWidth !== 0) {
@@ -106,7 +139,7 @@ $: if (clientHeight !== 0 && clientWidth !== 0) {
   // top with minimum distance
   const offsetY = (osuVisibleArea.height - osuRankableArea.height) / 2 * viewportZoom;
 
-  app.stage.setTransform(
+  /*app.stage.setTransform(
     offsetX,
     offsetY,
     viewportZoom,
@@ -114,31 +147,19 @@ $: if (clientHeight !== 0 && clientWidth !== 0) {
   );
   app.resizeTo = container;
   app.resize();
-  if (!app.stage.sortableChildren) app.stage.sortableChildren = true;
+  if (!app.stage.sortableChildren) app.stage.sortableChildren = true;*/
+  console.log(offsetX, offsetY, viewportZoom);
 }
 
-providePixi(() => app, () => app.stage);
+pushBlackStage(new OsuEditorStdStage());
 </script>
 
-<div bind:this={container} bind:clientHeight bind:clientWidth>
-  {#each visibleObjects as object (object.id)}
-    {#if object.type === "circle"}
-      <HitCircle circle={object} init={object} />
-    {:else if object.type === "spinner"}
-      <Spinner spinner={object} />
-    {:else if object.type === "slider"}
-      <Slider slider={object} init={object} />
-    {/if}
-  {/each}
-
-  <slot/>
-</div>
-
-<style>
-div {
-  margin: 0 1px -3px;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-</style>
+<!--{#each visibleObjects as object (object.id)}
+  {#if object.type === "circle"}
+    <HitCircle circle={object} init={object} />
+  {:else if object.type === "spinner"}
+    <Spinner spinner={object} />
+  {:else if object.type === "slider"}
+    <Slider slider={object} init={object} />
+  {/if}
+{/each}-->

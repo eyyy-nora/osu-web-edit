@@ -1,25 +1,21 @@
 <script lang="ts">
+import { actions } from "src/actions";
 import { getMapsetContext } from "src/context/mapset-context";
-import { withFileDialog } from "src/util/open-file-dialog";
-import { createEventDispatcher } from "svelte";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
 import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
 import { runAIMod } from "src/aimod/mod";
 
-const emit = createEventDispatcher<{
-  "play-pause": void;
-}>()
+function exec(name: string, params: Record<string, any> = {}) {
+  return () => actions.run(name, params, "");
+}
 
 function logAction(name: string) {
   return () => console.log(name);
 }
 
-const { beatmap, mapset, loadMapset, downloadMapset, audio } = getMapsetContext();
-
-function importBeatmap() {
-  withFileDialog(loadMapset);
-}
+const context = getMapsetContext();
+const { beatmap, mapset, audio } = context;
 
 function openLink(link: string) {
   return () => window.open(link, "_blank");
@@ -31,10 +27,10 @@ function openLink(link: string) {
   <FileMenuItem name="File">
     <FileMenuItem name="New" keybind="alt+shift+N" action={logAction("file-new")} />
     <FileMenuItem name="Open..." keybind="ctrl+O" action={logAction("file-open")} />
-    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={importBeatmap} />
+    <FileMenuItem name="Import..." keybind="ctrl+shift+O" action={exec("file-import")} />
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
-    <FileMenuItem name="Export" action={() => downloadMapset()} />
+    <FileMenuItem name="Export" action={exec("file-export")} />
     <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => console.log(runAIMod($beatmap, $mapset.files))} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
@@ -58,14 +54,14 @@ function openLink(link: string) {
   <FileMenuItem name="View">
   </FileMenuItem>
   <FileMenuItem name="Navigate">
-    <FileMenuItem name="Next Tick" keybind="ArrowRight" action={logAction("nav-next-tick")} />
-    <FileMenuItem name="Previous Tick" keybind="ArrowLeft" action={logAction("nav-prev-tick")} />
-    <FileMenuItem name="Next Object" keybind="shift+ArrowRight" action={logAction("nav-next-object")} />
-    <FileMenuItem name="Previous Object" keybind="shift+ArrowLeft" action={logAction("nav-prev-object")} />
-    <FileMenuItem name="Next Bookmark" keybind="ctrl+ArrowRight" action={logAction("nav-next-bookmark")} />
-    <FileMenuItem name="Previous Bookmark" keybind="ctrl+ArrowLeft" action={logAction("nav-prev-bookmark")} />
-    <FileMenuItem name="Next Timing Point" keybind="alt+ArrowRight" action={logAction("nav-next-timing-point")} />
-    <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={logAction("nav-prev-timing-point")} />
+    <FileMenuItem name="Next Tick" keybind="ArrowRight" action={exec("nav-next-tick")} />
+    <FileMenuItem name="Previous Tick" keybind="ArrowLeft" action={exec("nav-prev-tick")} />
+    <FileMenuItem name="Next Object" keybind="shift+ArrowRight" action={exec("nav-next-object")} />
+    <FileMenuItem name="Previous Object" keybind="shift+ArrowLeft" action={exec("nav-prev-object")} />
+    <FileMenuItem name="Next Bookmark" keybind="ctrl+ArrowRight" action={exec("nav-next-bookmark")} />
+    <FileMenuItem name="Previous Bookmark" keybind="ctrl+ArrowLeft" action={exec("nav-prev-bookmark")} />
+    <FileMenuItem name="Next Timing Point" keybind="alt+ArrowRight" action={exec("nav-next-timing-point")} />
+    <FileMenuItem name="Previous Timing Point" keybind="alt+ArrowLeft" action={exec("nav-prev-timing-point")} />
   </FileMenuItem>
   <FileMenuItem name="Playback">
     <FileMenuItem name="Play / Pause" keybind="Space" action={() => audio.toggle()} />

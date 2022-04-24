@@ -1,23 +1,47 @@
-import { writable } from "src/context/stores";
+import { Readable, writable } from "src/context/stores";
 import { Mapset, Beatmap, parseMapset, BeatmapLayer } from "src/io";
 import { downloadMapset as dl, readMapset, exportMapset } from "src/io";
-import { createTimingStore } from "./timing";
-import { createBeatmapAudioStore } from "./audio";
-import { createBeatmapObjectStore } from "./objects";
+import { createTimingStore, Timing } from "./timing";
+import { BeatmapAudioStore, createBeatmapAudioStore } from "./audio";
+import { BeatmapObjectWithCombo, createBeatmapObjectStore } from "./objects";
 
 
+export interface MapsetStore {
+  mapset: Readable<Mapset | undefined>;
+  beatmap: Readable<Beatmap | undefined>;
+  layer: Readable<BeatmapLayer | undefined>;
+  visibleLayers: Readable<BeatmapLayer[]>;
+  mainVisible: Readable<boolean>;
+  time: Readable<number>;
+  scale: Readable<number>;
+  zoom: Readable<number>;
+  timing: Readable<Timing>;
+  audio: BeatmapAudioStore;
+  objects: Readable<BeatmapObjectWithCombo[]>;
 
-export function createMapsetStore() {
+  goto(time: number): void;
+  loadMapset(mapset: string | Blob | File | Mapset, beatmap?: string | number): Promise<void>;
+  selectBeatmap(beatmap?: Beatmap | string | number, resetTime?: boolean): Promise<void>;
+  selectLayer(layer?: BeatmapLayer): void;
+  toggleLayerVisible(layer?: BeatmapLayer): void;
+  downloadMapset(): void;
+  destroy(): void;
+}
+
+
+export function createMapsetStore(): MapsetStore {
   const $mapset = writable<Mapset | undefined>();
   const $beatmap = writable<Beatmap | undefined>();
   const $layer = writable<BeatmapLayer | undefined>();
   const $visibleLayers = writable<BeatmapLayer[]>([]);
   const $mainVisible = writable(true);
   const $time = writable(0);
+  const $scale = writable(3);
+  const $zoom = writable(4);
 
-  const timing = createTimingStore($beatmap, $time);
-  const audio = createBeatmapAudioStore($mapset, $beatmap, $time);
-  const objects = createBeatmapObjectStore($beatmap, $visibleLayers, $mainVisible);
+  const $timing = createTimingStore($beatmap, $time, $scale);
+  const $audio = createBeatmapAudioStore($mapset, $beatmap, $time);
+  const $objects = createBeatmapObjectStore($beatmap, $visibleLayers, $mainVisible);
 
   async function loadMapset(mapset: string | Blob | File | Mapset, beatmap?: string | number) {
     if (typeof mapset === "string") mapset = await dl(mapset);
@@ -59,25 +83,27 @@ export function createMapsetStore() {
 
   function goto(time: number) {
     $time.set(time);
-    audio.skipTo(time);
+    $audio.skipTo(time);
   }
 
 
   function destroy() {
-    timing.destroy();
-    audio.destroy();
+    $timing.destroy();
+    $audio.destroy();
   }
 
   return (window as any).mapstore = {
     mapset: $mapset,
     beatmap: $beatmap,
     time: $time,
+    scale: $scale,
+    zoom: $zoom,
     visibleLayers: $visibleLayers,
     layer: $layer,
     mainVisible: $mainVisible,
-    timing,
-    audio,
-    objects,
+    timing: $timing,
+    audio: $audio,
+    objects: $objects,
 
     goto,
     loadMapset,

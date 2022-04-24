@@ -1,7 +1,8 @@
 <script lang="ts">
-import Panel from "./component/layout/Panel.svelte";
-import { createMapsetContext } from "./context/mapset-context";
-import OsuEditorRankedArea from "./rendered/std/RankedArea.svelte";
+import Panel from "src/component/page/Panel.svelte";
+import Stage from "src/component/blacksmith/Stage.svelte";
+import { osuVisibleArea } from "src/constants";
+import { createMapsetContext } from "src/context";
 import { onMount } from "svelte";
 import Girder from "./component/girder/Girder.svelte";
 import ContentBox from "./component/layout/ContentBox.svelte";
@@ -63,9 +64,9 @@ function onDrop(ev: DragEvent) {
         </ContentBox>
         <Girder vertical divisor={.2}>
           <ContentBox>
-            <OsuEditorStdMapView beatmap={$beatmap} time={$time} hitObjects={$objects}>
-              <OsuEditorRankedArea />
-            </OsuEditorStdMapView>
+            <Stage {...osuVisibleArea}>
+              <OsuEditorStdMapView />
+            </Stage>
           </ContentBox>
           <span slot="side">Properties</span>
         </Girder>

@@ -2,7 +2,7 @@
 import OsuAddLayerDialog from "./OsuAddLayerDialog.svelte";
 import PanelHeader from "../component/partial/PanelHeader.svelte";
 import Button from "../component/form/Button.svelte";
-import Panel from "../component/layout/Panel.svelte";
+import Panel from "src/component/page/Panel.svelte";
 import { BeatmapLayer } from "src/io";
 import { getMapsetContext } from "src/context/mapset-context";
 

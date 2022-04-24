@@ -4,7 +4,7 @@ import { snowflake } from "src/util/snowflake";
 import { tick } from "svelte";
 import Button from "../component/form/Button.svelte";
 import Input from "../component/form/Input.svelte";
-import Dialog from "../component/layout/Dialog.svelte";
+import Dialog from "src/component/page/Dialog.svelte";
 import { getMapsetContext } from "src/context/mapset-context";
 
 const { beatmap, selectLayer, toggleLayerVisible } = getMapsetContext();
@@ -16,9 +16,7 @@ let nameInput: Input;
 
 export async function show() {
   layerName = `Layer ${($beatmap?.layers.length ?? 0) + 1}`;
-  dialog.show();
-  await tick();
-  nameInput.focus();
+  await dialog.show();
   nameInput.select();
 }
 

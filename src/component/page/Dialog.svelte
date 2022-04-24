@@ -1,27 +1,36 @@
 <script lang="ts">
-import Button from "../form/Button.svelte";
+import Button from "src/component/form/Button.svelte";
+import { tabInto } from "src/util";
+import { tick } from "svelte";
 import { fade } from "svelte/transition";
 import Portal from "svelte-portal";
+declare module "svelte-portal";
 
 
+let dialog: HTMLElement = undefined;
+let restoreFocus: () => void = undefined;
 
 export function hide() {
   open = false;
+  restoreFocus?.();
 }
 
-export function show() {
+export async function show() {
   open = true;
+  await tick();
+  if (!noFocus) restoreFocus = tabInto(dialog);
 }
 
-export let open: boolean = false;
-export let closable: boolean = false;
-export let heading: string = "Dialog";
+export let noFocus = false;
+export let open = false;
+export let closable = false;
+export let heading = "Dialog";
 </script>
 
 <Portal>
   {#if open}
     <div transition:fade={{ duration: 200 }} class="backdrop" />
-    <article transition:fade={{ duration: 200 }} class:open>
+    <article bind:this={dialog} transition:fade={{ duration: 200 }} class:open>
       <header>
         <slot name="header">
           <h3>{heading}</h3>

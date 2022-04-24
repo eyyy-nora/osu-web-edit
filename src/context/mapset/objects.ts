@@ -1,12 +1,34 @@
 import { Readable, derived } from "src/context/stores";
-import { Beatmap, BeatmapLayer, BeatmapObject } from "src/io";
+import {
+  Beatmap,
+  BeatmapLayer,
+  BeatmapObject,
+  BeatmapObjectBase
+} from "src/io";
 import { colorToNumber } from "src/util/color";
 import { snowflake } from "src/util/snowflake";
 
+export type BeatmapObjectWithCombo = BeatmapObjectBase & BeatmapObject & {
+  id: string;
+  index: number;
+  color: number;
+  combo: number;
+}
 
-
-export function createBeatmapObjectStore($beatmap: Readable<Beatmap>, $visibleLayers: Readable<BeatmapLayer[]>, $mainVisible: Readable<boolean>) {
-  return derived([$beatmap, $visibleLayers, $mainVisible], ([beatmap, visibleLayers, mainVisible]) => {
+export function createBeatmapObjectStore(
+  $beatmap: Readable<Beatmap>,
+  $visibleLayers: Readable<BeatmapLayer[]>,
+  $mainVisible: Readable<boolean>,
+) {
+  return derived([
+    $beatmap,
+    $visibleLayers,
+    $mainVisible,
+  ], ([
+    beatmap,
+    visibleLayers,
+    mainVisible,
+  ]): BeatmapObjectWithCombo[] => {
 
     if (!beatmap) return [];
 

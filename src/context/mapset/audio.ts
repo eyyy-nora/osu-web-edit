@@ -1,29 +1,48 @@
-import { Readable, Writable, derived, writable } from "src/context/stores";
+import {
+  Readable,
+  Writable,
+  derived,
+  writable,
+  Destroyable
+} from "src/context/stores";
 import { Beatmap, Mapset } from "src/io";
+import { snowflake } from "src/util/snowflake";
 import { everyFrame } from "src/util/timing";
 
+
+export interface BeatmapAudioStore {
+  audio: Readable<HTMLAudioElement>;
+  playback: Writable<number>;
+  play(): Promise<void>;
+  pause(): Promise<void>;
+  toggle(): Promise<void>;
+  skipTo(time: number): void;
+}
 
 export function createBeatmapAudioStore(
   $mapset: Readable<Mapset>,
   $beatmap: Readable<Beatmap>,
   $time: Writable<number>,
-) {
+): BeatmapAudioStore & Destroyable {
+  let destroyFn: (() => void) | void;
   let cancelPlaybackSync: (() => void) | void;
 
   const $playback = writable(1);
+  const $audio = writable<HTMLAudioElement>(undefined);
 
-  let destroyFn: (() => void) | void;
-  const $audio = derived([$mapset, $beatmap], async ([mapset, beatmap]) => {
-    if (destroyFn) destroyFn = destroyFn();
-    if (!mapset || !beatmap) return;
-    const [audio, destroy] = loadAudio(await mapset.files[beatmap.general.audioFilename]());
-    destroyFn = () => {
-      if (cancelPlaybackSync) cancelPlaybackSync();
-      if (!audio.paused) audio.pause();
-      destroy();
-    }
-    return audio;
-  });
+  let audioId = snowflake();
+
+  $beatmap.subscribe(async beatmap => {
+    if (cancelPlaybackSync) cancelPlaybackSync();
+    if (destroyFn) destroyFn();
+    $audio.set(undefined);
+    if (!beatmap) return;
+    const id = audioId = snowflake();
+    const [audio, destroy] = loadAudio(await $mapset.get().files[beatmap.general.audioFilename]());
+    if (id !== audioId) return destroy();
+    $audio.set(audio);
+    destroyFn = destroy;
+  })
 
   const destroyPlaybackRateHook = $playback.subscribe((rate) => {
     const audio = $audio.get();
@@ -35,6 +54,7 @@ export function createBeatmapAudioStore(
     if (!audio || !audio.paused) return;
     audio.currentTime = $time.get() / 1000;
     audio.playbackRate = $playback.get();
+    if (cancelPlaybackSync) cancelPlaybackSync = cancelPlaybackSync();
     cancelPlaybackSync = everyFrame(() => $time.set(audio.currentTime * 1000));
     await audio.play();
   }
@@ -53,12 +73,13 @@ export function createBeatmapAudioStore(
   }
 
   async function toggle() {
-    if ($audio.get().paused) await play();
+    const audio = $audio.get();
+    if (!audio) return;
+    if (audio.paused) await play();
     else await pause();
   }
 
   function destroy() {
-    $audio.destroy();
     destroyPlaybackRateHook();
     if (destroyFn) destroyFn();
     if (cancelPlaybackSync) cancelPlaybackSync();
@@ -74,6 +95,9 @@ export function loadAudio(file: Blob, { volume = .1 }: { volume?: number } = {})
   audio.volume = volume;
 
   function destroy() {
+    audio.volume = 0;
+    audio.muted = true;
+    if (!audio.paused) audio.pause();
     delete audio.src;
     URL.revokeObjectURL(url);
   }

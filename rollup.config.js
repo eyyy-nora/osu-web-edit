@@ -5,9 +5,24 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
+import alias from "@rollup/plugin-alias";
 import css from 'rollup-plugin-css-only';
+import tsconfig from "./tsconfig.json";
+import { resolve as pathResolve } from "path";
 
 const production = !process.env.ROLLUP_WATCH;
+
+function tsconfigPaths(config = tsconfig) {
+  const { paths, baseUrl } = config.compilerOptions;
+  const entries = Object.entries(paths).map(([alias, path]) => {
+    return {
+      find: alias.replace(/\/\*$/, ""),
+      replacement: pathResolve(baseUrl, path[0].replace(/\/\*$/, "")),
+    };
+  })
+  return alias({ entries });
+}
+
 
 function serve() {
 	let server;
@@ -39,6 +54,7 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
+    tsconfigPaths(),
 		svelte({
 			preprocess: sveltePreprocess({ sourceMap: !production }),
 			compilerOptions: {

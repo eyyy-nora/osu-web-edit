@@ -1,53 +1,46 @@
 <script lang="ts">
-import { getMapsetContext } from "src/context/mapset-context";
-import { BeatmapObject, BeatmapObjectBase } from "src/io";
+import { getMapsetContext, BeatmapObjectWithCombo } from "src/context";
 import TimelineSlider from "./TimelineSlider.svelte";
 import TimelineSpinner from "./TimelineSpinner.svelte";
 import TimelineCircle from "./TimelineCircle.svelte";
-import { clamp, floorToMultiple } from "src/util/numbers";
+import { clamp, floorToMultiple, round } from "src/util/numbers";
 
-export let objects: BeatmapObject[] = [];
-export let scale = 4;
-export let zoom = 4;
-export let timescaleLevels = [.5, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32];
-export let timescaleOffset = 0;
 
-const { time, goto, timing } = getMapsetContext();
+const { time, goto, timing, objects, zoom, scale: scaleLevel } = getMapsetContext();
 
-let beatLength: number, offset: number, meter: number;
-$: ({ beatLength, offset, meter } = $timing)
+let beatLength: number, offset: number, meter: number, scale: number;
+$: ({ beatLength, offset, meter, scale } = $timing)
 
 let clientWidth: number = 0;
 
-let range: number, rangeStart: number, rangeEnd: number, timescale: number, rangeScale: number;
-$: rangeScale = Math.pow(2, zoom);
-$: timescale = timescaleLevels[scale];
+let range: number, rangeStart: number, rangeEnd: number, rangeScale: number;
+$: rangeScale = Math.pow(2, $zoom);
 $: range = (beatLength * rangeScale);
 $: rangeStart = Math.max(-range * .5, $time - range / 2);
 $: rangeEnd = rangeStart + range;
 
 let beatWidth: number, beatOffset: number;
 $: beatWidth = clientWidth / rangeScale;
-$: beatOffset = ($time - timescaleOffset) / beatLength;
+$: beatOffset = ($time - offset) / beatLength;
 
 let smallestDivisor: number;
-$: smallestDivisor = beatLength / timescale;
+$: smallestDivisor = beatLength / scale;
 
-function timelinePosFor({ time, length = 0, end = time + length, combo = 1, color = [0, 0, 0] }: BeatmapObjectBase) {
+function timelinePosFor({ time, length = 0, end = time + length, combo = 1, color = [0, 0, 0] }: BeatmapObjectWithCombo) {
   time = (time - rangeStart) / range;
   end = (end - rangeStart) / range;
   return { time, end, combo, color };
 }
 
-function objectEnd(object: BeatmapObject & { length?: number; end?: number }): number {
+function objectEnd(object: BeatmapObjectWithCombo & { length?: number; end?: number }): number {
   return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
 }
 
-function objectInRange(object: BeatmapObject, start: number, end: number): boolean {
+function objectInRange(object: BeatmapObjectWithCombo, start: number, end: number): boolean {
   return objectEnd(object) >= start && object.time <= end;
 }
 
-function filterInRange(objects: BeatmapObject[], start: number, end: number, sections = 10): BeatmapObject[] {
+function filterInRange(objects: BeatmapObjectWithCombo[], start: number, end: number, sections = 10): BeatmapObjectWithCombo[] {
   const length = objects.length;
   if (length <= sections) return objects.filter(object => objectInRange(object, start, end));
   const step = (length / sections) | 0;
@@ -61,25 +54,25 @@ function filterInRange(objects: BeatmapObject[], start: number, end: number, sec
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
-let visibleObjects: BeatmapObject[];
-$: visibleObjects = filterInRange(objects, rangeStart, rangeEnd);
+let visibleObjects: BeatmapObjectWithCombo[];
+$: visibleObjects = filterInRange($objects, rangeStart, rangeEnd);
 
-export function zoomBy(levels: number) {
-  scale = clamp(scale + levels, 1, timescaleLevels.length - 1);
+export function scaleBy(levels: number) {
+  $scaleLevel = clamp($scaleLevel + levels, 0, 9);
 }
 
 export function scrollBy(steps: number) {
-  goto(clamp(floorToMultiple($time + steps * smallestDivisor, smallestDivisor, timescaleOffset), 0, Infinity));
+  goto(floorToMultiple($time + steps * smallestDivisor, smallestDivisor, offset));
 }
 
-export function scaleBy(steps: number) {
-  zoom = clamp(zoom + steps * .5, 0, 8);
+export function zoomBy(steps: number) {
+  $zoom = clamp($zoom + steps * .5, 0, 8);
 }
 
 function onScroll(e: WheelEvent) {
   const delta = (e.deltaY || e.deltaX)
-  if (e.ctrlKey || e.metaKey) scaleBy(delta > 0 ? 1 : -1);
-  else if (e.shiftKey) zoomBy(delta < 0 ? 1 : -1);
+  if (e.ctrlKey || e.metaKey) zoomBy(delta > 0 ? 1 : -1);
+  else if (e.shiftKey) scaleBy(delta < 0 ? 1 : -1);
   else scrollBy(delta > 0 ? 1 : -1);
 }
 </script>
@@ -88,7 +81,7 @@ function onScroll(e: WheelEvent) {
   <div class="container" on:wheel|preventDefault={onScroll}>
     <div class="inner" style="--timelineSize: {clientWidth ?? 0}px; --beatWidth: {beatWidth}px; --beatOffset: {-beatOffset}" bind:clientWidth={clientWidth}>
       <div
-        class="timescale divisor{timescale}"
+        class="timescale divisor{scale}"
       />
       {#each visibleObjects as object (object.id)}
         {#if object.type === "circle"}
@@ -101,8 +94,9 @@ function onScroll(e: WheelEvent) {
       {/each}
     </div>
     <div class="info">
-      <span>scale: 1/{timescale}</span>
-      <span>zoom: {8 - zoom}</span>
+      <span>scale: 1/{scale}</span>
+      <span>zoom: {8 - $zoom}</span>
+      <span>{round($time)}</span>
     </div>
   </div>
   <div class="shadow" />
@@ -137,6 +131,7 @@ article {
   position: absolute;
   top: 0;
   right: 0;
+  min-width: 5rem;
   display: flex;
   flex-direction: column;
   padding: 0 1rem .2rem .5rem;
