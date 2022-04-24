@@ -3,14 +3,6 @@ import { GameObject, Graphics } from "black-engine";
 import { osuRankableArea, osuVisibleArea } from "src/constants";
 import { BeatmapObjectWithCombo } from "src/context";
 
-export interface BeatmapObjectWithStdProps extends BeatmapObjectWithCombo {
-  complete: boolean;
-  alpha: number;
-  approach: number;
-  percent: number;
-  zIndex: number;
-}
-
 const { width: rankedWidth, height: rankedHeight } = osuRankableArea;
 const { width: visibleWidth, height: visibleHeight } = osuVisibleArea;
 
@@ -29,6 +21,20 @@ export class OsuEditorStdStage extends GameObject {
   draw() {
     const g = this.rankedArea;
 
+
+
+
+  }
+
+  protected onUpdate() {
+    this.mChildren.sort((a, b) => {
+      const aIndex = (a as any).zIndex ?? 0;
+      const bIndex = (b as any).zIndex ?? 0;
+      return aIndex - bIndex;
+    });
+    this.width = visibleWidth;
+    this.height = visibleHeight;
+
     this.setTransform(
       (visibleWidth - rankedWidth) / 2,
       (visibleHeight - rankedHeight) / 2,
@@ -38,15 +44,13 @@ export class OsuEditorStdStage extends GameObject {
       true,
     );
 
+    const g = this.rankedArea;
     g.clear();
     g.lineStyle(2, 0xffffff, 1);
 
     g.beginPath();
     g.rect(0, 0, rankedWidth, rankedHeight);
     g.stroke();
-  }
-
-  protected onUpdate() {
     this.draw();
   }
 
@@ -56,7 +60,8 @@ export class OsuEditorStdStage extends GameObject {
 <script lang="ts">
 import { getMapsetContext, pushBlackStage } from "src/context";
 import { BeatmapObject } from "src/io";
-// import HitCircle from "./std/HitCircle.svelte";
+import { BeatmapObjectWithStdProps } from "src/rendered/std/types";
+import HitCircle from "./std/HitCircle.svelte";
 // import Slider from "./std/Slider.svelte";
 // import Spinner from "./std/Spinner.svelte";
 
@@ -130,36 +135,15 @@ function visibleObjectStats(object: BeatmapObjectWithCombo, index: number, { len
 let visibleObjects: (BeatmapObject & any)[];
 $: visibleObjects = filterInRange($objects, $time - scope, $time + scope).map(visibleObjectStats).reverse();
 
-
-let clientHeight = 0, clientWidth = 0;
-$: if (clientHeight !== 0 && clientWidth !== 0) {
-  const viewportZoom = Math.min(clientHeight / osuVisibleArea.height, clientWidth / osuVisibleArea.width);
-  // center
-  const offsetX = clientWidth / 2 - (osuRankableArea.width) / 2 * viewportZoom;
-  // top with minimum distance
-  const offsetY = (osuVisibleArea.height - osuRankableArea.height) / 2 * viewportZoom;
-
-  /*app.stage.setTransform(
-    offsetX,
-    offsetY,
-    viewportZoom,
-    viewportZoom,
-  );
-  app.resizeTo = container;
-  app.resize();
-  if (!app.stage.sortableChildren) app.stage.sortableChildren = true;*/
-  console.log(offsetX, offsetY, viewportZoom);
-}
-
 pushBlackStage(new OsuEditorStdStage());
 </script>
 
-<!--{#each visibleObjects as object (object.id)}
+{#each visibleObjects as object (object.id)}
   {#if object.type === "circle"}
-    <HitCircle circle={object} init={object} />
-  {:else if object.type === "spinner"}
+    <HitCircle circle={object} />
+  <!--{:else if object.type === "spinner"}
     <Spinner spinner={object} />
   {:else if object.type === "slider"}
-    <Slider slider={object} init={object} />
+    <Slider slider={object} />-->
   {/if}
-{/each}-->
+{/each}
