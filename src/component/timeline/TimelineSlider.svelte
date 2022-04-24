@@ -15,7 +15,7 @@ div {
   width: 2.6rem;
   height: 2.6rem;
   margin: .3rem -1.3rem;
-  border: 2px solid #8d8d8d;
+  border: 2px solid #ffffff;
   background: var(--color);
   border-radius: 1000000rem;
   transform: translateX(calc(var(--pos) * var(--timelineSize)));
@@ -28,13 +28,14 @@ div {
 
 div.body {
   background: rgba(63, 63, 63, .4);
+  border: 2px solid #888888;
   width: calc(2.6rem + (var(--end) - var(--pos)) * var(--timelineSize));
 }
 
 span {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #8d8d8d;
+  color: #ffffff;
 }
 </style>
 

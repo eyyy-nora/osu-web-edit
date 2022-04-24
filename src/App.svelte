@@ -91,21 +91,21 @@ main {
   background-color: var(--colorBgRegular);
   color: var(--colorFgRegular);
 
-  --colorBgLightest: #6b6c7a;
-  --colorBgLighter: #585a5d;
-  --colorBgLight: #484a4d;
-  --colorBgRegular: #3c3f41;
-  --colorBgDark: #2d2f31;
-  --colorBgDarker: #2b2b2c;
-  --colorBgDarkest: #2a282b;
+  --colorBgLightest: #565762;
+  --colorBgLighter: #3e3d3f;
+  --colorBgLight: #38373a;
+  --colorBgRegular: #2f2e30;
+  --colorBgDark: #262628;
+  --colorBgDarker: #1D1E1E;
+  --colorBgDarkest: #131214;
 
   --colorFgLightest: #d0d0d3;
   --colorFgLighter: #b9b9c0;
   --colorFgLight: #959a9b;
   --colorFgRegular: #7c8181;
-  --colorFgDark: #6e7273;
-  --colorFgDarker: #5d5d62;
-  --colorFgDarkest: #504c50;
+  --colorFgDark: #666a6b;
+  --colorFgDarker: #535357;
+  --colorFgDarkest: #454346;
 
   --shadowTiny: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadowSmall: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);

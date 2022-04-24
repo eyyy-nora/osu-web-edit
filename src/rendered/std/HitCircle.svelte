@@ -30,20 +30,25 @@ export class BeatmapCircleObject extends GameObject {
     const r = radiusForCs(cs);
 
     g.clear();
-    g.setTransform(x, y, 0, 1, 1, .5, .5);
-    t.setTransform(x, y, 0, 1, 1, .5, .45);
+    t.x = g.x = x;
+    t.y = g.y = y;
+    g.alignPivotOffset();
+    t.alignPivotOffset(undefined, .43);
+    // g.setTransform(x, y, 0, 1, 1, .5, .5);
+    // t.setTransform(x, y, 0, 1, 1, .5, .45);
 
     t.text = `${combo}`;
     t.alpha = alpha;
-    t.size = r;
+    t.size = r * 5;
+    t.scale = .2;
 
     // hit circle body
     g.lineStyle(r * borderWidthFactor, borderColor, alpha);
     g.fillStyle(color, alpha);
     g.beginPath();
     g.circle(0, 0, r - r * borderWidthFactor / 2);
-    g.stroke();
     g.fill();
+    g.stroke();
 
     // approach circle
     if (approach) {

@@ -18,31 +18,19 @@ export class OsuEditorStdStage extends GameObject {
     this.add(this.rankedArea);
   }
 
-  draw() {
-    const g = this.rankedArea;
-
-
-
-
-  }
-
   protected onUpdate() {
     this.mChildren.sort((a, b) => {
       const aIndex = (a as any).zIndex ?? 0;
       const bIndex = (b as any).zIndex ?? 0;
       return aIndex - bIndex;
     });
-    this.width = visibleWidth;
-    this.height = visibleHeight;
 
-    this.setTransform(
-      (visibleWidth - rankedWidth) / 2,
-      (visibleHeight - rankedHeight) / 2,
-      0,
-      1, 1,
-      0, 0,
-      true,
-    );
+    this.alignPivotOffset(0, 0, false);
+    this.width = rankedWidth;
+    this.height = rankedHeight;
+    this.x = (visibleWidth - rankedWidth) / 2;
+    this.y = (visibleHeight - rankedHeight) / 2;
+    this.scaleX = this.scaleY = 1;
 
     const g = this.rankedArea;
     g.clear();
@@ -51,7 +39,6 @@ export class OsuEditorStdStage extends GameObject {
     g.beginPath();
     g.rect(0, 0, rankedWidth, rankedHeight);
     g.stroke();
-    this.draw();
   }
 
 }
@@ -100,7 +87,7 @@ function filterInRange(objects: BeatmapObjectWithCombo[], start: number, end: nu
 }
 
 function visibleObjectStats(object: BeatmapObjectWithCombo, index: number, { length: count }: BeatmapObjectWithStdProps[]) {
-  const baseAlphaEditor = .3;
+  const baseAlphaEditor = .1;
 
   let t = object.time - $time;
   if (t > -10 && t < 10) t = -1; // minimal timing errors
