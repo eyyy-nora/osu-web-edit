@@ -5,13 +5,11 @@ import { BeatmapObjectWithCombo } from "src/context";
 
 const { width: rankedWidth, height: rankedHeight } = osuRankableArea;
 const { width: visibleWidth, height: visibleHeight } = osuVisibleArea;
+const xOffset = (visibleWidth - rankedWidth) / 2;
+const yOffset = (visibleHeight - rankedHeight) / 2;
 
 export class OsuEditorStdStage extends GameObject {
   rankedArea: Graphics;
-
-  constructor() {
-    super();
-  }
 
   public onAdded() {
     this.rankedArea = new Graphics();
@@ -19,17 +17,13 @@ export class OsuEditorStdStage extends GameObject {
   }
 
   protected onUpdate() {
-    this.mChildren.sort((a, b) => {
-      const aIndex = (a as any).zIndex ?? 0;
-      const bIndex = (b as any).zIndex ?? 0;
-      return aIndex - bIndex;
-    });
+    this.mChildren.sort((a, b) => ((a as any).zIndex ?? 0) - ((b as any).zIndex ?? 0));
 
     this.alignPivotOffset(0, 0, false);
     this.width = rankedWidth;
     this.height = rankedHeight;
-    this.x = (visibleWidth - rankedWidth) / 2;
-    this.y = (visibleHeight - rankedHeight) / 2;
+    this.x = xOffset;
+    this.y = yOffset;
     this.scaleX = this.scaleY = 1;
 
     const g = this.rankedArea;
@@ -40,7 +34,6 @@ export class OsuEditorStdStage extends GameObject {
     g.rect(0, 0, rankedWidth, rankedHeight);
     g.stroke();
   }
-
 }
 </script>
 
@@ -50,7 +43,7 @@ import { BeatmapObject } from "src/io";
 import { BeatmapObjectWithStdProps } from "src/rendered/std/types";
 import HitCircle from "./std/HitCircle.svelte";
 // import Slider from "./std/Slider.svelte";
-// import Spinner from "./std/Spinner.svelte";
+import Spinner from "./std/Spinner.svelte";
 
 const { beatmap, objects, time } = getMapsetContext();
 
@@ -128,9 +121,9 @@ pushBlackStage(new OsuEditorStdStage());
 {#each visibleObjects as object (object.id)}
   {#if object.type === "circle"}
     <HitCircle circle={object} />
-  <!--{:else if object.type === "spinner"}
+  {:else if object.type === "spinner"}
     <Spinner spinner={object} />
-  {:else if object.type === "slider"}
-    <Slider slider={object} />-->
+    <!--{:else if object.type === "slider"}
+      <Slider slider={object} />-->
   {/if}
 {/each}

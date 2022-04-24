@@ -25,7 +25,7 @@ export class BeatmapCircleObject extends GameObject {
 
   protected onUpdate() {
     const { circleObj: c, g, t } = this;
-    const { x, y, cs, combo, color, alpha, approach, zIndex } = c;
+    const { x = 0, y = 0, cs = 4, combo = 1, color = 0, alpha = 0, approach = 0, zIndex } = c;
     this.zIndex = zIndex;
     const r = radiusForCs(cs);
 
@@ -34,8 +34,6 @@ export class BeatmapCircleObject extends GameObject {
     t.y = g.y = y;
     g.alignPivotOffset();
     t.alignPivotOffset(undefined, .43);
-    // g.setTransform(x, y, 0, 1, 1, .5, .5);
-    // t.setTransform(x, y, 0, 1, 1, .5, .45);
 
     t.text = `${combo}`;
     t.alpha = alpha;
