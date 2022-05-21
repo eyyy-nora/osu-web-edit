@@ -1,5 +1,6 @@
 <script lang="ts">
 import { getMapsetContext, BeatmapObjectWithCombo } from "src/context";
+import { BeatmapObject } from "src/io";
 import TimelineSlider from "./TimelineSlider.svelte";
 import TimelineSpinner from "./TimelineSpinner.svelte";
 import TimelineCircle from "./TimelineCircle.svelte";
@@ -26,10 +27,10 @@ $: beatOffset = ($time - offset) / beatLength;
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / scale;
 
-function timelinePosFor({ time, length = 0, end = time + length, combo = 1, color = [0, 0, 0] }: BeatmapObjectWithCombo) {
+function startAndEndTime({ time, length = 0, end = time + length }: BeatmapObject) {
   time = (time - rangeStart) / range;
   end = (end - rangeStart) / range;
-  return { time, end, combo, color };
+  return { time, end };
 }
 
 function objectEnd(object: BeatmapObjectWithCombo & { length?: number; end?: number }): number {
@@ -62,7 +63,7 @@ export function scaleBy(levels: number) {
 }
 
 export function scrollBy(steps: number) {
-  goto(floorToMultiple($time + steps * smallestDivisor, smallestDivisor, offset));
+  goto($time + steps * smallestDivisor, true);
 }
 
 export function zoomBy(steps: number) {
@@ -85,11 +86,11 @@ function onScroll(e: WheelEvent) {
       />
       {#each visibleObjects as object (object.id)}
         {#if object.type === "circle"}
-          <TimelineCircle {...timelinePosFor(object)} />
+          <TimelineCircle {...startAndEndTime(object)} {object} />
         {:else if object.type === "slider"}
-          <TimelineSlider {...timelinePosFor(object)} />
+          <TimelineSlider {...startAndEndTime(object)} {object} />
         {:else if object.type === "spinner"}
-          <TimelineSpinner {...timelinePosFor(object)} />
+          <TimelineSpinner {...startAndEndTime(object)} />
         {/if}
       {/each}
     </div>

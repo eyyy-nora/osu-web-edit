@@ -42,7 +42,7 @@ import { getMapsetContext, pushBlackStage } from "src/context";
 import { BeatmapObject } from "src/io";
 import { BeatmapObjectWithStdProps } from "src/rendered/std/types";
 import HitCircle from "./std/HitCircle.svelte";
-// import Slider from "./std/Slider.svelte";
+import Slider from "./std/Slider.svelte";
 import Spinner from "./std/Spinner.svelte";
 
 const { beatmap, objects, time } = getMapsetContext();
@@ -79,12 +79,18 @@ function filterInRange(objects: BeatmapObjectWithCombo[], start: number, end: nu
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
+function objectLength(object: BeatmapObjectWithCombo) {
+  if ("length" in object) return object.length * object.sv;
+  if ("end" in object) return object.end - object.time;
+  return 0;
+}
+
 function visibleObjectStats(object: BeatmapObjectWithCombo, index: number, { length: count }: BeatmapObjectWithStdProps[]) {
   const baseAlphaEditor = .1;
 
   let t = object.time - $time;
   if (t > -10 && t < 10) t = -1; // minimal timing errors
-  const length = (object as any).length ?? ((object as any).end ?? object.time) - object.time;
+  const length =  objectLength(object);
   const end = t + length;
   const hit = t <= 0;
   const complete = end <= 0;
@@ -123,7 +129,7 @@ pushBlackStage(new OsuEditorStdStage());
     <HitCircle circle={object} />
   {:else if object.type === "spinner"}
     <Spinner spinner={object} />
-    <!--{:else if object.type === "slider"}
-      <Slider slider={object} />-->
+  {:else if object.type === "slider"}
+    <Slider slider={object} />
   {/if}
 {/each}

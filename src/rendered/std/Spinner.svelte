@@ -28,7 +28,7 @@ export class BeatmapSpinnerObject extends GameObject {
 
   protected onUpdate() {
     const { spinnerObj: spinner, g } = this;
-    const { percent = 0, alpha = 0 } = spinner;
+    const { percent = 0, alpha = 0, slides = 1 } = spinner;
 
     g.clear();
     g.x = spinnerX;
@@ -38,7 +38,7 @@ export class BeatmapSpinnerObject extends GameObject {
     if (percent > 0 && percent < 1) {
       g.lineStyle(spinnerInnerRadius, approachCircleColor, alpha);
       g.beginPath();
-      g.circle(0, 0, innerRadius + (outerRadius - innerRadius) * (1 - percent));
+      g.circle(0, 0, innerRadius + (outerRadius - innerRadius) * (1 - percent) - spinnerInnerRadius / 2);
       g.stroke();
     }
 

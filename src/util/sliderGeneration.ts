@@ -1,4 +1,4 @@
-import { ParsedSlider, ParsedPoint } from "../parse/types";
+import { BeatmapSlider, BeatmapSliderPoint } from "src/io";
 import { range, mapIterator, lerp, intersect_slope, rot90, bernstein } from "./numbers";
 import { vecAddVec, vecSubVec, vecDivVal, vecMulVal, vec2DLen } from "./vector";
 
@@ -28,17 +28,17 @@ const tickCutoffMs = 10;
 const endTickOffsetMs = 36;
 
 
-export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number): (percent: number) => ParsedPoint {
-  let path: (percent: number) => ParsedPoint;
+export function sliderPathAt(slider: BeatmapSlider, cs: number, percent: number): (percent: number) => BeatmapSliderPoint {
+  let path: (percent: number) => BeatmapSliderPoint;
 
   if(slider.sliderType === "linear") {
-    path = linearPath(slider.pathSegments);
+    path = linearPath(slider.path);
   } else if(slider.sliderType === "circle") {
-    path = circlePath(slider.pathSegments);
+    path = circlePath(slider.path);
   } else if(slider.sliderType === "bezier") {
-    path = bezierPath(slider.pathSegments);
+    path = bezierPath(slider.path);
   } else if(slider.sliderType === "catmull") {
-    path = catmullPath(slider.pathSegments);
+    path = catmullPath(slider.path);
   } else {
     // error?
   }
@@ -46,7 +46,7 @@ export function sliderPathAt(slider: ParsedSlider, cs: number, percent: number):
   return path;
 }
 
-function linearPath(segments: ParsedPoint[]): (percent: number) => ParsedPoint {
+function linearPath(segments: BeatmapSliderPoint[]): (percent: number) => BeatmapSliderPoint {
   if(segments.length != 2) {
     // ???
   }
@@ -54,11 +54,11 @@ function linearPath(segments: ParsedPoint[]): (percent: number) => ParsedPoint {
   return (percent: number) => ({
     x: lerp(segments[0].x, segments[1].x, Math.max(0, Math.min(1, percent))),
     y: lerp(segments[0].y, segments[1].y, Math.max(0, Math.min(1, percent)))
-  } as ParsedPoint);
+  } as BeatmapSliderPoint);
 }
 
 /* Demonstration of the algorithm: https://www.desmos.com/calculator/se3jth7qy9 */
-function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
+function circlePath(points: BeatmapSliderPoint[]): (percent: number) => BeatmapSliderPoint {
   // https://github.com/ppy/osu/blob/ed992eed64b30209381f040586b0e8392d1c168e/osu.Game/Rulesets/Objects/Legacy/ConvertHitObjectParser.cs#L316
   if(points.length != 3) {
     return bezierPath(points);
@@ -110,16 +110,16 @@ function circlePath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
     return {
       x: center[0] + radius * Math.cos(anglePercent),
       y: center[1] + radius * Math.sin(anglePercent),
-    } as ParsedPoint;
+    } as BeatmapSliderPoint;
   };
 }
 
-function bezierPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
-  let genPoints: ParsedPoint[] = Array.from(createBeziers(points));
+function bezierPath(points: BeatmapSliderPoint[]): (percent: number) => BeatmapSliderPoint {
+  let genPoints: BeatmapSliderPoint[] = Array.from(createBeziers(points));
   return (percent: number) => genPoints[Math.floor(percent * (genPoints.length - 1))];
 }
 
-function catmullPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
+function catmullPath(points: BeatmapSliderPoint[]): (percent: number) => BeatmapSliderPoint {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L142
   // Demo: https://www.desmos.com/calculator/gdo3e6rleh
   const subdiv = range(catmullSubdivision);
@@ -132,12 +132,12 @@ function catmullPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   let v3 = (i: number) => (i < (points.length - 1))? points[i + 1] : {
     x: 2*points[i].x - v1(i).x,
     y: 2*points[i].y - v1(i).y,
-  } as ParsedPoint;
+  } as BeatmapSliderPoint;
 
   let v4 = (i: number) => (i < (points.length - 2))? points[i + 2] : {
     x: 2*v3(i).x - points[i].x,
     y: 2*v3(i).y - points[i].y,
-  } as ParsedPoint;
+  } as BeatmapSliderPoint;
 
   const genPoints = Array.from(
     mapIterator(pieces, (i) =>
@@ -149,7 +149,7 @@ function catmullPath(points: ParsedPoint[]): (percent: number) => ParsedPoint {
   return (percent: number) => genPoints[Math.floor(percent * (genPoints.length - 1))];
 }
 
-function catmullFindPoint(p1: ParsedPoint, p2: ParsedPoint, p3: ParsedPoint, p4: ParsedPoint, t: number): ParsedPoint {
+function catmullFindPoint(p1: BeatmapSliderPoint, p2: BeatmapSliderPoint, p3: BeatmapSliderPoint, p4: BeatmapSliderPoint, t: number): BeatmapSliderPoint {
   // https://github.com/ppy/osu-framework/blob/050a0b8639c9bd723100288a53923547ce87d487/osu.Framework/Utils/PathApproximator.cs#L449
   let t2 = t * t;
   let t3 = t2 * t;
@@ -157,18 +157,18 @@ function catmullFindPoint(p1: ParsedPoint, p2: ParsedPoint, p3: ParsedPoint, p4:
   return {
     x: 0.5 * (2*p2.x + (-p1.x + p3.x)*t + (2*p1.x - 5*p2.x + 4*p3.x - p4.x)*t2 + (-p1.x + 3*p2.x - 3*p3.x + p4.x)*t3),
     y: 0.5 * (2*p2.y + (-p1.y + p3.y)*t + (2*p1.y - 5*p2.y + 4*p3.y - p4.y)*t2 + (-p1.y + 3*p2.y - 3*p3.y + p4.y)*t3),
-  } as ParsedPoint;
+  } as BeatmapSliderPoint;
 }
 
-function parsedPointsToX(points: ParsedPoint[]): number[] {
+function parsedPointsToX(points: BeatmapSliderPoint[]): number[] {
   return points.map(({ x }) => x);
 }
 
-function parsedPointsToY(points: ParsedPoint[]): number[] {
+function parsedPointsToY(points: BeatmapSliderPoint[]): number[] {
   return points.map(({ y }) => y);
 }
 
-function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
+function* createBeziers(points: BeatmapSliderPoint[]): IterableIterator<BeatmapSliderPoint> {
   let segmentStart = 0;
 
   // Splits points into different Beziers if two control points are same (red points) or it's end of list
@@ -189,7 +189,7 @@ function* createBeziers(points: ParsedPoint[]): IterableIterator<ParsedPoint> {
   }
 }
 
-function* createBezier(vecX: number[], vecY: number[]): Iterable<ParsedPoint> {
+function* createBezier(vecX: number[], vecY: number[]): Iterable<BeatmapSliderPoint> {
   let approxLen = vec2DLen(vecX, vecY);
   let subdivisions = (Math.min(approxLen / approxLevel)) + 2;
 
@@ -206,6 +206,6 @@ function* createBezier(vecX: number[], vecY: number[]): Iterable<ParsedPoint> {
     yield {
       x: resX,
       y: resY,
-    } as ParsedPoint;
+    } as BeatmapSliderPoint;
   }
-};
+}

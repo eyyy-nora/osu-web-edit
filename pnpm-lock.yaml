@@ -5,6 +5,7 @@ specifiers:
   '@babel/preset-env': ^7.16.11
   '@netlify/functions': ^1.0.0
   '@propero/easy-store': ^1.1.0
+  '@rdme/curve-2d': ^1.1.0
   '@rollup/plugin-alias': ^3.1.9
   '@rollup/plugin-commonjs': ^21.0.2
   '@rollup/plugin-node-resolve': ^13.1.3
@@ -58,6 +59,7 @@ specifiers:
 dependencies:
   '@netlify/functions': 1.0.0
   '@propero/easy-store': 1.1.0
+  '@rdme/curve-2d': 1.1.0
   axios: 0.26.1
   bezier-js: 6.1.0
   black-engine: 0.5.16
@@ -2126,6 +2128,10 @@ packages:
 
   /@propero/easy-store/1.1.0:
     resolution: {integrity: sha512-TG7yCOX6iLj4G+QOf/FKqATYkE+SJlAJXgSZESiIk8oYLQjSwoTKKMTmWaB2biGGY7Wap6JDUrfPsd8NdWr1Vg==}
+    dev: false
+
+  /@rdme/curve-2d/1.1.0:
+    resolution: {integrity: sha512-6YkQHYQRqAI/M7azfho89AacQYdqwcO2c+xAPgwHy6BNn46WtLhn8s/kvDPk5YqS1BpRrQZuwhMEj7/FrG3FmQ==}
     dev: false
 
   /@rollup/plugin-alias/3.1.9_rollup@2.70.1:
@@ -8037,7 +8043,7 @@ packages:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: 3.15.3
+      uglify-js: 3.15.5
     dev: true
 
   /has-bigints/1.0.1:
@@ -13551,8 +13557,8 @@ packages:
     hasBin: true
     dev: true
 
-  /uglify-js/3.15.3:
-    resolution: {integrity: sha512-6iCVm2omGJbsu3JWac+p6kUiOpg3wFO2f8lIXjfEb8RrmLjzog1wTPMmwKB7swfzzqxj9YM+sGUM++u1qN4qJg==}
+  /uglify-js/3.15.5:
+    resolution: {integrity: sha512-hNM5q5GbBRB5xB+PMqVRcgYe4c8jbyZ1pzZhS6jbq54/4F2gFK869ZheiE5A8/t+W5jtTNpWef/5Q9zk639FNQ==}
     engines: {node: '>=0.8.0'}
     hasBin: true
     requiresBuild: true

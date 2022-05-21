@@ -63,6 +63,7 @@
   "dependencies": {
     "@netlify/functions": "^1.0.0",
     "@propero/easy-store": "^1.1.0",
+    "@rdme/curve-2d": "^1.1.0",
     "axios": "^0.26.1",
     "bezier-js": "^6.1.0",
     "black-engine": "^0.5.16",

@@ -3,6 +3,8 @@ import Panel from "src/component/page/Panel.svelte";
 import Stage from "src/component/blacksmith/Stage.svelte";
 import { osuVisibleArea } from "src/constants";
 import { createMapsetContext } from "src/context";
+import { withFileDialog } from "src/util/open-file-dialog";
+import { debuffer } from "src/util/timing";
 import { onMount } from "svelte";
 import Girder from "./component/girder/Girder.svelte";
 import ContentBox from "./component/layout/ContentBox.svelte";
@@ -26,13 +28,39 @@ const {
   time,
   loadMapset,
   objects,
+  goto
 } = createMapsetContext();
 
-onMount(() => {
+const replaceUrl = debuffer(function (beatmap, time) {
+  if (!beatmap) return;
+  const { beatmapSetID, beatmapID, title, version } = beatmap.metadata;
+  const mapset = beatmapSetID ? `osu:${beatmapSetID}` : `local:${title}`;
+  const difficulty = beatmapID ?? version;
+  const path = `/${mapset}/${difficulty}/${Math.floor(+time)}`;
+  history.replaceState(null, "", path);
+});
+
+$: replaceUrl($beatmap, $time);
+
+
+onMount(async () => {
   const path = location.pathname.split("/").map(it => it.trim()).filter(it => it);
   if (path.length > 0) {
-    const [mapsetId, beatmapId] = path;
-    loadMapset(`https://api.chimu.moe/v1/download/${mapsetId}`, beatmapId);
+    const [mapset, beatmapId, time] = path;
+    let [type, mapsetId] = mapset.split(":");
+    if (!mapsetId) {
+      mapsetId = type;
+      type = "osu";
+    }
+    switch (type) {
+      case "local":
+        await withFileDialog((mapset) => loadMapset(mapset, beatmapId));
+        break;
+      case "osu":
+        await loadMapset(`https://api.chimu.moe/v1/download/${mapsetId}`, beatmapId);
+        break;
+    }
+    goto(+time);
   }
 });
 
@@ -51,7 +79,7 @@ function onDrop(ev: DragEvent) {
   <ScreenBox>
     <VBox>
       <OsuEditorFileMenu />
-      <Timeline objects={$objects} zoom={4} />
+      <Timeline />
       <DoubleGirder bind:startDivisor={$girderLeftWidth} bind:endDivisor={$girderRightWidth}>
         <ContentBox slot="start">
           <Panel heading="Elements" icon="osu-ring">

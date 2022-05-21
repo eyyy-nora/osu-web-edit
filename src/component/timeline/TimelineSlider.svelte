@@ -1,10 +1,11 @@
 <script lang="ts">
+import { BeatmapObjectWithCombo } from "src/context";
 import { numberToRgba } from "../../util/color";
+
+export let object: BeatmapObjectWithCombo;
 
 export let time: number = 0;
 export let end: number = 0;
-export let combo: number = 1;
-export let color: number = 0xffffff;
 </script>
 
 <style>
@@ -40,6 +41,6 @@ span {
 </style>
 
 <div class="body" style="--pos: {time}; --end: {end}" />
-<div style="--pos: {time}; --color: {numberToRgba(color)}">
-  <span>{combo}</span>
+<div style="--pos: {time}; --color: {numberToRgba(object.color)}">
+  <span>{object.combo}</span>
 </div>

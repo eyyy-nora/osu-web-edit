@@ -1,6 +1,7 @@
 import axios from "axios";
 import jszip from "jszip";
 import { beatmapFilename } from "src/io/serializer/util";
+import { snowflake } from "src/util/snowflake";
 import { mimetypeFor } from "./mimetype";
 import { parseOsuFile } from "./file";
 import { parseOsuLayer } from "./layer";
@@ -42,6 +43,18 @@ export async function parseMapset(file: Blob | Uint8Array | ArrayBuffer): Promis
             type: mimetypeFor(filename)
           }));
       }
+    }
+  }
+
+  for (const beatmap of mapset.beatmaps) {
+    if (beatmap.layers.length === 0) {
+      beatmap.layers.push({
+        name: "Main",
+        id: snowflake(),
+        objects: beatmap.objects.slice(),
+        visible: true,
+      });
+      beatmap.objects = [];
     }
   }
 

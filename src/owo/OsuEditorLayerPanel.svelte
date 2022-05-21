@@ -6,15 +6,12 @@ import Panel from "src/component/page/Panel.svelte";
 import { BeatmapLayer } from "src/io";
 import { getMapsetContext } from "src/context/mapset-context";
 
-const { beatmap, selectLayer, toggleLayerVisible, visibleLayers, layer: selectedLayer, mainVisible } = getMapsetContext();
+const { beatmap, selectLayer, toggleLayerVisible, layer: selectedLayer } = getMapsetContext();
 
 let dialog: OsuAddLayerDialog;
 
-let layers: { layer: BeatmapLayer, visible: boolean }[];
-$: layers = $beatmap?.layers.map(layer => ({
-  layer,
-  visible: $visibleLayers.includes(layer),
-})) ?? [];
+let layers: BeatmapLayer[];
+$: layers = $beatmap?.layers ?? [];
 
 function addLayer() {
   dialog.show();
@@ -28,21 +25,11 @@ function addLayer() {
     <Button inline icon="plus" on:click={addLayer} />
   </PanelHeader>
   <ul>
-    {#if $beatmap}
-      <li class:selected={!$selectedLayer} on:click={() => selectLayer()}>
-        <Button
-          inline
-          icon={$mainVisible ? "eye" : "eye-slash"}
-          on:click={() => toggleLayerVisible()}
-        />
-        <span>Main</span>
-      </li>
-    {/if}
-    {#each layers as { layer, visible } (layer.id)}
+    {#each layers as layer (layer.id)}
       <li class:selected={$selectedLayer === layer} on:click={() => selectLayer(layer)}>
         <Button
           inline
-          icon={visible ? "eye" : "eye-slash"}
+          icon={layer.visible ? "eye" : "eye-slash"}
           on:click={() => toggleLayerVisible(layer)}
         />
         <span>{layer.name}</span>

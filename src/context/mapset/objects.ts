@@ -1,9 +1,9 @@
 import { Readable, derived } from "src/context/stores";
 import {
-  Beatmap,
+  Beatmap, BeatmapInheritedTimingPoint,
   BeatmapLayer,
   BeatmapObject,
-  BeatmapObjectBase
+  BeatmapObjectBase, BeatmapUninheritedTimingPoint
 } from "src/io";
 import { colorToNumber } from "src/util/color";
 import { snowflake } from "src/util/snowflake";
@@ -13,26 +13,33 @@ export type BeatmapObjectWithCombo = BeatmapObjectBase & BeatmapObject & {
   index: number;
   color: number;
   combo: number;
+  sv: number;
+  beatLength: number;
+  tickRate: number;
 }
 
 export function createBeatmapObjectStore(
-  $beatmap: Readable<Beatmap>,
-  $visibleLayers: Readable<BeatmapLayer[]>,
-  $mainVisible: Readable<boolean>,
+  $beatmap: Readable<Beatmap>
 ) {
   return derived([
-    $beatmap,
-    $visibleLayers,
-    $mainVisible,
+    $beatmap
   ], ([
     beatmap,
-    visibleLayers,
-    mainVisible,
   ]): BeatmapObjectWithCombo[] => {
 
     if (!beatmap) return [];
 
-    const { colors: { colors: original } } = beatmap;
+    const { colors: { colors: original }, timingPoints, difficulty: { sliderMultiplier, sliderTickRate }, layers } = beatmap;
+
+    function sliderProps(time: number): [sv: number, beatLength: number] {
+      let [uninherited] = timingPoints.filter(it => !it.inherited && it.time <= time).reverse();
+      const [inherited] = timingPoints.filter(it => it.inherited && it.time <= (uninherited?.time ?? time)).reverse();
+      if (!uninherited) uninherited = timingPoints.filter(it => !it.inherited)[0];
+      const { beatLength = 200 } = uninherited as BeatmapUninheritedTimingPoint ?? {};
+      const { sliverVelocityMultiplier = -100 } = inherited as BeatmapInheritedTimingPoint ?? {};
+      return [sliderMultiplier * 100 * (1 / -sliverVelocityMultiplier), beatLength];
+    }
+
     const colors = original.map(colorToNumber);
 
     let currentColorIndex = 0, currentColor = colors[0], combo = 1;
@@ -42,14 +49,15 @@ export function createBeatmapObjectStore(
       currentColor = colors[currentColorIndex];
     }
 
-    const sortedObjects: BeatmapObject[] = [
-      ...(mainVisible ? beatmap.objects : []),
-      ...visibleLayers.flatMap(layer => layer.objects),
-    ].sort((a, b) => a.time - b.time);
+    const sortedObjects: BeatmapObject[] = layers
+      .filter(layer => layer.visible)
+      .flatMap(layer => layer.objects)
+      .sort((a, b) => a.time - b.time);
 
     return sortedObjects.map((object, index) => {
       if (object.newCombo || object.type === "spinner") nextColor(object.skipColors);
       else combo++;
+      const [sv, beatLength] = sliderProps(object.time);
 
       return {
         ...object,
@@ -57,6 +65,9 @@ export function createBeatmapObjectStore(
         index,
         color: currentColor,
         combo,
+        sv,
+        beatLength,
+        tickRate: sliderTickRate,
       };
     });
   });
