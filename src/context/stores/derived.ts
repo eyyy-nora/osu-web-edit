@@ -17,7 +17,7 @@ export function derived<S extends Stores, T>(
   const handler = () => {
     const retVal = fn(stores.map(store => store.get()) as any);
     const id = prevId = snowflake();
-    if ("then" in retVal && typeof retVal.then === "function")
+    if (typeof retVal === "object" && "then" in retVal && typeof retVal.then === "function")
       retVal.then(value => {
         if (prevId === id) set(value);
       });

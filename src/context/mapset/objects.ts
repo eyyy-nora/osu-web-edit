@@ -15,6 +15,7 @@ export type BeatmapObjectWithCombo = BeatmapObjectBase & BeatmapObject & {
   combo: number;
   sv: number;
   beatLength: number;
+  absoluteLength: number;
   tickRate: number;
 }
 
@@ -33,11 +34,11 @@ export function createBeatmapObjectStore(
 
     function sliderProps(time: number): [sv: number, beatLength: number] {
       let [uninherited] = timingPoints.filter(it => !it.inherited && it.time <= time).reverse();
-      const [inherited] = timingPoints.filter(it => it.inherited && it.time <= (uninherited?.time ?? time)).reverse();
+      const [inherited] = timingPoints.filter(it => it.inherited && (uninherited && it.time >= uninherited.time) && it.time <= time).reverse();
       if (!uninherited) uninherited = timingPoints.filter(it => !it.inherited)[0];
       const { beatLength = 200 } = uninherited as BeatmapUninheritedTimingPoint ?? {};
       const { sliverVelocityMultiplier = -100 } = inherited as BeatmapInheritedTimingPoint ?? {};
-      return [sliderMultiplier * 100 * (1 / -sliverVelocityMultiplier), beatLength];
+      return [sliderMultiplier * 100 / -sliverVelocityMultiplier, beatLength];
     }
 
     const colors = original.map(colorToNumber);
@@ -67,6 +68,7 @@ export function createBeatmapObjectStore(
         combo,
         sv,
         beatLength,
+        absoluteLength: object.type === "slider" ? object.length * 2.25 / sv : "end" in object ? object.end - object.time : 0,
         tickRate: sliderTickRate,
       };
     });

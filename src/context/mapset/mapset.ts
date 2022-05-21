@@ -1,4 +1,4 @@
-import { Readable, writable } from "src/context/stores";
+import { derived, Readable, writable } from "src/context/stores";
 import { Mapset, Beatmap, parseMapset, BeatmapLayer } from "src/io";
 import { downloadMapset as dl, readMapset, exportMapset } from "src/io";
 import { floorToMultiple } from "src/util/numbers";
@@ -12,6 +12,7 @@ export interface MapsetStore {
   beatmap: Readable<Beatmap | undefined>;
   layer: Readable<BeatmapLayer | undefined>;
   time: Readable<number>;
+  timeFormatted: Readable<string>;
   scale: Readable<number>;
   zoom: Readable<number>;
   timing: Readable<Timing>;
@@ -39,6 +40,16 @@ export function createMapsetStore(): MapsetStore {
   const $timing = createTimingStore($beatmap, $time, $scale);
   const $audio = createBeatmapAudioStore($mapset, $beatmap, $time);
   const $objects = createBeatmapObjectStore($beatmap);
+  const $timeFormatted = derived([$time], ([time]) => {
+    const ms = Math.floor(time % 1000);
+    time = Math.floor(time / 1000);
+    const s = time % 60;
+    time = Math.floor(time / 60);
+    const m = time % 60;
+    const h = Math.floor(time / 60);
+    if (h !== 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.${ms.toString().padStart(3, "0")}`;
+    else return `${m}:${s.toString().padStart(2, "0")}.${ms.toString().padStart(3, "0")}`
+  })
 
   async function loadMapset(mapset: string | Blob | File | Mapset, beatmap?: string | number) {
     if (typeof mapset === "string") mapset = await dl(mapset);
@@ -90,6 +101,7 @@ export function createMapsetStore(): MapsetStore {
   function destroy() {
     $timing.destroy();
     $audio.destroy();
+    $timeFormatted.destroy();
   }
 
   return (window as any).mapstore = {
@@ -102,6 +114,7 @@ export function createMapsetStore(): MapsetStore {
     timing: $timing,
     audio: $audio,
     objects: $objects,
+    timeFormatted: $timeFormatted,
 
     goto,
     loadMapset,

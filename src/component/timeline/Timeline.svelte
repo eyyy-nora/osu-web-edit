@@ -7,7 +7,7 @@ import TimelineCircle from "./TimelineCircle.svelte";
 import { clamp, floorToMultiple, round } from "src/util/numbers";
 
 
-const { time, goto, timing, objects, zoom, scale: scaleLevel } = getMapsetContext();
+const { time, goto, timing, objects, zoom, scale: scaleLevel, timeFormatted } = getMapsetContext();
 
 let beatLength: number, offset: number, meter: number, scale: number;
 $: ({ beatLength, offset, meter, scale } = $timing)
@@ -27,14 +27,14 @@ $: beatOffset = ($time - offset) / beatLength;
 let smallestDivisor: number;
 $: smallestDivisor = beatLength / scale;
 
-function startAndEndTime({ time, length = 0, end = time + length }: BeatmapObject) {
-  time = (time - rangeStart) / range;
-  end = (end - rangeStart) / range;
+function startAndEndTime(object: BeatmapObjectWithCombo) {
+  const time = (object.time - rangeStart) / range;
+  const end = (objectEnd(object) - rangeStart) / range;
   return { time, end };
 }
 
 function objectEnd(object: BeatmapObjectWithCombo & { length?: number; end?: number }): number {
-  return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
+  return object.end ?? object.time + object.absoluteLength;
 }
 
 function objectInRange(object: BeatmapObjectWithCombo, start: number, end: number): boolean {
@@ -97,7 +97,7 @@ function onScroll(e: WheelEvent) {
     <div class="info">
       <span>scale: 1/{scale}</span>
       <span>zoom: {8 - $zoom}</span>
-      <span>{round($time)}</span>
+      <span>{$timeFormatted}</span>
     </div>
   </div>
   <div class="shadow" />

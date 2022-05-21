@@ -57,8 +57,8 @@ $: fadeOffset = preempt - fadein;
 $: scope = preempt * zoom;
 $: cs = $beatmap?.difficulty?.circleSize ?? 4.2;
 
-function objectEnd(object: BeatmapObjectWithCombo & { length?: number; end?: number }): number {
-  return object.end ?? (object.length !== undefined ? object.time + object.length : object.time);
+function objectEnd(object: BeatmapObjectWithCombo): number {
+  return object.end ?? object.time + object.absoluteLength;
 }
 
 function objectInRange(object: BeatmapObjectWithCombo, start: number, end: number): boolean {
@@ -79,18 +79,12 @@ function filterInRange(objects: BeatmapObjectWithCombo[], start: number, end: nu
   return objects.slice(firstObjectIndex, firstObjectIndex + j);
 }
 
-function objectLength(object: BeatmapObjectWithCombo) {
-  if ("length" in object) return object.length * object.sv;
-  if ("end" in object) return object.end - object.time;
-  return 0;
-}
-
 function visibleObjectStats(object: BeatmapObjectWithCombo, index: number, { length: count }: BeatmapObjectWithStdProps[]) {
   const baseAlphaEditor = .1;
 
   let t = object.time - $time;
   if (t > -10 && t < 10) t = -1; // minimal timing errors
-  const length =  objectLength(object);
+  const length =  object.absoluteLength;
   const end = t + length;
   const hit = t <= 0;
   const complete = end <= 0;
