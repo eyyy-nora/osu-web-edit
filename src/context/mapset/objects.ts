@@ -6,6 +6,7 @@ import {
   BeatmapObjectBase, BeatmapUninheritedTimingPoint
 } from "src/io";
 import { colorToNumber } from "src/util/color";
+import { floorToMultiple } from "src/util/numbers";
 import { snowflake } from "src/util/snowflake";
 
 export type BeatmapObjectWithCombo = BeatmapObjectBase & BeatmapObject & {
@@ -38,7 +39,8 @@ export function createBeatmapObjectStore(
       if (!uninherited) uninherited = timingPoints.filter(it => !it.inherited)[0];
       const { beatLength = 200 } = uninherited as BeatmapUninheritedTimingPoint ?? {};
       const { sliverVelocityMultiplier = -100 } = inherited as BeatmapInheritedTimingPoint ?? {};
-      return [sliderMultiplier * 100 / -sliverVelocityMultiplier, beatLength];
+      const sv = floorToMultiple(sliderMultiplier * 100 / -sliverVelocityMultiplier, 0.1, 0);
+      return [sv, beatLength];
     }
 
     const colors = original.map(colorToNumber);
@@ -59,6 +61,8 @@ export function createBeatmapObjectStore(
       if (object.newCombo || object.type === "spinner") nextColor(object.skipColors);
       else combo++;
       const [sv, beatLength] = sliderProps(object.time);
+      let absoluteLength = "end" in object ? object.end - object.time : 0;
+      if (object.type === "slider") absoluteLength = object.length * 2.25 * object.slides / sv;
 
       return {
         ...object,
@@ -68,7 +72,7 @@ export function createBeatmapObjectStore(
         combo,
         sv,
         beatLength,
-        absoluteLength: object.type === "slider" ? object.length * 2.25 / sv : "end" in object ? object.end - object.time : 0,
+        absoluteLength,
         tickRate: sliderTickRate,
       };
     });

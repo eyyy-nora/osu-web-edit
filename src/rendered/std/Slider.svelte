@@ -69,11 +69,34 @@ export class BeatmapSliderObject extends GameObject {
     g.stroke();
 
     if (percent > 0 && percent < 1) {
-      const ballPos = curve.getByPercent(percent);
+      const total = percent * slides;
+      const current = Math.floor(total);
+      const backward = !!(current % 2);
+      const partial = backward ? 1 - (total - current) : total - current;
+      const ballPos = curve.getByPercent(partial);
+      const remaining = slides - (current + 1);
+
+      // slider ball
       g.lineStyle(r * sliderBallWidthFactor, sliderBallColor, alpha);
       g.beginPath();
       g.circle(ballPos.x, ballPos.y, r - r * (sliderBallWidthFactor + borderWidthFactor) / 2);
       g.stroke();
+
+      // return arrow 1
+      if (remaining > 0) {
+        g.lineStyle(r * sliderBallWidthFactor, 0xffffff, alpha);
+        g.beginPath();
+        const pos = curve.get(backward ? 0 : 1);
+        g.circle(pos.x, pos.y, r - r * (sliderBallWidthFactor + borderWidthFactor) * 2);
+        g.stroke();
+
+        if (remaining > 1) {
+          g.beginPath();
+          const pos = curve.get(backward ? 1 : 0);
+          g.circle(pos.x, pos.y, r - r * (sliderBallWidthFactor + borderWidthFactor) * 2);
+          g.stroke();
+        }
+      }
     }
     // todo: slides
 
