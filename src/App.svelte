@@ -60,7 +60,7 @@ onMount(async () => {
         await loadMapset(`https://api.chimu.moe/v1/download/${mapsetId}`, beatmapId);
         break;
     }
-    goto(+time);
+    goto(+ (time ?? 0));
   }
 });
 
