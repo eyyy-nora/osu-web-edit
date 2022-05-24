@@ -1,17 +1,21 @@
 import { Beatmap, Mapset } from "src/io";
 import {
   checkAudioPresence, checkBackgroundPresence, checkConcurrentObjects,
-  checkInvalidAudioType, checkMutedOrLow
+  checkInvalidAudioType, checkMutedOrLow, checkAudioIsLongerThanMappedPart
 } from "./check";
 
-export function runAIMod(analyzedBeatmap: Beatmap, beatmapFolder: Mapset["files"]) {
-  const { objects, general, events } = analyzedBeatmap;
+export function runAIMod(analyzedBeatmap: Beatmap, beatmapFolder: Mapset["files"], beatmapAudio: HTMLAudioElement) {
+  const { general, events, layers } = analyzedBeatmap;
+  const objects = layers[0].objects;
+
   const issues = [];
 
   checkAudioPresence(beatmapFolder, general, issues);
   checkBackgroundPresence(beatmapFolder, events, issues);
 
   checkInvalidAudioType(general, issues);
+
+  checkAudioIsLongerThanMappedPart(objects, beatmapAudio, issues);
 
   for (const hitObject of objects) {
     let nextHitObject = objects[objects.indexOf(hitObject) + 1];

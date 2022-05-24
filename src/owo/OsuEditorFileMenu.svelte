@@ -14,8 +14,8 @@ function logAction(name: string) {
   return () => console.log(name);
 }
 
-const context = getMapsetContext();
-const { beatmap, mapset, audio } = context;
+const { beatmap, mapset, audio } = getMapsetContext();
+const beatmapAudioFile = audio.audio;
 
 function openLink(link: string) {
   return () => window.open(link, "_blank");
@@ -31,7 +31,7 @@ function openLink(link: string) {
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
     <FileMenuItem name="Export" action={exec("file-export")} />
-    <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => console.log(runAIMod($beatmap, $mapset.files))} />
+    <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => console.log(runAIMod($beatmap, $mapset.files, $beatmapAudioFile))} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
     <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />
