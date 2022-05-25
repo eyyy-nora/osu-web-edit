@@ -2,7 +2,7 @@ import { Mapset, Beatmap, BeatmapObject } from "src/io";
 import {
   audioNotPresentIssue, volumeMutedIssue,
   lowVolumeIssue, invalidAudioFileIssue,
-  audioIsLongerThanTheMappedPartIssue
+  audioIsLongerThanMapIssue
 } from "./templates";
 
 export function checkAudioPresence(mapsetFiles: Mapset["files"], general: Beatmap["general"], issues: any[]) {
@@ -30,21 +30,22 @@ export function checkInvalidAudioType(general: Beatmap["general"], issues: any[]
     issues.push(invalidAudioFileIssue(general.audioFilename));
 }
 
-export async function checkAudioIsLongerThanMappedPart(objects: BeatmapObject[], audio: HTMLAudioElement, issues: any[]) {
+export function checkAudioIsLongerThanMap(objects: BeatmapObject[], audio: HTMLAudioElement, issues: any[]) {
   if (!audio || !objects) return;
 
-  const audioDurationInMiliseconds = Math.round((audio.duration * 1000));
+  const audioLengthInMs = lengthInMilisecondsFor(audio);
 
-  const lastHitObjectTime = objects[objects.length - 1].time;
+  const lastObjectTime = objects[objects.length - 1].time;
+  const _25percentOfAudioLength = (audioLengthInMs / 2) / 2;
 
-  const twentyFivePercentOfTheAudioLength = (audioDurationInMiliseconds / 2) / 2;
-
-  if (lastHitObjectTime < twentyFivePercentOfTheAudioLength)
-    issues.push(audioIsLongerThanTheMappedPartIssue());
+  if (lastObjectTime < _25percentOfAudioLength)
+    issues.push(audioIsLongerThanMapIssue());
 
 }
 
-
+function lengthInMilisecondsFor(audio: HTMLAudioElement) {
+  return Math.round((audio.duration * 1000));
+}
 
 function isInvalidAudioFormat(audioFile: string): boolean {
   return !(

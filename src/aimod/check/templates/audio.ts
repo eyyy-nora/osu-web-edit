@@ -13,8 +13,8 @@ export function invalidAudioFileIssue(file: Beatmap["general"]["audioFilename"])
   return issue;
 }
 
-export function audioIsLongerThanTheMappedPartIssue(): Object {
-  const issue = issueTemplater("audio_is_longer_than_mapped_part", "Audio", "Warning");
+export function audioIsLongerThanMapIssue(): Object {
+  const issue = issueTemplater("audio_is_longer_than_map", "Audio", "Warning");
 
   issue["message"] = `Your map does not cover at least 25% of the song's length.`;
 
