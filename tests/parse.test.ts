@@ -1,26 +1,26 @@
-import { parseOsuFile } from "src/parse/parse-osu-file";
+import { parseOsuFile } from "../src/io/parser/file";
+import { Beatmap } from "../src/io/types/beatmap/beatmap";
 import fs from "fs";
-import { ParsedBeatmap } from "src/parse/types";
 
 test('File parsing: .osu parsing', () => {
-  parseOsuFileTester("testfile");
-  parseOsuFileTester("cyclehit");
-  parseOsuFileTester("coldrain");
-  parseOsuFileTester("seriousshit");
+  testOsuFileParserIn("testfile");
+  testOsuFileParserIn("cyclehit");
+  testOsuFileParserIn("coldrain");
+  testOsuFileParserIn("seriousshit");
 });
 
-function parseOsuFileTester(filename: string) {
+async function testOsuFileParserIn(filename: string) {
   const dotOsuData = fs.readFileSync(__dirname + `/assets/${filename}.osu`);
-  const parsedDotOsu = parseOsuFile(dotOsuData.toString());
+  const parsedDotOsu = await parseOsuFile(dotOsuData.toString());
 
   testBeatmap(parsedDotOsu);
 }
 
-function testBeatmap(parsedDotOsu: ParsedBeatmap) {
-  expect(parsedDotOsu.General).toMatchSnapshot();
-  expect(parsedDotOsu.Editor).toMatchSnapshot();
-  expect(parsedDotOsu.Metadata).toMatchSnapshot();
-  expect(parsedDotOsu.Events).toMatchSnapshot();
-  expect(parsedDotOsu.TimingPoints).toMatchSnapshot();
-  expect(parsedDotOsu.HitObjects).toMatchSnapshot();
+function testBeatmap(parsedDotOsu: Beatmap) {
+  expect(parsedDotOsu.general).toMatchSnapshot();
+  expect(parsedDotOsu.editor).toMatchSnapshot();
+  expect(parsedDotOsu.metadata).toMatchSnapshot();
+  expect(parsedDotOsu.events).toMatchSnapshot();
+  expect(parsedDotOsu.timingPoints).toMatchSnapshot();
+  expect(parsedDotOsu.objects).toMatchSnapshot();
 }

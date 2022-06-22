@@ -1,5 +1,5 @@
 import { BeatmapTimingPoint } from "../types";
-import { bitmasks, sampleSets } from "src/io/constants";
+import { bitmasks, sampleSets } from "../constants";
 
 
 export function parseOsuTimingPoint(line: string): BeatmapTimingPoint {
