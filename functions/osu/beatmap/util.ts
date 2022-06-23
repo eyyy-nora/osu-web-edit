@@ -40,9 +40,7 @@ export async function retrieveCurrentUser(client: AxiosInstance) {
 }
 
 export async function retrieveEveryBeatmapFromUser(userId: number, status: string, client: AxiosInstance) {
-  const { data } = await client.get(`/users/${userId}/beatmapsets/${status}?limit=99999`);
-
-  return data;
+  return await client.get(`/users/${userId}/beatmapsets/${status}?limit=99999`);
 }
 
 
