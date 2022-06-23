@@ -1,44 +1,48 @@
 import { AxiosInstance } from "axios";
-import { BEATMAP_DISCUSSIONS_API_PATH, DISCUSSIONS_API_PATH } from "./constants";
-import { createDiscussionObject, discussionContainsPost, getBeatmapScopes, isMessageOwner } from "./util";
+import {
+  createThreadObject, discussionContainsPost, getBeatmapScopes,
+  isMessageOwner, retrieveCurrentUser, retrieveDiscussions, retrieveEveryBeatmapFromUser,
+  retrievePostsAndUsersFromDiscussion
+} from "./util";
 
 export async function fetchBeatmapMods(beatmapSetID: number, client: AxiosInstance) {
-  const { data: { discussions = [] } } = await client.get(BEATMAP_DISCUSSIONS_API_PATH + beatmapSetID);
+  const mapsetThreads = [];
 
-  const beatmapsetThreads = [];
+  const mapsetDiscussions = await retrieveDiscussions(beatmapSetID, client);
 
-  for (const discussion of discussions) {
-    let thread = createDiscussionObject(discussion);
 
-    let { data: { posts = [], users = [] } } = await client.get(DISCUSSIONS_API_PATH + discussion.id);
+  for (const discussion of mapsetDiscussions) {
+    let thread = createThreadObject(discussion);
+
+    let { posts, users } = await retrievePostsAndUsersFromDiscussion(discussion.id, client);
 
     for (const post of posts) {
       if (discussionContainsPost(post, discussion))
         thread.posts.push(post);
 
-      const engagedUsers = thread.engaged_users;
 
       for (const user of users) {
-        if (isMessageOwner(user, post) && !engagedUsers.includes(user))
-          engagedUsers.push(user);
+        if (isMessageOwner(user, post) && !thread.engaged_users.includes(user))
+          thread.engaged_users.push(user);
       }
+
     }
 
-    beatmapsetThreads.push(thread);
+    mapsetThreads.push(thread);
   }
 
-  return beatmapsetThreads;
+  return mapsetThreads;
 }
 
 export async function fetchUserBeatmaps(client: AxiosInstance) {
-  const { data: { id } } = await client.get("/api/v2/me");
-
   const possibleStatus = ['graveyard', 'pending', 'ranked', 'loved'];
 
   const beatmaps = getBeatmapScopes();
 
+  const { data: { id } } = await retrieveCurrentUser(client);
+
   for (const status of possibleStatus) {
-    const { data } = await client.get(`/users/${id}/beatmapsets/${status}?limit=99999`);
+    const { data } = await retrieveEveryBeatmapFromUser(id, status, client);
 
     for (const map of data) {
       let { status, id } = map;

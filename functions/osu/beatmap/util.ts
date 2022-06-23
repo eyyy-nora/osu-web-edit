@@ -1,10 +1,12 @@
-export function createDiscussionObject(discussion: any) {
-  const oweDiscussionObject = discussion;
+import { AxiosInstance } from "axios";
 
-  oweDiscussionObject["posts"] = new Array<{}>();
-  oweDiscussionObject["engaged_users"] = new Array<{}>();
+export function createThreadObject(discussion: any) {
+  const threadObject = discussion;
 
-  return oweDiscussionObject;
+  threadObject["posts"] = new Array<{}>();
+  threadObject["engaged_users"] = new Array<{}>();
+
+  return threadObject;
 }
 
 export function getBeatmapScopes() {
@@ -15,6 +17,35 @@ export function getBeatmapScopes() {
     loved: new Array<any>()
   };
 }
+
+
+
+export async function retrieveDiscussions(mapsetId: number, client: AxiosInstance) {
+  const { data: { discussions = [] } } = await client.get(`/beatmapsets/discussions?beatmapset_id=${mapsetId}`);
+
+  return discussions;
+}
+
+export async function retrievePostsAndUsersFromDiscussion(discussionId: number, client: AxiosInstance) {
+  const { data: {
+    posts = [],
+    users = []
+  } } = await client.get(`/beatmapsets/discussions/posts?beatmapset_discussion_id=${discussionId}`);
+
+  return { posts, users };
+}
+
+export async function retrieveCurrentUser(client: AxiosInstance) {
+  return await client.get("/api/v2/me");
+}
+
+export async function retrieveEveryBeatmapFromUser(userId: number, status: string, client: AxiosInstance) {
+  const { data } = await client.get(`/users/${userId}/beatmapsets/${status}?limit=99999`);
+
+  return data;
+}
+
+
 
 export function discussionContainsPost(post: any, discussion: any): boolean {
   return (post.beatmapset_discussion_id === discussion.id);
