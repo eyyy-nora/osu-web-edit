@@ -1,25 +1,10 @@
 export function createDiscussionObject(discussion: any) {
-  const {
-    id, beatmap_id, user_id, message_type,
-    resolved, can_grant_kudosu, created_at, updated_at,
-    last_post_at, starting_post
-  } = discussion;
+  const oweDiscussionObject = discussion;
 
-  return {
-    "id": id,
-    "beatmap_id": beatmap_id,
-    "user_id": user_id,
-    "message_type": message_type,
-    "resolved": resolved,
-    "can_grant_kudosu": can_grant_kudosu,
-    "created_at": created_at,
-    "updated_at": updated_at,
-    "last_post_at": last_post_at,
-    "starting_post": starting_post,
+  oweDiscussionObject["posts"] = new Array<{}>();
+  oweDiscussionObject["engaged_users"] = new Array<{}>();
 
-    "posts": new Array<{}>(),
-    "engaged_users": new Array<{}>()
-  }
+  return oweDiscussionObject;
 }
 
 export function getBeatmapScopes() {
