@@ -1,13 +1,14 @@
-import { convertToOsuFile } from "../export/serializer/main";
-import { ParsedBeatmap, ParsedHitObject } from "../parse/types";
 import { calculateStarRating } from "./calculator/index";
+import { BeatmapObject } from "../../src/io/types/beatmap/objects/object";
+import { Beatmap } from "../../src/io/types/beatmap/beatmap";
+import { serializeBeatmap } from "../../src/io/serializer/beatmap";
 
 const NUMBERS_AFTER_DOT = 2;
 
-let StarRatingCache: BeatmapStarRating[] = [];
+let starRatingCache: BeatmapStarRating[] = [];
 
-export function cacheStarRating(parsedBeatmap: ParsedBeatmap): number {
-  const rawBeatmap = convertToOsuFile(parsedBeatmap);
+export async function cacheStarRating(parsedBeatmap: Beatmap): Promise<number> {
+  const rawBeatmap = await serializeBeatmap(parsedBeatmap);
 
   const starRating = parseFloat(calculateStarRating(rawBeatmap)["nomod"].toFixed(NUMBERS_AFTER_DOT));
 
@@ -16,30 +17,30 @@ export function cacheStarRating(parsedBeatmap: ParsedBeatmap): number {
   return starRating;
 }
 
-function saveToCache(parsedBeatmap: ParsedBeatmap, starRating: number): void {
+function saveToCache(parsedBeatmap: Beatmap, starRating: number): void {
   let beatmapCacheEntry: BeatmapStarRating = {
 
-    BeatmapSetID: parsedBeatmap.Metadata.BeatmapSetID,
-    Version: parsedBeatmap.Metadata.Version,
-    HitObjects: parsedBeatmap.HitObjects,
-    StarRating: starRating
+    beatmapSetId: parsedBeatmap.metadata.beatmapSetID,
+    version: parsedBeatmap.metadata.version,
+    objects: parsedBeatmap.objects,
+    starRating: starRating
 
   };
 
-  StarRatingCache.push(beatmapCacheEntry);
+  starRatingCache.push(beatmapCacheEntry);
 }
 
 export interface BeatmapStarRating {
-  BeatmapSetID: number;
-  Version: string;
-  HitObjects: ParsedHitObject[]
-  StarRating: number;
+  beatmapSetId: number;
+  version: string;
+  objects: BeatmapObject[];
+  starRating: number;
 }
 
-export function getCachedStarRating(): BeatmapStarRating[] {
-  return StarRatingCache;
+export function getCachedStarRatings(): BeatmapStarRating[] {
+  return starRatingCache;
 }
 
 export function flushCache(): void {
-  StarRatingCache = []
+  starRatingCache = []
 }

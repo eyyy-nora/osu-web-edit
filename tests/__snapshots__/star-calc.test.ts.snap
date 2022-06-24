@@ -1,3 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`StarRating Calculation 1`] = `8.18`;
+exports[`Star rating calculation 1`] = `8.18`;
+
+exports[`Star rating calculation 2`] = `51.21`;
+
+exports[`Star rating calculation 3`] = `4.37`;
+

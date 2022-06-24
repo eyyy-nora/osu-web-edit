@@ -1,57 +1,77 @@
-import { parseOsuFile } from "../src/parse/parse-osu-file";
+import { parseOsuFile } from "../src/io/parser/file";
 import fs from "fs";
 import { computeStarRating } from "../src/star-rating/methods";
-import { flushCache, getCachedStarRating } from "../src/star-rating/cache";
-
-const dotOsuData = fs.readFileSync(__dirname + "/assets/testfile.osu");
-const dotOsuDataAlt = fs.readFileSync(__dirname + "/assets/ladedade.osu");
-
-const parsedDotOsu = parseOsuFile(dotOsuData.toString())
-const parsedDotOsuAlt = parseOsuFile(dotOsuDataAlt.toString())
+import { flushCache, getCachedStarRatings } from "../src/star-rating/cache";
+import { Beatmap } from "../src/io/types/beatmap/beatmap";
 
 
-test('StarRating Calculation', () => {
-  let beatmapStarRating = computeStarRating(parsedDotOsu);
+test('Star rating calculation', async () => {
+  const beatmapsToTest = [
+    await getBeatmap("testfile"),
+    await getBeatmap("centipede"),
+    await getBeatmap("ladedade"),
+  ];
 
-  expect(beatmapStarRating).toMatchSnapshot();
+  for (const beatmap of beatmapsToTest) {
+    let starRating = await computeStarRating(beatmap);
+
+    expect(starRating).toMatchSnapshot();
+  }
 
   flushCache();
 });
 
-test('StarRating Cache: Cache should be written properly', () => {
-  let beatmapStarRating = computeStarRating(parsedDotOsu);
 
-  let cachedBeatmaps = getCachedStarRating();
+// Cache related tests
+
+test('Star rating cache: First entry on the cache', async () => {
+  const testfile = await getBeatmap("testfile");
+
+  let beatmapStarRating = await computeStarRating(testfile);
+
+  let cachedBeatmaps = getCachedStarRatings();
 
   expect(cachedBeatmaps.length).toBe(1);
 
-  expect(cachedBeatmaps[0].StarRating).toBe(beatmapStarRating);
-  expect(cachedBeatmaps[0].BeatmapSetID).toBe(parsedDotOsu.Metadata.BeatmapSetID);
-  expect(cachedBeatmaps[0].Version).toBe(parsedDotOsu.Metadata.Version);
+  expect(cachedBeatmaps[0].starRating).toBe(beatmapStarRating);
+  expect(cachedBeatmaps[0].beatmapSetId).toBe(testfile.metadata.beatmapSetID);
+  expect(cachedBeatmaps[0].version).toBe(testfile.metadata.version);
 
   flushCache();
 });
 
-test('StarRating Cache: Cache should not be written when the same beatmap is computed twice', () => {
-  computeStarRating(parsedDotOsu);
-  let beatmapStarRating = computeStarRating(parsedDotOsu);
+test('Star rating cache: Cache should not repeat', async () => {
+  const testfile = await getBeatmap("testfile");
 
-  let cachedBeatmaps = getCachedStarRating();
+  await computeStarRating(testfile);
+  let beatmapStarRating = await computeStarRating(testfile);
 
-  expect(cachedBeatmaps.length).toBe(1);
-  expect(cachedBeatmaps[0].StarRating).toBe(beatmapStarRating);
+  let cachedStarRating = getCachedStarRatings();
+
+  expect(cachedStarRating.length).toBe(1);
+  expect(cachedStarRating[0].starRating).toBe(beatmapStarRating);
 
   flushCache();
 });
 
-test('StarRating Cache: If beatmap is not found in a cache already filled with other maps', () => {
-  computeStarRating(parsedDotOsuAlt);
-  let beatmapStarRating = computeStarRating(parsedDotOsu);
+test('Star rating cache: New entry on a already filled cache', async () => {
+  const testfile = await getBeatmap("testfile");
+  const ladedade = await getBeatmap("ladedade");
 
-  let cachedBeatmaps = getCachedStarRating();
+  await computeStarRating(ladedade);
+  let beatmapStarRating = await computeStarRating(testfile);
+
+  let cachedBeatmaps = getCachedStarRatings();
 
   expect(cachedBeatmaps.length).toBe(2);
-  expect(cachedBeatmaps[1].StarRating).toBe(beatmapStarRating);
+  expect(cachedBeatmaps[1].starRating).toBe(beatmapStarRating);
 
   flushCache();
 })
+
+
+async function getBeatmap(beatmapName: string): Promise<Beatmap> {
+  const beatmapFileBuffer = fs.readFileSync(__dirname + `/assets/${beatmapName}.osu`);
+
+  return await parseOsuFile(beatmapFileBuffer.toString());
+}
