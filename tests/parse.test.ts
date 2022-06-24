@@ -4,9 +4,10 @@ import fs from "fs";
 
 test('File parsing: .osu parsing', () => {
   testOsuFileParserIn("testfile");
-  testOsuFileParserIn("cyclehit");
-  testOsuFileParserIn("coldrain");
   testOsuFileParserIn("seriousshit");
+
+  // todo: uncomment mania map test
+  // testOsuFileParserIn("cyclehit");
 });
 
 async function testOsuFileParserIn(filename: string) {
