@@ -8,7 +8,7 @@
     "start": "sirv public --no-clear -s",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "icons": "fantasticon",
-    "test": "jest --detectOpenHandles",
+    "test": "dotenv jest --detectOpenHandles",
     "test-run": "pnpm test && pnpm dev",
     "dotenv-run": "dotenv pnpm dev",
     "storybook:start": "start-storybook",
