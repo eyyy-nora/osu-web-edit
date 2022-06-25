@@ -4,7 +4,7 @@ import { getMapsetContext } from "src/context/mapset-context";
 import FileMenu from "../component/file-menu/FileMenu.svelte";
 import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
 import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
-import { runAIMod } from "src/aimod/mod";
+import { runAIMod } from "src/aimod/aimod-check";
 
 function exec(name: string, params: Record<string, any> = {}) {
   return () => actions.run(name, params, "");

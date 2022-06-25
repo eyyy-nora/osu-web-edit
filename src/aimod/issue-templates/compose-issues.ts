@@ -1,5 +1,5 @@
 import { BeatmapObject } from "src/io"
-import { issueTemplater } from "./issue-template"
+import { issueTemplater } from "./issue-templater"
 
 export function concurrencyIssue(hitObject: BeatmapObject, nextHitObject: BeatmapObject): Object {
   const { time } = hitObject

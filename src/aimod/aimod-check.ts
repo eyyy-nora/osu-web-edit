@@ -2,7 +2,7 @@ import { Beatmap, Mapset } from "src/io";
 import {
   checkAudioPresence, checkBackgroundPresence, checkConcurrentObjects,
   checkInvalidAudioType, checkMutedOrLow, checkAudioIsLongerThanMap
-} from "./check";
+} from "./checks";
 
 export function runAIMod(analyzedBeatmap: Beatmap, beatmapFolder: Mapset["files"], beatmapAudio: HTMLAudioElement) {
   const { general, events, layers } = analyzedBeatmap;

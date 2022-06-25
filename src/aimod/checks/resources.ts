@@ -1,5 +1,5 @@
 import { Mapset, Beatmap } from "src/io";
-import { backgroundNotPresentIssue } from "./templates";
+import { backgroundNotPresentIssue } from "../issue-templates";
 
 export function checkBackgroundPresence(mapsetFiles: Mapset["files"], events: Beatmap["events"], issues: any[]) {
   for (const event of events) {

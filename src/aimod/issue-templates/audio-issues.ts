@@ -1,5 +1,5 @@
 import { Beatmap, BeatmapObject } from "src/io";
-import { issueTemplater } from "./issue-template";
+import { issueTemplater } from "./issue-templater";
 import { openFileDialog } from "src/util/open-file-dialog";
 
 export function invalidAudioFileIssue(file: Beatmap["general"]["audioFilename"]): Object {

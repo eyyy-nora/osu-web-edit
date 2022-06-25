@@ -3,7 +3,7 @@ import {
   audioNotPresentIssue, volumeMutedIssue,
   lowVolumeIssue, invalidAudioFileIssue,
   audioIsLongerThanMapIssue
-} from "./templates";
+} from "../issue-templates";
 
 export function checkAudioPresence(mapsetFiles: Mapset["files"], general: Beatmap["general"], issues: any[]) {
   if (!mapsetFiles[general.audioFilename])

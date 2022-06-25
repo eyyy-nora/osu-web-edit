@@ -1,5 +1,5 @@
 import { BeatmapObject } from "src/io";
-import { concurrencyIssue } from "./templates";
+import { concurrencyIssue } from "../issue-templates";
 
 export function checkConcurrentObjects(currentHitObject: BeatmapObject, nextHitObject: BeatmapObject, issues: any[]) {
   if (areConcurrent(currentHitObject, nextHitObject))
