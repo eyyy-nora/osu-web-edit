@@ -1,8 +1,6 @@
-import { parseOsuFile } from "../src/io/parser/file";
-import fs from "fs";
 import { computeStarRating } from "../src/star-rating/methods";
 import { flushCache, getCachedStarRatings } from "../src/star-rating/cache";
-import { Beatmap } from "../src/io/types/beatmap/beatmap";
+import { getBeatmap } from "./utils/beatmap";
 
 
 test('Star rating calculation', async () => {
@@ -67,11 +65,4 @@ test('Star rating cache: New entry on a already filled cache', async () => {
   expect(cachedBeatmaps[1].starRating).toBe(beatmapStarRating);
 
   flushCache();
-})
-
-
-async function getBeatmap(beatmapName: string): Promise<Beatmap> {
-  const beatmapFileBuffer = fs.readFileSync(__dirname + `/assets/${beatmapName}.osu`);
-
-  return await parseOsuFile(beatmapFileBuffer.toString());
-}
+});

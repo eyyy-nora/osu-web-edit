@@ -1,23 +1,24 @@
-import { parseOsuFile } from "../src/io/parser/file";
 import { Beatmap } from "../src/io/types/beatmap/beatmap";
-import fs from "fs";
+import { getBeatmap } from "./utils/beatmap";
 
-test('File parsing: .osu parsing', () => {
-  testOsuFileParserIn("testfile");
-  testOsuFileParserIn("seriousshit");
+test('File parsing: .osu parsing', async () => {
+  // the 'getBeatmap' function already parses the beatmap
+  // so we just need to test if it matches the snapshot.
+  const beatmapsToTest = [
+    await getBeatmap("testfile"),
+    await getBeatmap("seriousshit"),
 
-  // todo: uncomment mania map test
-  // testOsuFileParserIn("cyclehit");
+    // todo: uncomment mania map test
+    // await getBeatmap("cyclehit");
+  ];
+
+  for (const beatmap of beatmapsToTest) {
+    testParseResult(beatmap);
+  }
+
 });
 
-async function testOsuFileParserIn(filename: string) {
-  const dotOsuData = fs.readFileSync(__dirname + `/assets/${filename}.osu`);
-  const parsedDotOsu = await parseOsuFile(dotOsuData.toString());
-
-  testBeatmap(parsedDotOsu);
-}
-
-function testBeatmap(parsedDotOsu: Beatmap) {
+function testParseResult(parsedDotOsu: Beatmap) {
   expect(parsedDotOsu.general).toMatchSnapshot();
   expect(parsedDotOsu.editor).toMatchSnapshot();
   expect(parsedDotOsu.metadata).toMatchSnapshot();

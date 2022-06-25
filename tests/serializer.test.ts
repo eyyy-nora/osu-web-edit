@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import { serializeBeatmap } from "../src/io/serializer/beatmap";
 import { parseOsuFile } from "../src/io/parser/file";
 import { Beatmap } from "../src/io/types/beatmap/beatmap";
+import { getBeatmap } from "./utils/beatmap";
 
 test('Serializer: \'convertToOsuFile()\' result should be a valid .osu file', async () => {
   let convertedMaps = await Promise.all([
@@ -20,6 +21,5 @@ test('Serializer: \'convertToOsuFile()\' result should be a valid .osu file', as
 })
 
 async function testSerializeBeatmapIn(beatmapName: string) {
-  const beatmap = await fs.readFile(__dirname + `/assets/${beatmapName}.osu`);
-  return serializeBeatmap(await parseOsuFile(beatmap.toString()));
+  return serializeBeatmap(await getBeatmap(beatmapName));
 }
