@@ -22,8 +22,15 @@ test('Star rating calculation', async () => {
 
 // Cache related tests
 
+let testfile;
+let ladedade;
+
+(async function loadVariables() {
+  testfile = await getBeatmap("testfile");
+  ladedade = await getBeatmap("ladedade");
+})();
+
 test('Star rating cache: First entry on the cache', async () => {
-  const testfile = await getBeatmap("testfile");
 
   let beatmapStarRating = await computeStarRating(testfile);
 
@@ -39,7 +46,6 @@ test('Star rating cache: First entry on the cache', async () => {
 });
 
 test('Star rating cache: Cache should not repeat', async () => {
-  const testfile = await getBeatmap("testfile");
 
   await computeStarRating(testfile);
   let beatmapStarRating = await computeStarRating(testfile);
@@ -53,8 +59,6 @@ test('Star rating cache: Cache should not repeat', async () => {
 });
 
 test('Star rating cache: New entry on a already filled cache', async () => {
-  const testfile = await getBeatmap("testfile");
-  const ladedade = await getBeatmap("ladedade");
 
   await computeStarRating(ladedade);
   let beatmapStarRating = await computeStarRating(testfile);

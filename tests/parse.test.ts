@@ -1,4 +1,3 @@
-import { Beatmap } from "../src/io/types/beatmap/beatmap";
 import { getBeatmap } from "./utils/beatmap";
 
 test('File parsing: .osu parsing', async () => {
@@ -13,16 +12,7 @@ test('File parsing: .osu parsing', async () => {
   ];
 
   for (const beatmap of beatmapsToTest) {
-    testParseResult(beatmap);
+    expect(beatmap).toMatchSnapshot();
   }
 
 });
-
-function testParseResult(parsedDotOsu: Beatmap) {
-  expect(parsedDotOsu.general).toMatchSnapshot();
-  expect(parsedDotOsu.editor).toMatchSnapshot();
-  expect(parsedDotOsu.metadata).toMatchSnapshot();
-  expect(parsedDotOsu.events).toMatchSnapshot();
-  expect(parsedDotOsu.timingPoints).toMatchSnapshot();
-  expect(parsedDotOsu.objects).toMatchSnapshot();
-}
