@@ -7,12 +7,17 @@ test('Netlify function: Fetch beatmap mods/discussions', async () => {
   const testClient = clientForTest();
 
   const beatmapsToTest = [
-    JSON.stringify(await fetchBeatmapMods(1, testClient)),
-    JSON.stringify(await fetchBeatmapMods(1725839, testClient)),
+    await fetchBeatmapMods(1725839, testClient),
   ];
 
-  for (const beatmap of beatmapsToTest) {
-    expect(beatmap).toMatchSnapshot();
+  for (const beatmapDiscussions of beatmapsToTest) {
+    const firstThread = beatmapDiscussions[0];
+
+
+    expect(beatmapDiscussions.length).toBeGreaterThan(0);
+
+    expect(firstThread.posts).toBeDefined();
+    expect(firstThread.engaged_users).toBeDefined();
   }
 
 });
