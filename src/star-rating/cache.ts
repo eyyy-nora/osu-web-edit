@@ -3,31 +3,36 @@ import { BeatmapObject } from "../../src/io/types/beatmap/objects/object";
 import { Beatmap } from "../../src/io/types/beatmap/beatmap";
 import { serializeBeatmap } from "../../src/io/serializer/beatmap";
 
-const NUMBERS_AFTER_DOT = 2;
-
 let starRatingCache: BeatmapStarRating[] = [];
 
-export async function cacheStarRating(parsedBeatmap: Beatmap): Promise<number> {
-  const rawBeatmap = await serializeBeatmap(parsedBeatmap);
+export async function cacheStarRating(beatmap: Beatmap): Promise<number> {
+  const NUMBERS_AFTER_DOT = 2;
 
-  const starRating = parseFloat(calculateStarRating(rawBeatmap)["nomod"].toFixed(NUMBERS_AFTER_DOT));
 
-  saveToCache(parsedBeatmap, starRating);
+  const serializedMap = await serializeBeatmap(beatmap);
+
+  const starRating = parseFloat(
+
+    calculateStarRating(serializedMap)["nomod"].toFixed(NUMBERS_AFTER_DOT)
+
+  );
+
+  saveToCache(beatmap, starRating);
 
   return starRating;
 }
 
-function saveToCache(parsedBeatmap: Beatmap, starRating: number): void {
-  let beatmapCacheEntry: BeatmapStarRating = {
+function saveToCache(beatmap: Beatmap, starRating: number): void {
+  let cacheEntry: BeatmapStarRating = {
 
-    beatmapSetId: parsedBeatmap.metadata.beatmapSetID,
-    version: parsedBeatmap.metadata.version,
-    objects: parsedBeatmap.objects,
+    beatmapSetId: beatmap.metadata.beatmapSetID,
+    version: beatmap.metadata.version,
+    objects: beatmap.objects,
     starRating: starRating
 
   };
 
-  starRatingCache.push(beatmapCacheEntry);
+  starRatingCache.push(cacheEntry);
 }
 
 export interface BeatmapStarRating {
@@ -37,7 +42,7 @@ export interface BeatmapStarRating {
   starRating: number;
 }
 
-export function getCachedStarRatings(): BeatmapStarRating[] {
+export function getCachedStars(): BeatmapStarRating[] {
   return starRatingCache;
 }
 

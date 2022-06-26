@@ -1,32 +1,37 @@
+import { BeatmapStarRating, cacheStarRating, getCachedStars } from "./cache";
+import { isEmpty, weAreInTheEndOfTheArray } from "../util/array";
 import { Beatmap } from "../../src/io/types/beatmap/beatmap";
-import { BeatmapStarRating, cacheStarRating, getCachedStarRatings } from "./cache";
 
-export async function computeStarRating(parsedBeatmap: Beatmap) {
-  let starRatingCache = getCachedStarRatings();
-  let cacheLength = starRatingCache.length;
+export async function getStarRating(beatmap: Beatmap) {
 
-  if (cacheLength <= 0) return await cacheStarRating(parsedBeatmap);
+  let starRatingCache = getCachedStars();
 
-  for (let posi = 0; posi < cacheLength; posi++) {
-    let beatmapInCache = starRatingCache[posi];
+  if (isEmpty(starRatingCache)) {
 
-    if (beatmapsAreEqual(beatmapInCache, parsedBeatmap))
+    return await cacheStarRating(beatmap);
+  }
+
+  for (const beatmapInCache of starRatingCache) {
+    let currentPosition = starRatingCache.indexOf(beatmapInCache);
+
+    if (beatmapsAreEqual(beatmapInCache, beatmap)) {
+
       return beatmapInCache.starRating;
+    }
 
-    else if (isLastLoopIteration(posi, cacheLength))
-      return await cacheStarRating(parsedBeatmap);
+    if (weAreInTheEndOfTheArray(currentPosition, starRatingCache)) {
+
+      return await cacheStarRating(beatmap);
+    }
   }
 }
 
-function beatmapsAreEqual(beatmapInCache: BeatmapStarRating, checkedBeatmap: Beatmap): boolean {
+
+
+function beatmapsAreEqual(beatmapInCache: BeatmapStarRating, checkedBeatmap: Beatmap) {
   return (
     beatmapInCache.beatmapSetId === checkedBeatmap.metadata.beatmapSetID &&
-    beatmapInCache.version === checkedBeatmap.metadata.version &&
-    beatmapInCache.objects === checkedBeatmap.objects
+    beatmapInCache.version      === checkedBeatmap.metadata.version      &&
+    beatmapInCache.objects      === checkedBeatmap.objects
   );
-}
-
-function isLastLoopIteration(position: number, length: number): boolean {
-  const END_OF_ARRAY = (length - 1);
-  return position === END_OF_ARRAY;
 }
