@@ -1,13 +1,13 @@
-import { clientForTest } from "../utils/test-client";
+import { testClient } from "../utils/test-client";
 import { fetchBeatmapMods } from "../../functions/osu/beatmap/main"
 
 jest.setTimeout(30 * 1000);
 
 test('Netlify function: Fetch beatmap mods/discussions', async () => {
-  const testClient = clientForTest();
+  const client = testClient();
 
   const beatmapsToTest = [
-    await fetchBeatmapMods(1725839, testClient),
+    await fetchBeatmapMods(1725839, client),
   ];
 
   for (const beatmapDiscussions of beatmapsToTest) {

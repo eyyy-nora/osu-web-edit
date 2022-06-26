@@ -1,15 +1,15 @@
 import { serializeBeatmap } from "../src/io/serializer/beatmap";
-import { getBeatmap } from "./utils/beatmap";
+import { getParsedBeatmap } from "./utils/beatmap";
 
 test('Serializer: \'convertToOsuFile()\' result should be a valid .osu file', async () => {
   let convertedMaps = await Promise.all([
-    testSerializeBeatmapIn("centipede"),
-    testSerializeBeatmapIn("seriousshit"),
-    testSerializeBeatmapIn("testfile"),
-    testSerializeBeatmapIn("ladedade"),
+    testSerializeBeatmap("centipede"),
+    testSerializeBeatmap("seriousshit"),
+    testSerializeBeatmap("testfile"),
+    testSerializeBeatmap("ladedade"),
 
     // todo: uncomment mania map test
-    // testSerializeBeatmapIn("cyclehit")
+    // testSerializeBeatmap("cyclehit")
   ]);
 
   for (const beatmap of convertedMaps) {
@@ -17,6 +17,6 @@ test('Serializer: \'convertToOsuFile()\' result should be a valid .osu file', as
   }
 })
 
-async function testSerializeBeatmapIn(beatmapName: string) {
-  return serializeBeatmap(await getBeatmap(beatmapName));
+async function testSerializeBeatmap(beatmapName: string) {
+  return serializeBeatmap(await getParsedBeatmap(beatmapName));
 }
