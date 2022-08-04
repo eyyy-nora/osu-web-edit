@@ -6,6 +6,9 @@ import {
 
 export function runAIMod(analyzedBeatmap: Beatmap, beatmapFolder: Mapset["files"], beatmapAudio: HTMLAudioElement) {
   const { general, events, layers } = analyzedBeatmap;
+
+  if (!general || !events || !layers) return;
+
   const objects = layers[0].objects;
 
   const issues = [];

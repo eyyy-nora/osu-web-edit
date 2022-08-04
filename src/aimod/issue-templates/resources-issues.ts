@@ -1,15 +1,19 @@
-import { issueTemplater } from "./issue-templater"
+import { Issue } from "./issue";
 import { openFileDialog } from "src/util/open-file-dialog"
 
-export function backgroundNotPresentIssue(): Object {
-  // note: maybe the issue category could be Problem
-  const issue = issueTemplater("background_not_present", "Resources", "Warning");
+const resourcesIssue = (cfg: Partial<Issue> & { message: string; error: string; buttonMessage?: string }): Issue => ({
+  category: "Resources",
+  type: "Warning",
+  ...cfg,
+})
 
-  issue["message"] = `The specified background was not found in the beatmap directory.`;
-  issue["onclick"] = () => {
-    // Open prompt to import image
-    openFileDialog();
-  }
-
-  return issue;
+export function backgroundNotPresentIssue() {
+  return resourcesIssue({
+    message: "The specified background was not found in the beatmap directory.",
+    error: "Background not present",
+    buttonMessage: "Import a image",
+    apply(context) {
+      openFileDialog();
+    }
+  });
 }

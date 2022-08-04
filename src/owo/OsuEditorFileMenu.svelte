@@ -1,26 +1,26 @@
 <script lang="ts">
-import { actions } from "src/actions";
-import { getMapsetContext } from "src/context/mapset-context";
-import FileMenu from "../component/file-menu/FileMenu.svelte";
-import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
-import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
-import { runAIMod } from "src/aimod/aimod-check";
+  import { actions } from "src/actions";
+  import { getMapsetContext } from "src/context/mapset-context";
+  import FileMenu from "../component/file-menu/FileMenu.svelte";
+  import FileMenuItem from "../component/file-menu/FileMenuItem.svelte";
+  import OsuEditorUserMenu from "./OsuEditorUserMenu.svelte";
+  import OsuAiModDialog from "./OsuAIModDialog.svelte";
 
-function exec(name: string, params: Record<string, any> = {}) {
-  return () => actions.run(name, params, "");
-}
+  let aimodPanel: OsuAiModDialog;
 
-function logAction(name: string) {
-  return () => console.log(name);
-}
+  function exec(name: string, params: Record<string, any> = {}) {
+    return () => actions.run(name, params, "");
+  }
 
-const { beatmap, mapset, audio } = getMapsetContext();
-const beatmapAudioFile = audio.audio;
+  function logAction(name: string) {
+    return () => console.log(name);
+  }
 
-function openLink(link: string) {
-  return () => window.open(link, "_blank");
-}
+  const { audio } = getMapsetContext();
 
+  function openLink(link: string) {
+    return () => window.open(link, "_blank");
+  }
 </script>
 
 <FileMenu>
@@ -31,7 +31,7 @@ function openLink(link: string) {
     <FileMenuItem name="Save" keybind="ctrl+S" action={logAction("file-save")} />
     <FileMenuItem name="Save As..." keybind="ctrl+shift+S" action={logAction("file-save-as")} />
     <FileMenuItem name="Export" action={exec("file-export")} />
-    <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => console.log(runAIMod($beatmap, $mapset.files, $beatmapAudioFile))} />
+    <FileMenuItem name="Run AIMod" keybind="ctrl+shift+A" action={() => aimodPanel.show()} />
   </FileMenuItem>
   <FileMenuItem name="Edit">
     <FileMenuItem name="Undo" keybind="ctrl+Z" action={logAction("edit-undo")} />
@@ -51,8 +51,7 @@ function openLink(link: string) {
     <FileMenuItem name="Timing Point" action={logAction("insert-timing-point")} />
     <FileMenuItem name="Polygon Notes" action={logAction("insert-polygon-notes")} />
   </FileMenuItem>
-  <FileMenuItem name="View">
-  </FileMenuItem>
+  <FileMenuItem name="View" />
   <FileMenuItem name="Navigate">
     <FileMenuItem name="Next Tick" keybind="ArrowRight" action={exec("nav-next-tick")} />
     <FileMenuItem name="Previous Tick" keybind="ArrowLeft" action={exec("nav-prev-tick")} />
@@ -66,9 +65,9 @@ function openLink(link: string) {
   <FileMenuItem name="Playback">
     <FileMenuItem name="Play / Pause" keybind="Space" action={() => audio.toggle()} />
     <FileMenuItem name="Rate 100%" action={() => audio.playback.set(1)} />
-    <FileMenuItem name="Rate 75%" action={() => audio.playback.set(.75)} />
-    <FileMenuItem name="Rate 50%" action={() => audio.playback.set(.5)} />
-    <FileMenuItem name="Rate 25%" action={() => audio.playback.set(.25)} />
+    <FileMenuItem name="Rate 75%" action={() => audio.playback.set(0.75)} />
+    <FileMenuItem name="Rate 50%" action={() => audio.playback.set(0.5)} />
+    <FileMenuItem name="Rate 25%" action={() => audio.playback.set(0.25)} />
   </FileMenuItem>
   <FileMenuItem name="Guides">
     <FileMenuItem name="New Guide" action={logAction("guide-new-guide")} />
@@ -86,4 +85,7 @@ function openLink(link: string) {
     <FileMenuItem name="Credits" action={logAction("help-credits")} />
   </FileMenuItem>
   <OsuEditorUserMenu slot="end" />
+
+  <!-- this is not a good place to put the aimod panel but idk where else to put -->
+  <OsuAiModDialog bind:this={aimodPanel} />
 </FileMenu>
