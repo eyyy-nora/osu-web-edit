@@ -1,29 +1,19 @@
 <script lang="ts">
-  import { runAIMod } from "src/aimod/aimod-check";
+  import { runAIMod, iconForIssue } from "src/aimod";
   import Button from "src/component/form/Button.svelte";
   import Panel from "src/component/page/Panel.svelte";
   import { getMapsetContext } from "src/context";
   import { Beatmap } from "src/io";
   import Dialog from "../component/page/Dialog.svelte";
-  import { OwoId } from "src/icons";
+  import { Issue } from "src/aimod/issue-templates";
 
   const context = getMapsetContext();
   const { beatmap, mapset, audio } = context;
 
   const beatmapAudioFile = audio.audio;
 
-  let beatmapIssues: any[];
+  let beatmapIssues: Issue[];
   $: beatmapIssues = runAIMod($beatmap ?? ({} as Beatmap), $mapset?.files, $beatmapAudioFile) ?? [];
-
-  function iconForIssue(issue: string) {
-    switch (issue) {
-      case "Object concurrency":
-        return "osu-ring" as OwoId;
-
-      case "Background not present":
-        return "alt" as OwoId;
-    }
-  }
 
   let dialog: Dialog;
 

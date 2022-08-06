@@ -11,7 +11,7 @@ export function runAIMod(analyzedBeatmap: Beatmap, beatmapFolder: Mapset["files"
 
   const objects = layers[0].objects;
 
-  const issues = [];
+  const issues: Issue[] = [];
 
   checkAudioPresence(beatmapFolder, general, issues);
   checkBackgroundPresence(beatmapFolder, events, issues);
